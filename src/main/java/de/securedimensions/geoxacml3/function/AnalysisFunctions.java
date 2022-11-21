@@ -274,7 +274,7 @@ public class AnalysisFunctions {
                         }
                     }
 
-                    final Geometry g = g1.symDifference(g1);
+                    final Geometry g = g1.symDifference(g2);
                     g.setSRID(g1.getSRID());
                     return new GeometryValue(g);
                 }
