@@ -17,6 +17,7 @@
  */
 package de.securedimensions.geoxacml3.function;
 
+import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
@@ -166,15 +167,19 @@ public class AnalysisFunctions {
 
                 @Override
                 protected GeometryValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
-                    final Geometry g0 = ((GeometryValue) args.poll()).getGeometry();
-                    final Geometry g1 = ((GeometryValue) args.poll()).getGeometry();
+                    Geometry g1 = ((GeometryValue)args.poll()).getGeometry();
+                    Geometry g2 = ((GeometryValue)args.poll()).getGeometry();
 
-                    if (g0.getSRID() != g1.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
-                    final Geometry g = g0.intersection(g1);
-                    g.setSRID(g0.getSRID());
+                    final Geometry g = g1.intersection(g2);
+                    g.setSRID(g1.getSRID());
                     return new GeometryValue(g);
                 }
             };
@@ -194,15 +199,19 @@ public class AnalysisFunctions {
 
                 @Override
                 protected GeometryValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
-                    final Geometry g0 = ((GeometryValue) args.poll()).getGeometry();
-                    final Geometry g1 = ((GeometryValue) args.poll()).getGeometry();
+                    Geometry g1 = ((GeometryValue)args.poll()).getGeometry();
+                    Geometry g2 = ((GeometryValue)args.poll()).getGeometry();
 
-                    if (g0.getSRID() != g1.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
-                    final Geometry g = g0.union(g1);
-                    g.setSRID(g0.getSRID());
+                    final Geometry g = g1.union(g2);
+                    g.setSRID(g1.getSRID());
                     return new GeometryValue(g);
                 }
             };
@@ -222,15 +231,19 @@ public class AnalysisFunctions {
 
                 @Override
                 protected GeometryValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
-                    final Geometry g0 = ((GeometryValue) args.poll()).getGeometry();
-                    final Geometry g1 = ((GeometryValue) args.poll()).getGeometry();
+                    Geometry g1 = ((GeometryValue)args.poll()).getGeometry();
+                    Geometry g2 = ((GeometryValue)args.poll()).getGeometry();
 
-                    if (g0.getSRID() != g1.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
-                    final Geometry g = g0.difference(g1);
-                    g.setSRID(g0.getSRID());
+                    final Geometry g = g1.difference(g2);
+                    g.setSRID(g1.getSRID());
                     return new GeometryValue(g);
                 }
             };
@@ -250,15 +263,19 @@ public class AnalysisFunctions {
 
                 @Override
                 protected GeometryValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
-                    final Geometry g0 = ((GeometryValue) args.poll()).getGeometry();
-                    final Geometry g1 = ((GeometryValue) args.poll()).getGeometry();
+                    Geometry g1 = ((GeometryValue)args.poll()).getGeometry();
+                    Geometry g2 = ((GeometryValue)args.poll()).getGeometry();
 
-                    if (g0.getSRID() != g1.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
-                    final Geometry g = g0.symDifference(g1);
-                    g.setSRID(g0.getSRID());
+                    final Geometry g = g1.symDifference(g1);
+                    g.setSRID(g1.getSRID());
                     return new GeometryValue(g);
                 }
             };

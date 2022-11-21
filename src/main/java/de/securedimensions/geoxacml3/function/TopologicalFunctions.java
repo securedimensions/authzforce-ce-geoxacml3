@@ -17,6 +17,7 @@
  */
 package de.securedimensions.geoxacml3.function;
 
+import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import org.locationtech.jts.geom.Geometry;
 import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
@@ -61,8 +62,11 @@ public final class TopologicalFunctions {
                     Geometry g2 = args.poll().getGeometry();
 
                     if (g1.getSRID() != g2.getSRID()) {
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
                     }
 
                     return new BooleanValue(g1.equals(g2));
@@ -90,13 +94,16 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    final Geometry g1 = args.poll().getGeometry();
-                    final Geometry g2 = args.poll().getGeometry();
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
 
-                    if (g1.getSRID() != g2.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
                     return new BooleanValue(g1.equals(g2));
                 }
@@ -122,13 +129,16 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    final Geometry g1 = args.poll().getGeometry();
-                    final Geometry g2 = args.poll().getGeometry();
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
 
-                    if (g1.getSRID() != g2.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
                     return new BooleanValue(g1.disjoint(g2));
                 }
@@ -154,13 +164,16 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    final Geometry g1 = args.poll().getGeometry();
-                    final Geometry g2 = args.poll().getGeometry();
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
 
-                    if (g1.getSRID() != g2.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
                     return new BooleanValue(g1.touches(g2));
                 }
@@ -186,13 +199,16 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    final Geometry g1 = args.poll().getGeometry();
-                    final Geometry g2 = args.poll().getGeometry();
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
 
-                    if (g1.getSRID() != g2.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
                     return new BooleanValue(g1.crosses(g2));
                 }
@@ -218,13 +234,16 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    final Geometry g1 = args.poll().getGeometry();
-                    final Geometry g2 = args.poll().getGeometry();
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
 
-                    if (g1.getSRID() != g2.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
                     return new BooleanValue(g1.within(g2));
                 }
@@ -250,13 +269,16 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    final Geometry g1 = args.poll().getGeometry();
-                    final Geometry g2 = args.poll().getGeometry();
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
 
-                    if (g1.getSRID() != g2.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
                     return new BooleanValue(g1.contains(g2));
                 }
@@ -282,13 +304,16 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    final Geometry g1 = args.poll().getGeometry();
-                    final Geometry g2 = args.poll().getGeometry();
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
 
-                    if (g1.getSRID() != g2.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
                     return new BooleanValue(g1.overlaps(g2));
                 }
@@ -314,13 +339,16 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    final Geometry g1 = args.poll().getGeometry();
-                    final Geometry g2 = args.poll().getGeometry();
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
 
-                    if (g1.getSRID() != g2.getSRID())
-                        throw new IndeterminateEvaluationException(
-                                new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-
+                    if (g1.getSRID() != g2.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry(g1, g2);
+                        if (!tg.dynamicCRS()) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
 
                     return new BooleanValue(g1.intersects(g2));
                 }
