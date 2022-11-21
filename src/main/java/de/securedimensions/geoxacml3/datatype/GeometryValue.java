@@ -56,7 +56,7 @@ import java.util.Set;
  * @author Andreas Matheus, Secure Dimensions GmbH.
  *
  */
-public final class GeometryValue extends SimpleValue {
+public final class GeometryValue extends SimpleValue<Geometry> {
 
     public static final String ID = "urn:ogc:def:dataType:geoxacml:3.0:geometry";
     public static final String FUNCTION_PREFIX = "urn:ogc:def:function:geoxacml:3.0:geometry";
@@ -74,39 +74,61 @@ public final class GeometryValue extends SimpleValue {
     public static final Factory FACTORY = new Factory();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeometryValue.class);
-    private final Geometry g;
-    private final Map<QName, String> xmlAttributes;
     private transient volatile XdmItem xdmItem = null;
 
     public GeometryValue(Geometry g) {
-        super(g.getSRID() + g.toString());
-        this.g = g;
-        this.g.setSRID(g.getSRID());
-        this.xmlAttributes = null;
+        super(g);
     }
 
     public GeometryValue(Geometry g, Map<QName, String> otherXmlAttributes) {
-        super(g.getSRID() + g.toString());
-        this.g = g;
-        this.g.setSRID(g.getSRID());
-        this.xmlAttributes = otherXmlAttributes;
+        super(g);
+        g.setUserData(otherXmlAttributes);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     *
+     * We override the equals because for geometry, we have to use the JTS topological test function g1.equals(g2)
+     */
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+
+        if (!(obj instanceof GeometryValue))
+        {
+            return false;
+        }
+
+        Geometry g1 = this.getUnderlyingValue();
+        Geometry g2 = ((GeometryValue) obj).getUnderlyingValue();
+
+        // Test for exact equal - NOT for topological equals. That is done via the geometry-equals function.
+        // This function is the basic primitive that is used e.g. with Bag/Set functions
+        return g1.equalsExact(g2);
     }
 
     public Geometry getGeometry() {
-        return g;
+        return value;
     }
 
     @Override
     public String printXML() {
         WKTWriter wktWriter = new WKTWriter();
-        return wktWriter.write(g);
+        return wktWriter.write(value);
     }
 
     @Override
     public XdmItem getXdmItem() {
         if (xdmItem == null) {
             WKTWriter wktWriter = new WKTWriter();
-            xdmItem = new XdmAtomicValue(wktWriter.write(g));
+            xdmItem = new XdmAtomicValue(wktWriter.write(value));
         }
         return null;
     }
@@ -117,7 +139,7 @@ public final class GeometryValue extends SimpleValue {
 
     @Override
     public Map<QName, String> getXmlAttributes() {
-        return xmlAttributes;
+        return (Map<QName, String>) value.getUserData();
     }
 
     public static final class Factory extends BaseFactory<GeometryValue> {
