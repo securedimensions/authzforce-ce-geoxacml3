@@ -21,17 +21,39 @@ import org.locationtech.jts.geom.Geometry;
 import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 
-import javax.xml.namespace.QName;
-import java.util.Map;
 import java.util.Optional;
 
 public class TransformGeometry {
 
-    public TransformGeometry()
-    {
+    public TransformGeometry() {
     }
 
-    public boolean dynamicCRS(Geometry g1, Geometry g2) throws IndeterminateEvaluationException {
+    public boolean transformCRS(Geometry g, int toSRID) {
+        boolean allowTransformG = (g.getUserData() != null) ? (boolean)g.getUserData() : false;
+
+        // just swapping axis for EPSG:4326 and WGS84 does not require to check 'allowTransformation'
+        if (g.getSRID() == (-1) * toSRID) {
+            g.apply(new SwapAxesCoordinateFilter());
+            g.setSRID(toSRID);
+            g.geometryChanged();
+            return true;
+        }
+
+        if (allowTransformG) {
+            g.apply(new TransformCoordinateFilter(g.getSRID(), Math.abs(toSRID), (g.getSRID() == 4326)));
+            g.setSRID(toSRID);
+            g.geometryChanged();
+            // If the target CRS is 4326, we need to swap axis
+            if (toSRID == 4326) {
+                g.apply(new SwapAxesCoordinateFilter());
+                g.setSRID(toSRID);
+                g.geometryChanged();
+            }
+            return true;
+        }
+        return false;
+    }
+    public boolean transformCRS(Geometry g1, Geometry g2) throws IndeterminateEvaluationException {
 
         /*
          * GEOMETRY AXIS ORDER CONFUSION
@@ -48,14 +70,13 @@ public class TransformGeometry {
          * A transformation from LAT/LON to LON/LAT between -4326 and 4326 (and vice versa) is simple
          */
 
-        // If we have EPSG:4326 and WGS84, we just need to swap axis. Just do it
+        // just swapping axis for EPSG:4326 and WGS84 does not require to check 'allowTransformation'
         if (g1.getSRID() == (-1) * g2.getSRID()) {
             if (g1.getCoordinates().length <= g2.getCoordinates().length) {
                 g1.apply(new SwapAxesCoordinateFilter());
                 g1.setSRID(g2.getSRID());
                 g1.geometryChanged();
-            }
-            else {
+            } else {
                 g2.apply(new SwapAxesCoordinateFilter());
                 g2.setSRID(g1.getSRID());
                 g2.geometryChanged();
@@ -63,40 +84,38 @@ public class TransformGeometry {
             return true;
         }
 
-        // Does the PEP prevented CRS transformation...
-        Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
-        boolean allowTransformG1 = false;
-        if ((otherXmlAttributesG1 != null) && (Boolean.getBoolean(otherXmlAttributesG1.get("allowTransformation"))))
-            allowTransformG1 = true;
+        boolean allowTransformG1 = (g1.getUserData() != null) ? (boolean)g1.getUserData() : false;
+        boolean allowTransformG2 = (g2.getUserData() != null) ? (boolean)g2.getUserData() : false;
 
-        // Does the PEP prevented CRS transformation...
-        Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
-        boolean allowTransformG2 = false;
-        if ((otherXmlAttributesG2 != null) && (Boolean.getBoolean(otherXmlAttributesG2.get("allowTransformation"))))
-            allowTransformG2 = true;
-
-        // We try to find the geometry to transform based on fewest coordinates first
-        if ((g1.getCoordinates().length <= g2.getCoordinates().length) && allowTransformG1)
-        {
-            // g1 has fewer coordinates and we are allowed to transform it
-        }
-        else if ((g1.getCoordinates().length > g2.getCoordinates().length) && allowTransformG2)
-        {
-            // g2 has fewer coordinates and we are allowed to transform it
-        }
-        else if (allowTransformG1)
-        {
-            // g1 has more coordinates but we are allowed to transform
-        }
-        else if (allowTransformG2)
-        {
-            // g2 has more coordinates but we are allowed to transform
-        }
-        else
+        if (!allowTransformG1 && !allowTransformG2)
             throw new IndeterminateEvaluationException(
                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("SRS transformation prohibited")));
 
-        return false;
+
+        // We try to find the geometry to transform based on fewest coordinates first
+        if ((g1.getCoordinates().length <= g2.getCoordinates().length) && allowTransformG1) {
+            // g1 has fewer coordinates and we are allowed to transform it
+            g1.apply(new TransformCoordinateFilter(g1.getSRID(), g2.getSRID(), g1.getSRID() == 4326));
+            g1.setSRID(g2.getSRID());
+            g1.geometryChanged();
+        } else if ((g1.getCoordinates().length > g2.getCoordinates().length) && allowTransformG2) {
+            // g2 has fewer coordinates and we are allowed to transform it
+            g2.apply(new TransformCoordinateFilter(g2.getSRID(), g1.getSRID(), g2.getSRID() == 4326));
+            g2.setSRID(g1.getSRID());
+            g2.geometryChanged();
+        } else if (allowTransformG1) {
+            // g1 has more coordinates but we are allowed to transform
+            g1.apply(new TransformCoordinateFilter(g1.getSRID(), g2.getSRID(), g1.getSRID() == 4326));
+            g1.setSRID(g2.getSRID());
+            g1.geometryChanged();
+        } else {
+            // g2 has more coordinates but we are allowed to transform
+            g2.apply(new TransformCoordinateFilter(g2.getSRID(), g1.getSRID(), g2.getSRID() == 4326));
+            g2.setSRID(g1.getSRID());
+            g2.geometryChanged();
+        }
+
+        return true;
     }
 
 }

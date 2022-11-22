@@ -63,7 +63,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -99,7 +99,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -134,7 +134,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -169,7 +169,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -204,7 +204,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -239,7 +239,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -274,7 +274,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -309,7 +309,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -344,7 +344,7 @@ public final class TopologicalFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }

@@ -195,6 +195,8 @@ public abstract class GeometryFunctionTest {
                     valExpr = createValueExpression(GeometryValue.FACTORY.getDatatype(), primVal);
                 else if (primVal instanceof DoubleValue)
                     valExpr = createValueExpression(StandardDatatypes.DOUBLE, primVal);
+                else if (primVal instanceof IntegerValue)
+                    valExpr = createValueExpression(StandardDatatypes.INTEGER, primVal);
                 else
                     valExpr = createValueExpression(StandardDatatypes.STRING, primVal);
             } else if (val instanceof Bag) {

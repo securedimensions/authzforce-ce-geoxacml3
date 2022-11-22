@@ -17,6 +17,7 @@
  */
 package de.securedimensions.geoxacml3.function;
 
+import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import org.locationtech.jts.geom.Geometry;
 import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
@@ -147,13 +148,21 @@ public class BagSetFunctions {
          * @return true iff {@code arg0} is in {@code bag}
          */
         private <V extends AttributeValue> boolean eval(final V arg0, final Bag<V> bag) throws IndeterminateEvaluationException {
-            final Geometry g = ((GeometryValue) arg0).getGeometry();
+            Geometry g = ((GeometryValue) arg0).getGeometry();
             final Iterator<GeometryValue> i = (Iterator<GeometryValue>) bag.iterator();
             while (i.hasNext()) {
-                final Geometry gi = i.next().getGeometry();
+                Geometry gi = i.next().getGeometry();
                 if (gi.getSRID() != g.getSRID()) {
-                    throw new IndeterminateEvaluationException(
-                            new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                    TransformGeometry tg = new TransformGeometry();
+                    // first, we try to transform g as it is only one geometry
+                    if (!tg.transformCRS(g, gi.getSRID())) {
+                        // we are not allowed to transform g due to 'allowTransformation=false', so let's try gi
+                        if (!tg.transformCRS(gi, g.getSRID())) {
+                            // we are also not allowed to transform gi -> throw exception
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
                 }
                 if (g.equals(gi))
                     return true;
@@ -186,10 +195,21 @@ public class BagSetFunctions {
 
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
-                final Geometry g0 = gv0.getGeometry();
+                Geometry g0 = gv0.getGeometry();
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
-                    final Geometry g1 = gv1.getGeometry();
+                    Geometry g1 = gv1.getGeometry();
+                    if (g0.getSRID() != g1.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry();
+                        try {
+                            if (!tg.transformCRS(g0, g1)) {
+                                return false;
+                            }
+                        }
+                        catch (IndeterminateEvaluationException e) {
+                            return false;
+                        }
+                    }
                     if (g0.equals(g1))
                         return true;
                 }
@@ -224,10 +244,21 @@ public class BagSetFunctions {
             Collection<GeometryValue> intersection = new ArrayList<GeometryValue>();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
-                final Geometry g0 = gv0.getGeometry();
+                Geometry g0 = gv0.getGeometry();
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
-                    final Geometry g1 = gv1.getGeometry();
+                    Geometry g1 = gv1.getGeometry();
+                    if (g0.getSRID() != g1.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry();
+                        try {
+                            if (!tg.transformCRS(g0, g1)) {
+                                return new ArrayList<GeometryValue>();
+                            }
+                        }
+                        catch (IndeterminateEvaluationException e) {
+                            return new ArrayList<GeometryValue>();
+                        }
+                    }
                     if (g0.equals(g1))
                         intersection.add(gv1);
                 }
@@ -256,16 +287,27 @@ public class BagSetFunctions {
         }
 
         private <V extends AttributeValue> Collection<GeometryValue> eval(final Bag<V> bag0, final Bag<V> bag1) {
-            final Iterator<V> g0i = bag0.iterator();
-            final Iterator<V> g1i = bag1.iterator();
+            final Iterator<V> g0i = (Iterator<V>) bag0.iterator();
+            final Iterator<V> g1i = (Iterator<V>) bag1.iterator();
 
             Collection<GeometryValue> union = new ArrayList<GeometryValue>();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
-                final Geometry g0 = gv0.getGeometry();
+                Geometry g0 = gv0.getGeometry();
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
-                    final Geometry g1 = gv1.getGeometry();
+                    Geometry g1 = gv1.getGeometry();
+                    if (g0.getSRID() != g1.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry();
+                        try {
+                            if (!tg.transformCRS(g0, g1)) {
+                                return new ArrayList<GeometryValue>();
+                            }
+                        }
+                        catch (IndeterminateEvaluationException e) {
+                            return new ArrayList<GeometryValue>();
+                        }
+                    }
                     if (!g0.equals(g1))
                         union.add(gv1);
                 }
@@ -300,11 +342,22 @@ public class BagSetFunctions {
 
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
-                final Geometry g0 = gv0.getGeometry();
+                Geometry g0 = gv0.getGeometry();
                 boolean status = false;
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
-                    final Geometry g1 = gv1.getGeometry();
+                    Geometry g1 = gv1.getGeometry();
+                    if (g0.getSRID() != g1.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry();
+                        try {
+                            if (!tg.transformCRS(g0, g1)) {
+                                return false;
+                            }
+                        }
+                        catch (IndeterminateEvaluationException e) {
+                            return false;
+                        }
+                    }
                     if (g0.equals(g1)) {
                         status = true;
                         break;
@@ -346,11 +399,22 @@ public class BagSetFunctions {
 
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
-                final Geometry g0 = gv0.getGeometry();
+                Geometry g0 = gv0.getGeometry();
                 boolean status = false;
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
-                    final Geometry g1 = gv1.getGeometry();
+                    Geometry g1 = gv1.getGeometry();
+                    if (g0.getSRID() != g1.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry();
+                        try {
+                            if (!tg.transformCRS(g0, g1)) {
+                                return false;
+                            }
+                        }
+                        catch (IndeterminateEvaluationException e) {
+                            return false;
+                        }
+                    }
                     if (g0.equals(g1)) {
                         status = true;
                         break;
@@ -362,11 +426,22 @@ public class BagSetFunctions {
 
             while (g1i.hasNext()) {
                 final GeometryValue gv1 = (GeometryValue) g1i.next();
-                final Geometry g1 = gv1.getGeometry();
+                Geometry g1 = gv1.getGeometry();
                 boolean status = false;
                 while (g0i.hasNext()) {
                     final GeometryValue gv0 = (GeometryValue) g0i.next();
-                    final Geometry g0 = gv0.getGeometry();
+                    Geometry g0 = gv0.getGeometry();
+                    if (g1.getSRID() != g0.getSRID()) {
+                        TransformGeometry tg = new TransformGeometry();
+                        try {
+                            if (!tg.transformCRS(g1, g0)) {
+                                return false;
+                            }
+                        }
+                        catch (IndeterminateEvaluationException e) {
+                            return false;
+                        }
+                    }
                     if (g1.equals(g0)) {
                         status = true;
                         break;

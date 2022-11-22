@@ -31,9 +31,8 @@ import org.ow2.authzforce.core.pdp.api.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import javax.xml.namespace.QName;
+import java.util.*;
 
 @RunWith(Parameterized.class)
 public class TopologicalFunctionsTest extends GeometryFunctionTest {
@@ -53,6 +52,9 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
 
         Geometry gSRID4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
         gSRID4326.setSRID(4326);
+
+        Geometry gSRID3857 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-8575527.92007827, 4705847.723791289));
+        gSRID3857.setSRID(3857);
 
         Geometry p00 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(0, 0));
         p00.setSRID(-4326);
@@ -84,13 +86,34 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
         Geometry pg00_100 = GeometryValue.Factory.GEOMETRY_FACTORY.createPolygon(new LinearRing(cs00_100, GeometryValue.Factory.GEOMETRY_FACTORY));
         pg00_100.setSRID(-4326);
 
+        Geometry gDefaultAllowTransform = gDefault.copy();
+        gDefaultAllowTransform.setUserData(Boolean.TRUE);
+
+        Geometry gSRID4326AllowTransform = gSRID4326.copy();
+        gSRID4326AllowTransform.setUserData(Boolean.TRUE);
+
+
         return Arrays
                 .asList(
                         // urn:ogc:def:function:geoxacml:3.0:geometry-equal
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gDefault)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100)), BooleanValue.FALSE},
-                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRS4326)), null},
-                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326)), null},
+
+                        // Axis order test EPSG:4326 vs. WGS84
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRS4326)), BooleanValue.TRUE},
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326)), BooleanValue.TRUE},
+
+                        // CRS transformation required -> Core conformance throws an error
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefaultAllowTransform), new GeometryValue(gSRID3857)), BooleanValue.TRUE},
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gSRID4326AllowTransform), new GeometryValue(gSRID3857)), BooleanValue.TRUE},
+
+                        // CRS transformation required -> Core conformance throws an error
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gSRID3857), new GeometryValue(gDefaultAllowTransform)), BooleanValue.TRUE},
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gSRID3857), new GeometryValue(gSRID4326AllowTransform)), BooleanValue.TRUE},
+
+                        // CRS transformation not allowed per 'allowTransformation' attribute in AttributeValue -> throw Indeterminate
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID3857)), null},
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gSRID4326), new GeometryValue(gSRID3857)), null},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-equals
                         new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gDefault)), BooleanValue.TRUE},

@@ -64,6 +64,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
     public static final QName xmlSRID = new QName("http://www.opengis.net/spec/geoxacml/3.0", "srid");
     public static final QName xmlSRS = new QName("http://www.opengis.net/spec/geoxacml/3.0", "srs");
 
+    public static final QName xmlAllowTransformation = new QName("http://www.opengis.net/spec/geoxacml/3.0", "allowTransformation");
 
     public static final AttributeDatatype<GeometryValue> DATATYPE =
             new AttributeDatatype<GeometryValue>(
@@ -78,11 +79,6 @@ public final class GeometryValue extends SimpleValue<Geometry> {
 
     public GeometryValue(Geometry g) {
         super(g);
-    }
-
-    public GeometryValue(Geometry g, Map<QName, String> otherXmlAttributes) {
-        super(g);
-        g.setUserData(otherXmlAttributes);
     }
 
     /*
@@ -211,13 +207,18 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                         if (otherXmlAttributes.containsKey(xmlSRID))
                             srid = Integer.parseInt(otherXmlAttributes.get(xmlSRID));
                         else if (otherXmlAttributes.containsKey(xmlSRS)) {
-                            String[] srs = otherXmlAttributes.get(xmlSRS).split(":");
-                            if (srs.length != 2)
-                                throw new IllegalArgumentException("SRS pattern is EPSG:<srid>");
-                            else if (!srs[0].equalsIgnoreCase("EPSG"))
-                                throw new IllegalArgumentException("SRS must start with authority string 'EPSG'");
-                            else
-                                srid = Integer.parseInt(srs[1]);
+                            String srs = otherXmlAttributes.get(xmlSRS);
+                            if (srs.toUpperCase().contains("WGS84") || srs.toUpperCase().contains("CRS84"))
+                                srid = -4326;
+                            else {
+                                String []tokens = srs.split(":");
+                                if (tokens.length != 2)
+                                    throw new IllegalArgumentException("SRS pattern is EPSG:<srid>");
+                                else if (!tokens[0].equalsIgnoreCase("EPSG"))
+                                    throw new IllegalArgumentException("SRS must start with authority string 'EPSG'");
+                                else
+                                    srid = Integer.parseInt(tokens[1]);
+                            }
                         }
                     }
                     if (Character.isDigit(val.charAt(0))) {
@@ -258,7 +259,11 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                 if (g.getGeometryType().equalsIgnoreCase("GEOMETRYCOLLECTION"))
                     throw new IllegalArgumentException("GeometryCollection not supported");
 
-                return new GeometryValue(g, otherXmlAttributes);
+                if ((otherXmlAttributes != null) && Boolean.valueOf(otherXmlAttributes.get(xmlAllowTransformation)))
+                    g.setUserData(Boolean.TRUE);
+                else
+                    g.setUserData(Boolean.FALSE);
+                return new GeometryValue(g);
             } catch (ParseException e) {
                 throw new IllegalArgumentException("Geometry decoding error",e);
             }

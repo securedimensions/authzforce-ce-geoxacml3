@@ -105,6 +105,15 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
                         new Object[]{CoreFunctions.SRID.ID, Arrays.asList(new GeometryValue(gSRID4326)), IntegerValue.valueOf(4326)},
                         new Object[]{CoreFunctions.SRID.ID, Arrays.asList(new GeometryValue(gSRS4326)), IntegerValue.valueOf(4326)},
 
+                        // urn:ogc:def:function:geoxacml:3.0:geometry-srid-equals
+                        new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(new GeometryValue(gDefault), IntegerValue.valueOf(-4326)), BooleanValue.TRUE},
+                        new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(new GeometryValue(gDefault), IntegerValue.valueOf(4326)), BooleanValue.FALSE},
+
+                        // urn:ogc:def:function:geoxacml:3.0:geometry-srs-equals
+                        new Object[]{CoreFunctions.SRSEquals.ID, Arrays.asList(new GeometryValue(gDefault), new StringValue("WGS84")), BooleanValue.TRUE},
+                        new Object[]{CoreFunctions.SRSEquals.ID, Arrays.asList(new GeometryValue(gDefault), new StringValue("urn:ogc:def:crs:OGC::CRS84")), BooleanValue.TRUE},
+                        new Object[]{CoreFunctions.SRSEquals.ID, Arrays.asList(new GeometryValue(gDefault), new StringValue("EPSG:4326")), BooleanValue.FALSE},
+
                         // urn:ogc:def:function:geoxacml:3.0:geometry-is-simple
                         new Object[]{CoreFunctions.IsSimple.ID, Arrays.asList(new GeometryValue(pg00100)), BooleanValue.TRUE},
 
@@ -131,15 +140,15 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
                         new Object[]{CoreFunctions.IsWithinDistance.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(10.)), BooleanValue.FALSE},
                         new Object[]{CoreFunctions.IsWithinDistance.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326), new DoubleValue(0.)), null},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-has-distance
-                        new Object[]{CoreFunctions.HasDistance.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(100.)), BooleanValue.TRUE},
-                        new Object[]{CoreFunctions.HasDistance.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(10.)), BooleanValue.FALSE},
-                        new Object[]{CoreFunctions.HasDistance.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326), new DoubleValue(0.)), null},
+                        // urn:ogc:def:function:geoxacml:3.0:geometry-distance-equals
+                        new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(100.)), BooleanValue.TRUE},
+                        new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(10.)), BooleanValue.FALSE},
+                        new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326), new DoubleValue(0.)), null},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-relate
                         new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), StringValue.parse("FF0FFF0F2")), BooleanValue.TRUE},
                         new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(pg00100), StringValue.parse("FF0FFF0F2")), BooleanValue.FALSE},
-                        new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326), StringValue.parse("does not matter")), null}
+                        new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326), StringValue.parse("FFFFFFFFF")), null}
                 );
     }
 

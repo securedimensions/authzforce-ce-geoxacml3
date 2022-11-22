@@ -172,7 +172,7 @@ public class AnalysisFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -204,7 +204,7 @@ public class AnalysisFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -236,7 +236,7 @@ public class AnalysisFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -268,7 +268,7 @@ public class AnalysisFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -314,7 +314,7 @@ public class AnalysisFunctions {
                     GeometryCollection gc = (GeometryCollection) gv.getGeometry();
                     int n = gc.getNumGeometries();
                     for (int ix = 0; ix < n; ix++)
-                        gvu.add(new GeometryValue(gc.getGeometryN(ix), null));
+                        gvu.add(new GeometryValue(gc.getGeometryN(ix)));
                     return Bags.newBag(GeometryValue.FACTORY.getDatatype(), gvu);
 
                 }
@@ -361,5 +361,52 @@ public class AnalysisFunctions {
         }
 
     }
+
+    public final static class EnsureSRS extends MultiParameterTypedFirstOrderFunction<GeometryValue> {
+        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-ensure-crs";
+
+        public EnsureSRS() {
+            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE, StandardDatatypes.STRING));
+        }
+
+        @Override
+        public FirstOrderFunctionCall<GeometryValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerMultiPrimitiveTypeEval<GeometryValue>(functionSignature, argExpressions, remainingArgTypes) {
+
+                @Override
+                protected GeometryValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
+                    final GeometryValue gv = ((GeometryValue) args.poll());
+                    Geometry g = gv.getGeometry();
+                    final String srs = ((StringValue) args.poll()).getUnderlyingValue();
+                    int srid = 0;
+
+                    if (srs.equalsIgnoreCase("EPSG:" + String.valueOf(g.getSRID())))
+                        return gv;
+
+                    if (srs.toUpperCase().contains("WGS84") || srs.toUpperCase().contains("CRS84"))
+                        srid = -4326;
+                    else {
+                        String[] tokens = srs.split(":");
+                        if (tokens.length != 2)
+                            throw new IllegalArgumentException("SRS pattern is EPSG:<srid>");
+                        else if (!tokens[0].equalsIgnoreCase("EPSG"))
+                            throw new IllegalArgumentException("SRS must start with authority string 'EPSG'");
+                        else
+                            srid = Integer.parseInt(tokens[1]);
+                    }
+                    if (g.getSRID() != srid) {
+                        TransformGeometry tg = new TransformGeometry();
+                        if (!tg.transformCRS(g, srid)) {
+                            throw new IndeterminateEvaluationException(
+                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                        }
+                    }
+
+                    return new GeometryValue(g);
+                }
+            };
+        }
+    }
+
 
 }

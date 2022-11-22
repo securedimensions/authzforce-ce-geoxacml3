@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 public enum GeometryFunction {
     FUNCTION_PREFIX(GeometryValue.FUNCTION_PREFIX);
@@ -80,13 +79,15 @@ public enum GeometryFunction {
         geometryFunctions.add(new CoreFunctions.Area());
         geometryFunctions.add(new CoreFunctions.Distance());
         geometryFunctions.add(new CoreFunctions.IsWithinDistance());
-        geometryFunctions.add(new CoreFunctions.HasDistance());
+        geometryFunctions.add(new CoreFunctions.DistanceEquals());
         geometryFunctions.add(new CoreFunctions.Relate());
         geometryFunctions.add(new CoreFunctions.Dimension());
         geometryFunctions.add(new CoreFunctions.GeometryType());
         geometryFunctions.add(new CoreFunctions.SRID());
         geometryFunctions.add(new CoreFunctions.IsSimple());
         geometryFunctions.add(new CoreFunctions.IsEmpty());
+        geometryFunctions.add(new CoreFunctions.SRIDEquals());
+        geometryFunctions.add(new CoreFunctions.SRSEquals());
 
         /* Conformance Class Core */
         // Bag Set Functions
@@ -111,6 +112,7 @@ public enum GeometryFunction {
         geometryFunctions.add(new AnalysisFunctions.GeometryUnion());
         geometryFunctions.add(new AnalysisFunctions.GeometryDifference());
         geometryFunctions.add(new AnalysisFunctions.GeometrySymDifference());
+        geometryFunctions.add(new AnalysisFunctions.EnsureSRS());
 
         /* Conformance Class Analysis */
         // Constructive Functions supporting GeometryCollection

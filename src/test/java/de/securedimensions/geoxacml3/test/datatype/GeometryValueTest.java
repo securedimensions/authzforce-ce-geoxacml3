@@ -37,8 +37,7 @@ import javax.xml.namespace.QName;
 import java.util.*;
 
 /**
- *
- * GeoXACML3 GeometryAttribute validation test. 
+ * GeoXACML3 GeometryAttribute validation test.
  */
 @RunWith(value = Parameterized.class)
 public class GeometryValueTest {
@@ -49,6 +48,7 @@ public class GeometryValueTest {
     private final Boolean isValid;
     private final Map<QName, String> otherXmlAttributes;
     private final XPathCompiler xPathCompiler;
+
     public GeometryValueTest(Object geometry, Map<QName, String> otherXmlAttributes, XPathCompiler xPathCompiler, String comment, Geometry result, Boolean isValid) {
         this.value = geometry;
         this.otherXmlAttributes = otherXmlAttributes;
@@ -62,6 +62,10 @@ public class GeometryValueTest {
     public static Collection<Object[]> data() {
         Map<QName, String> xmlAttributeSRS4326 = new HashMap<QName, String>();
         xmlAttributeSRS4326.put(GeometryValue.xmlSRS, "EPSG:4326");
+        Map<QName, String> xmlAttributeWGS84 = new HashMap<QName, String>();
+        xmlAttributeWGS84.put(GeometryValue.xmlSRS, "WGS84");
+        Map<QName, String> xmlAttributeCRS84 = new HashMap<QName, String>();
+        xmlAttributeCRS84.put(GeometryValue.xmlSRS, "urn:ogc:def:crs:OGC::CRS84");
         Map<QName, String> xmlAttributeSRID4326 = new HashMap<QName, String>();
         xmlAttributeSRID4326.put(GeometryValue.xmlSRID, "4326");
 
@@ -82,22 +86,24 @@ public class GeometryValueTest {
         double[] coords = {gDefault.getCoordinate().getX(), gDefault.getCoordinate().getY()};
         geojson.putOpt("coordinates", new JSONArray(coords));
 
-        final Object[][] data = new Object[][]{
+        return Arrays
+                .asList(
 
-                // WKT encoding with default CRS
-                {gDefault.toString(), null, xPathCompiler, "WKT with using default CRS", gDefault, true},
+                    // urn:ogc:def:function:geoxacml:3.0:geometry-from-wkt
+                    new Object[]{gDefault.toString(), null, xPathCompiler, "WKT with using default CRS", gDefault, true},
 
-                // WKT encoding with CRS in otherXMLAttributes: SRS
-                {gSRS4326.toString(), xmlAttributeSRS4326, xPathCompiler, "WKT using CRS as attribute 'srs' in AttributeValue", gSRS4326, true},
+                    // WKT encoding with CRS in otherXMLAttributes: SRS
+                    new Object[]{gSRS4326.toString(), xmlAttributeSRS4326, xPathCompiler, "WKT using CRS as attribute 'srs' in AttributeValue", gSRS4326, true},
+                    new Object[]{gDefault.toString(), xmlAttributeWGS84, xPathCompiler, "WKT using WGS84 as attribute 'srs' in AttributeValue", gSRS4326, true},
+                    new Object[]{gDefault.toString(), xmlAttributeCRS84, xPathCompiler, "WKT using CRS84 as attribute 'srs' in AttributeValue", gSRS4326, true},
 
-                // WKT encoding with CRS in otherXMLAttributes: SRID
-                {gSRID4326.toString(), xmlAttributeSRID4326, xPathCompiler, "WKT using CRS as attribute 'srid' in AttributeValue", gSRID4326, true},
+                    // WKT encoding with CRS in otherXMLAttributes: SRID
+                    new Object[]{gSRID4326.toString(), xmlAttributeSRID4326, xPathCompiler, "WKT using CRS as attribute 'srid' in AttributeValue", gSRID4326, true},
 
-                // GeoJSON encoding with default CRS
-                {new SerializableJSONObject(geojson), null, xPathCompiler, "GeoJSON using CRS as attribute 'srid' in AttributeValue", gDefault, true},
+                    // GeoJSON encoding with default CRS
+                    new Object[]{new SerializableJSONObject(geojson), null, xPathCompiler, "GeoJSON using CRS as attribute 'srid' in AttributeValue", gDefault, true}
+                );
 
-        };
-        return Arrays.asList(data);
     }
 
     @Test
@@ -107,9 +113,9 @@ public class GeometryValueTest {
         GeometryValue gv;
 
         if (this.value instanceof String)
-            gv = GeometryValue.FACTORY.getInstance((String) this.value, null, Optional.empty());
+            gv = GeometryValue.FACTORY.getInstance((String) this.value, this.otherXmlAttributes, Optional.empty());
         else
-            gv = GeometryValue.FACTORY.getInstance((SerializableJSONObject) this.value, null, Optional.empty());
+            gv = GeometryValue.FACTORY.getInstance((SerializableJSONObject) this.value, this.otherXmlAttributes, Optional.empty());
 
         LOGGER.debug("GeometryValue: " + gv);
         LOGGER.debug("Expected result: " + result);

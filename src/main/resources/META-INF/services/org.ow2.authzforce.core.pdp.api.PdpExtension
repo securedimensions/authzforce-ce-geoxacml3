@@ -20,11 +20,13 @@ de.securedimensions.geoxacml3.function.CoreFunctions$IsSimple
 de.securedimensions.geoxacml3.function.CoreFunctions$IsEmpty
 
 de.securedimensions.geoxacml3.function.CoreFunctions$IsWithinDistance
-de.securedimensions.geoxacml3.function.CoreFunctions$HasDistance
+de.securedimensions.geoxacml3.function.CoreFunctions$DistanceEquals
 de.securedimensions.geoxacml3.function.CoreFunctions$Relate
 de.securedimensions.geoxacml3.function.CoreFunctions$Length
 de.securedimensions.geoxacml3.function.CoreFunctions$Area
 de.securedimensions.geoxacml3.function.CoreFunctions$Distance
+de.securedimensions.geoxacml3.function.CoreFunctions$SRIDEquals
+de.securedimensions.geoxacml3.function.CoreFunctions$SRSEquals
 
 
 de.securedimensions.geoxacml3.function.BagSetFunctions$SingletonBagToPrimitive
@@ -49,3 +51,4 @@ de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryDifference
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometrySymDifference
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagToGeometryCollection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagFromGeometryCollection
+de.securedimensions.geoxacml3.function.AnalysisFunctions$EnsureSRS

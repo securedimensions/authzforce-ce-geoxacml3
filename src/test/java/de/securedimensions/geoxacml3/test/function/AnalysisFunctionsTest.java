@@ -23,10 +23,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.ow2.authzforce.core.pdp.api.value.Bag;
-import org.ow2.authzforce.core.pdp.api.value.Bags;
-import org.ow2.authzforce.core.pdp.api.value.DoubleValue;
-import org.ow2.authzforce.core.pdp.api.value.Value;
+import org.ow2.authzforce.core.pdp.api.value.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +42,8 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> params() {
-        Geometry gDefault = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
-        gDefault.setSRID(-4326);
+        Geometry gWGS84 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
+        gWGS84.setSRID(-4326);
 
         Geometry gSRS4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
         gSRS4326.setSRID(4326);
@@ -86,6 +83,10 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
 
         return Arrays
                 .asList(
+
+                        // urn:ogc:def:function:geoxacml:3.0:geometry-ensure-srs
+                        new Object[]{AnalysisFunctions.EnsureSRS.ID, Arrays.asList(new GeometryValue(gWGS84), new StringValue("EPSG:4326")), new GeometryValue(gSRS4326)},
+                        new Object[]{AnalysisFunctions.EnsureSRS.ID, Arrays.asList(new GeometryValue(gSRS4326), new StringValue("EPSG:4326")), new GeometryValue(gSRS4326)},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-envelope
                         new Object[]{AnalysisFunctions.Envelope.ID, Arrays.asList(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("POLYGON ((0 0, 0 100, 100 100, 100 0, 0 0))", null, Optional.empty())},

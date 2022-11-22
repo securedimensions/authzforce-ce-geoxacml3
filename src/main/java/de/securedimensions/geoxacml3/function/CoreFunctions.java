@@ -57,7 +57,8 @@ public class CoreFunctions {
                         final WKTReader wktReader = new WKTReader(GeometryValue.Factory.GEOMETRY_FACTORY);
                         final Geometry g = wktReader.read(args.poll().getUnderlyingValue());
                         g.setSRID(-4326);
-                        return new GeometryValue(g, null);
+                        g.setUserData(Boolean.FALSE);
+                        return new GeometryValue(g);
                     } catch (ParseException e) {
                         throw new IndeterminateEvaluationException(
                                 new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:geometry-error", Optional.of("Function " + ID + " error creating geometry from WKT")), e);
@@ -87,7 +88,8 @@ public class CoreFunctions {
                         final WKBReader wkbReader = new WKBReader(GeometryValue.Factory.GEOMETRY_FACTORY);
                         final Geometry g = wkbReader.read(WKBReader.hexToBytes(args.poll().getUnderlyingValue()));
                         g.setSRID(-4326);
-                        return new GeometryValue(g, null);
+                        g.setUserData(Boolean.FALSE);
+                        return new GeometryValue(g);
                     } catch (ParseException e) {
                         throw new IndeterminateEvaluationException(
                                 new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:geometry-error", Optional.of("Function " + ID + " error creating geometry from WKB")), e);
@@ -187,7 +189,7 @@ public class CoreFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -200,10 +202,10 @@ public class CoreFunctions {
         }
     }
 
-    public final static class HasDistance extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-has-distance";
+    public final static class DistanceEquals extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
+        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-distance-equals";
 
-        public HasDistance() {
+        public DistanceEquals() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE, GeometryValue.DATATYPE, StandardDatatypes.DOUBLE));
         }
 
@@ -218,7 +220,7 @@ public class CoreFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -249,7 +251,7 @@ public class CoreFunctions {
 
                     if (g1.getSRID() != g2.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        if (!tg.dynamicCRS(g1, g2)) {
+                        if (!tg.transformCRS(g1, g2)) {
                             throw new IndeterminateEvaluationException(
                                     new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
@@ -363,6 +365,60 @@ public class CoreFunctions {
                     return new BooleanValue(args.poll().getGeometry().isEmpty());
                 }
 
+            };
+        }
+    }
+
+    public final static class SRIDEquals extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
+        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-srid-equals";
+
+        public SRIDEquals() {
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE, StandardDatatypes.INTEGER));
+        }
+
+        @Override
+        public FirstOrderFunctionCall<BooleanValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerMultiPrimitiveTypeEval<BooleanValue>(functionSignature, argExpressions, remainingArgTypes) {
+
+                @Override
+                protected BooleanValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
+                    final Geometry g = ((GeometryValue)args.poll()).getGeometry();
+                    final int srid = (((IntegerValue) args.poll()).getUnderlyingValue()).intValue();
+                    return new BooleanValue(srid == g.getSRID());
+                }
+            };
+        }
+    }
+
+    public final static class SRSEquals extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
+        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-srs-equals";
+
+        public SRSEquals() {
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE, StandardDatatypes.STRING));
+        }
+
+        @Override
+        public FirstOrderFunctionCall<BooleanValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerMultiPrimitiveTypeEval<BooleanValue>(functionSignature, argExpressions, remainingArgTypes) {
+
+                @Override
+                protected BooleanValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
+                    final Geometry g = ((GeometryValue)args.poll()).getGeometry();
+                    final String srs = ((StringValue) args.poll()).getUnderlyingValue();
+                    int srid = 0;
+                    if (srs.toUpperCase().contains("WGS84") || srs.toUpperCase().contains("CRS84"))
+                        srid = -4326;
+                    else {
+                        String []tokens = srs.split(":");
+                        if (tokens.length != 2)
+                            throw new IllegalArgumentException("SRS pattern is EPSG:<srid>");
+                        else if (!tokens[0].equalsIgnoreCase("EPSG"))
+                            throw new IllegalArgumentException("SRS must start with authority string 'EPSG'");
+                        else
+                            srid = Integer.parseInt(tokens[1]);
+                    }
+                    return new BooleanValue(g.getSRID() == srid);
+                }
             };
         }
     }
