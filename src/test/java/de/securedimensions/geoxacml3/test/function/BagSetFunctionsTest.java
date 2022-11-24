@@ -19,6 +19,8 @@ package de.securedimensions.geoxacml3.test.function;
 
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.function.BagSetFunctions;
+import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.XPathCompiler;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.locationtech.jts.geom.*;
@@ -27,9 +29,8 @@ import org.ow2.authzforce.core.pdp.api.value.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import javax.xml.namespace.QName;
+import java.util.*;
 
 @RunWith(Parameterized.class)
 public class BagSetFunctionsTest extends GeometryFunctionTest {
@@ -44,6 +45,13 @@ public class BagSetFunctionsTest extends GeometryFunctionTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> params() {
+
+        Map<QName, String> xmlAttribute = new HashMap<QName, String>();
+        xmlAttribute.put(GeometryValue.xmlAllowTransformation, "true");
+
+        Processor processor = new Processor(false);
+        XPathCompiler xPathCompiler = processor.newXPathCompiler();
+
         Geometry gWGS84 = GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
         gWGS84.setSRID(-4326);
 
@@ -86,13 +94,13 @@ public class BagSetFunctionsTest extends GeometryFunctionTest {
         pb00.setSRID(-4326);
 
         Geometry gWGS84AllowTransform = gWGS84.copy();
-        gWGS84AllowTransform.setUserData(Boolean.TRUE);
+        gWGS84AllowTransform.setUserData(xmlAttribute);
 
         Geometry gSRID4326AllowTransform = gSRID4326.copy();
-        gSRID4326AllowTransform.setUserData(Boolean.TRUE);
+        gSRID4326AllowTransform.setUserData(xmlAttribute);
 
         Geometry gSRID3857AllowTransform = gSRID3857.copy();
-        gSRID3857AllowTransform.setUserData(Boolean.TRUE);
+        gSRID3857AllowTransform.setUserData(xmlAttribute);
 
         Bag<GeometryValue> bag0 = Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(p00)));
         Bag<GeometryValue> bag1 = Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(p00), new GeometryValue(p50)));

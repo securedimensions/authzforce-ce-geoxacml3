@@ -17,10 +17,14 @@
  */
 package de.securedimensions.geoxacml3.crs;
 
+import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import net.sf.saxon.value.BooleanValue;
 import org.locationtech.jts.geom.Geometry;
 import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 
+import javax.xml.namespace.QName;
+import java.util.Map;
 import java.util.Optional;
 
 public class TransformGeometry {
@@ -29,7 +33,8 @@ public class TransformGeometry {
     }
 
     public boolean transformCRS(Geometry g, int toSRID) {
-        boolean allowTransformG = (g.getUserData() != null) ? (boolean)g.getUserData() : false;
+        Map<QName, String> otherXmlAttributes = (Map<QName, String>) g.getUserData();
+        boolean allowTransformG = (otherXmlAttributes != null) ? Boolean.valueOf(otherXmlAttributes.get(GeometryValue.xmlAllowTransformation)) : false;
 
         // just swapping axis for EPSG:4326 and WGS84 does not require to check 'allowTransformation'
         if (g.getSRID() == (-1) * toSRID) {
@@ -84,8 +89,11 @@ public class TransformGeometry {
             return true;
         }
 
-        boolean allowTransformG1 = (g1.getUserData() != null) ? (boolean)g1.getUserData() : false;
-        boolean allowTransformG2 = (g2.getUserData() != null) ? (boolean)g2.getUserData() : false;
+        Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
+        boolean allowTransformG1 = (otherXmlAttributesG1 != null) ? Boolean.valueOf(otherXmlAttributesG1.get(GeometryValue.xmlAllowTransformation)) : false;
+
+        Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
+        boolean allowTransformG2 = (otherXmlAttributesG2 != null) ? Boolean.valueOf(otherXmlAttributesG2.get(GeometryValue.xmlAllowTransformation)) : false;
 
         if (!allowTransformG1 && !allowTransformG2)
             throw new IndeterminateEvaluationException(

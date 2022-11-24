@@ -52,3 +52,6 @@ de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometrySymDifference
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagToGeometryCollection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagFromGeometryCollection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$EnsureSRS
+
+de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$StrictVariantFactory
+de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$LaxVariantFactory

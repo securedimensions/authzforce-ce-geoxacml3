@@ -86,11 +86,14 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
         Geometry pg00_100 = GeometryValue.Factory.GEOMETRY_FACTORY.createPolygon(new LinearRing(cs00_100, GeometryValue.Factory.GEOMETRY_FACTORY));
         pg00_100.setSRID(-4326);
 
+        Map<QName, String> xmlAttribute = new HashMap<QName, String>();
+        xmlAttribute.put(GeometryValue.xmlAllowTransformation, "true");
+
         Geometry gDefaultAllowTransform = gDefault.copy();
-        gDefaultAllowTransform.setUserData(Boolean.TRUE);
+        gDefaultAllowTransform.setUserData(xmlAttribute);
 
         Geometry gSRID4326AllowTransform = gSRID4326.copy();
-        gSRID4326AllowTransform.setUserData(Boolean.TRUE);
+        gSRID4326AllowTransform.setUserData(xmlAttribute);
 
 
         return Arrays

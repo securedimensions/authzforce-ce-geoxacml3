@@ -38,9 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents the Geometry datatype <i>GeoXACML 3.0 Data Type<i>.
@@ -66,6 +64,9 @@ public final class GeometryValue extends SimpleValue<Geometry> {
 
     public static final QName xmlAllowTransformation = new QName("http://www.opengis.net/spec/geoxacml/3.0", "allowTransformation");
 
+    public static final QName xmlAttributeId = new QName("http://www.opengis.net/spec/geoxacml/3.0", "attributeId");
+    public static final QName xmlCategoryId = new QName("http://www.opengis.net/spec/geoxacml/3.0", "categoryId");
+
     public static final AttributeDatatype<GeometryValue> DATATYPE =
             new AttributeDatatype<GeometryValue>(
                     GeometryValue.class,
@@ -78,7 +79,9 @@ public final class GeometryValue extends SimpleValue<Geometry> {
     private transient volatile XdmItem xdmItem = null;
 
     public GeometryValue(Geometry g) {
+
         super(g);
+        value.setUserData(g.getUserData());
     }
 
     /*
@@ -259,10 +262,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                 if (g.getGeometryType().equalsIgnoreCase("GEOMETRYCOLLECTION"))
                     throw new IllegalArgumentException("GeometryCollection not supported");
 
-                if ((otherXmlAttributes != null) && Boolean.valueOf(otherXmlAttributes.get(xmlAllowTransformation)))
-                    g.setUserData(Boolean.TRUE);
-                else
-                    g.setUserData(Boolean.FALSE);
+                g.setUserData(otherXmlAttributes);
                 return new GeometryValue(g);
             } catch (ParseException e) {
                 throw new IllegalArgumentException("Geometry decoding error",e);
