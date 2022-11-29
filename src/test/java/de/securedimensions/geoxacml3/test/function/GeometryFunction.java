@@ -73,13 +73,11 @@ public enum GeometryFunction {
 
         /* Conformance Class Core */
         // Core Functions
-        geometryFunctions.add(new CoreFunctions.GeometryFromWKT());
-        geometryFunctions.add(new CoreFunctions.GeometryFromWKB());
         geometryFunctions.add(new CoreFunctions.Length());
         geometryFunctions.add(new CoreFunctions.Area());
         geometryFunctions.add(new CoreFunctions.Distance());
         geometryFunctions.add(new CoreFunctions.IsWithinDistance());
-        geometryFunctions.add(new CoreFunctions.DistanceEquals());
+        geometryFunctions.add(new CoreFunctions.EqualsDistance());
         geometryFunctions.add(new CoreFunctions.Relate());
         geometryFunctions.add(new CoreFunctions.Dimension());
         geometryFunctions.add(new CoreFunctions.GeometryType());
@@ -91,9 +89,9 @@ public enum GeometryFunction {
 
         /* Conformance Class Core */
         // Bag Set Functions
-        geometryFunctions.add(new BagSetFunctions.AtLeastOneMemberOf());
-        geometryFunctions.add(new BagSetFunctions.BagSize());
         geometryFunctions.add(new BagSetFunctions.BagContains());
+        geometryFunctions.add(new BagSetFunctions.BagSize());
+        geometryFunctions.add(new BagSetFunctions.AtLeastOneMemberOf());
         geometryFunctions.add(new BagSetFunctions.Intersection());
         geometryFunctions.add(new BagSetFunctions.Union());
         geometryFunctions.add(new BagSetFunctions.Subset());
@@ -117,7 +115,7 @@ public enum GeometryFunction {
         /* Conformance Class Analysis */
         // Constructive Functions supporting GeometryCollection
         geometryFunctions.add(new AnalysisFunctions.GeometryBagFromGeometryCollection());
-        geometryFunctions.add(new AnalysisFunctions.GeometryBagToGeometryCollection());
+        geometryFunctions.add(new AnalysisFunctions.GeometryBagToHomogeneousCollection());
 
         return new ImmutableFunctionRegistry(geometryFunctions, null);
 

@@ -27,8 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.*;
 import org.ow2.authzforce.core.pdp.io.xacml.json.SerializableJSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +43,12 @@ public class GeometryValueTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeometryValueTest.class);
     private final Object value;
     private final String comment;
-    private final Geometry result;
+    private final Object result;
     private final Boolean isValid;
     private final Map<QName, String> otherXmlAttributes;
     private final XPathCompiler xPathCompiler;
 
-    public GeometryValueTest(Object geometry, Map<QName, String> otherXmlAttributes, XPathCompiler xPathCompiler, String comment, Geometry result, Boolean isValid) {
+    public GeometryValueTest(Object geometry, Map<QName, String> otherXmlAttributes, XPathCompiler xPathCompiler, String comment, Object result, Boolean isValid) {
         this.value = geometry;
         this.otherXmlAttributes = otherXmlAttributes;
         this.xPathCompiler = xPathCompiler;
@@ -68,6 +67,8 @@ public class GeometryValueTest {
         xmlAttributeCRS84.put(GeometryValue.xmlSRS, "urn:ogc:def:crs:OGC::CRS84");
         Map<QName, String> xmlAttributeSRID4326 = new HashMap<QName, String>();
         xmlAttributeSRID4326.put(GeometryValue.xmlSRID, "4326");
+        Map<QName, String> xmlAttributePrecision1 = new HashMap<QName, String>();
+        xmlAttributePrecision1.put(GeometryValue.xmlPrecision, "1.0");
 
         Processor processor = new Processor(false);
         XPathCompiler xPathCompiler = processor.newXPathCompiler();
@@ -75,11 +76,21 @@ public class GeometryValueTest {
         Geometry gDefault = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
         gDefault.setSRID(-4326);
 
+        Coordinate []cDefault = {new Coordinate(-77.035278, 38.889444), new Coordinate(38.889444, -77.035278)};
+        Geometry lDefault = GeometryValue.Factory.GEOMETRY_FACTORY.createLineString(cDefault);
+        lDefault.setSRID(-4326);
+
         Geometry gSRS4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
         gSRS4326.setSRID(4326);
 
         Geometry gSRID4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
         gSRS4326.setSRID(4326);
+
+        Point []pHomogeneous = {(Point) gDefault, (Point) gDefault};
+        GeometryCollection gHomogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(pHomogeneous);
+
+        Geometry []pHeterogeneous = {(Point)gDefault, (LineString)lDefault};
+        GeometryCollection gHeterogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(pHeterogeneous);
 
         JSONObject geojson = new JSONObject();
         geojson.putOpt("type", gDefault.getGeometryType());
@@ -89,20 +100,29 @@ public class GeometryValueTest {
         return Arrays
                 .asList(
 
-                    // urn:ogc:def:function:geoxacml:3.0:geometry-from-wkt
-                    new Object[]{gDefault.toString(), null, xPathCompiler, "WKT with using default CRS", gDefault, true},
+                    // WKT encoding with default SRS (WGS84) and precision 1.0
+                    new Object[]{gDefault.toString(), xmlAttributePrecision1, xPathCompiler, "WKT with using precision 1.0", gDefault, true},
 
-                    // WKT encoding with CRS in otherXMLAttributes: SRS
-                    new Object[]{gSRS4326.toString(), xmlAttributeSRS4326, xPathCompiler, "WKT using CRS as attribute 'srs' in AttributeValue", gSRS4326, true},
+                    // WKT encoding with default SRS (WGS84)
+                    new Object[]{gDefault.toString(), null, xPathCompiler, "WKT with using default SRS", gDefault, true},
+
+                    // WKT encoding with SRS in otherXMLAttributes: SRS
+                    new Object[]{gSRS4326.toString(), xmlAttributeSRS4326, xPathCompiler, "WKT using EPSG:4326 as attribute 'srs' in AttributeValue", gSRS4326, true},
                     new Object[]{gDefault.toString(), xmlAttributeWGS84, xPathCompiler, "WKT using WGS84 as attribute 'srs' in AttributeValue", gSRS4326, true},
                     new Object[]{gDefault.toString(), xmlAttributeCRS84, xPathCompiler, "WKT using CRS84 as attribute 'srs' in AttributeValue", gSRS4326, true},
 
-                    // WKT encoding with CRS in otherXMLAttributes: SRID
-                    new Object[]{gSRID4326.toString(), xmlAttributeSRID4326, xPathCompiler, "WKT using CRS as attribute 'srid' in AttributeValue", gSRID4326, true},
+                    // WKT encoding with SRS in otherXMLAttributes: SRID
+                    new Object[]{gSRID4326.toString(), xmlAttributeSRID4326, xPathCompiler, "WKT using SRID as attribute 'srid' in AttributeValue", gSRID4326, true},
 
-                    // GeoJSON encoding with default CRS
-                    new Object[]{new SerializableJSONObject(geojson), null, xPathCompiler, "GeoJSON using CRS as attribute 'srid' in AttributeValue", gDefault, true}
-                );
+                    // GeoJSON encoding with default SRS
+                    new Object[]{new SerializableJSONObject(geojson), null, xPathCompiler, "GeoJSON using WGS84", gDefault, true},
+
+                    // Homogeneous collection is allowed
+                    new Object[]{gHomogeneousCollection.toString(), null, xPathCompiler, "Homogeneous Collection", gHomogeneousCollection, true},
+                    new Object[]{gHeterogeneousCollection.toString(), null, xPathCompiler, "Heterogeneous Collection", new IllegalArgumentException("GeometryCollection must be homogeneous"), false}
+
+
+                        );
 
     }
 
@@ -112,19 +132,29 @@ public class GeometryValueTest {
         Boolean isValidResult = false;
         GeometryValue gv;
 
-        if (this.value instanceof String)
-            gv = GeometryValue.FACTORY.getInstance((String) this.value, this.otherXmlAttributes, Optional.empty());
-        else
-            gv = GeometryValue.FACTORY.getInstance((SerializableJSONObject) this.value, this.otherXmlAttributes, Optional.empty());
-
-        LOGGER.debug("GeometryValue: " + gv);
-        LOGGER.debug("Expected result: " + result);
-        Geometry g = gv.getGeometry();
-        isValidResult = ((g.getSRID() == result.getSRID()) && (g.equals(result)));
         try {
-            Assert.assertEquals("Test failed on: '" + this.value + "' (" + this.comment + ")", isValid, isValidResult);
+            if (this.value instanceof String)
+                gv = GeometryValue.FACTORY.getInstance((String) this.value, this.otherXmlAttributes, Optional.empty());
+            else
+                gv = GeometryValue.FACTORY.getInstance((SerializableJSONObject) this.value, this.otherXmlAttributes, Optional.empty());
+
+            LOGGER.debug("GeometryValue: " + gv);
+            LOGGER.debug("Expected result: " + result);
+            Geometry g = gv.getGeometry();
+            if (result instanceof Geometry) {
+                isValidResult = ((g.getSRID() == ((Geometry)result).getSRID()) && (g.equals(result)));
+                Assert.assertEquals("Test failed on: '" + this.value + "' (" + this.comment + ")", isValid, isValidResult);
+            }
+
             LOGGER.info("Test Success\n");
-        } catch (AssertionError e) {
+        }
+        catch (AssertionError e) {
+            LOGGER.error(e.getLocalizedMessage() + '\n');
+        }
+        catch (IllegalArgumentException e) {
+            if (!isValid)
+                LOGGER.info("Test Success\n");
+
             LOGGER.error(e.getLocalizedMessage() + '\n');
         } finally {
 

@@ -19,6 +19,8 @@ package de.securedimensions.geoxacml3.function;
 
 import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.MissingAttributeDetail;
 import org.locationtech.jts.geom.Geometry;
 import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
@@ -28,7 +30,18 @@ import org.ow2.authzforce.core.pdp.api.value.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.namespace.QName;
 import java.util.*;
+
+import static de.securedimensions.geoxacml3.datatype.GeometryValue.*;
+import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.AtLeastOneMemberOf.NAME_SUFFIX_AT_LEAST_ONE_MEMBER_OF;
+import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.BagContains.NAME_SUFFIX_IS_IN;
+import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Intersection.NAME_SUFFIX_INTERSECTION;
+import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.PrimitiveToBag.NAME_SUFFIX_BAG;
+import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.SetEquals.NAME_SUFFIX_SET_EQUALS;
+import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.SingletonBagToPrimitive.NAME_SUFFIX_ONE_AND_ONLY;
+import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Subset.NAME_SUFFIX_SUBSET;
+import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Union.NAME_SUFFIX_UNION;
 
 /**
  *
@@ -40,14 +53,14 @@ public class BagSetFunctions {
 
     final static AttributeDatatype<GeometryValue> paramType = GeometryValue.FACTORY.getDatatype();
     final static BagDatatype<GeometryValue> paramBagType = paramType.getBagDatatype();
-    final static Class<GeometryValue[]> paramArrayClass = paramType.getArrayClass();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BagSetFunctions.class);
 
     public static class SingletonBagToPrimitive<AV extends AttributeValue> extends SingleParameterTypedFirstOrderFunction<GeometryValue, Bag<GeometryValue>> {
         /**
          * Function ID suffix for 'primitiveType-collection' functions
          */
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-one-and-only";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_ONE_AND_ONLY;
 
         public SingletonBagToPrimitive() {
             super(ID, paramType, false, Collections.singletonList(paramBagType));
@@ -72,7 +85,7 @@ public class BagSetFunctions {
                 @Override
                 protected GeometryValue evaluate(final Bag<GeometryValue>[] bagArgs) throws IndeterminateEvaluationException {
                     if (bagArgs[0].size() != 1)
-                        throw new IllegalArgumentException("bag must contain exactly one GeometryValue");
+                        throw new IllegalArgumentException("Function " + ID + " bag must contain exactly one GeometryValue");
 
                     return bagArgs[0].getSingleElement();
                 }
@@ -100,7 +113,7 @@ public class BagSetFunctions {
         /**
          * Function ID suffix for 'primitiveType-is-in' functions
          */
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-is-in";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_IS_IN;
 
         private final Class<GeometryValue[]> arrayClass;
 
@@ -152,6 +165,7 @@ public class BagSetFunctions {
             final Iterator<GeometryValue> i = (Iterator<GeometryValue>) bag.iterator();
             while (i.hasNext()) {
                 Geometry gi = i.next().getGeometry();
+                testPrecision(g, gi);
                 if (gi.getSRID() != g.getSRID()) {
                     TransformGeometry tg = new TransformGeometry();
                     // first, we try to transform g as it is only one geometry
@@ -159,8 +173,34 @@ public class BagSetFunctions {
                         // we are not allowed to transform g due to 'allowTransformation=false', so let's try gi
                         if (!tg.transformCRS(gi, g.getSRID())) {
                             // we are also not allowed to transform gi -> throw exception
+                            // preparing StatusDetail
+                            List<AttributeValueType> attributeValues = new ArrayList<>();
+                            Map<QName, String> userDataG = (Map<QName, String>) g.getUserData();
+                            if ((userDataG != null)&& (!userDataG.isEmpty()))
+                            {
+                                String categoryId = userDataG.get(GeometryValue.xmlCategoryId);
+                                String attributeId = userDataG.get(GeometryValue.xmlAttributeId);
+                                Map<QName, String> otherAttributes = new HashMap<>();
+                                otherAttributes.put(GeometryValue.xmlAttributeId, userDataG.get(GeometryValue.xmlAttributeId));
+                                AttributeValueType av = new AttributeValueType(List.of(g), GeometryValue.DATATYPE.getId(), otherAttributes);
+                                attributeValues.add(av);
+                                MissingAttributeDetail mad = new MissingAttributeDetail(attributeValues, categoryId, attributeId, GeometryValue.DATATYPE.getId(), null);
+
+                            }
+                            Map<QName, String> userDataGi = (Map<QName, String>) gi.getUserData();
+                            if ((userDataGi != null)&& (!userDataGi.isEmpty()))
+                            {
+                                String categoryId = userDataGi.get(GeometryValue.xmlCategoryId);
+                                String attributeId = userDataGi.get(GeometryValue.xmlAttributeId);
+                                Map<QName, String> otherAttributes = new HashMap<>();
+                                otherAttributes.put(GeometryValue.xmlAttributeId, userDataGi.get(GeometryValue.xmlAttributeId));
+                                AttributeValueType av = new AttributeValueType(List.of(gi), GeometryValue.DATATYPE.getId(), otherAttributes);
+                                attributeValues.add(av);
+                                MissingAttributeDetail mad = new MissingAttributeDetail(attributeValues, categoryId, attributeId, GeometryValue.DATATYPE.getId(), null);
+                                mad.getAttributeValues();
+                            }
                             throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+                                    new ImmutableXacmlStatus(GeometryValue.SRS_ERROR, Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
                         }
                     }
                 }
@@ -169,27 +209,71 @@ public class BagSetFunctions {
             }
             return false;
         }
+
+        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
+        {
+            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
+            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
+
+            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
+            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
+
+            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
+            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
+            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG2 == SOURCE_POLICY) &&
+                    (precisionG1 > precisionG2))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG1 == SOURCE_POLICY) &&
+                    (precisionG2 > precisionG1))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+
+            return true;
+        }
+
     }
 
-    public static class AtLeastOneMemberOf extends FirstOrderBagFunctions.AtLeastOneMemberOf<GeometryValue> {
+    public static class AtLeastOneMemberOf extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>>{
+
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_AT_LEAST_ONE_MEMBER_OF;
 
+        public AtLeastOneMemberOf()
+        {
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
+        }
         /**
-         * Function identifier
-         * public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-at-least-one-member-of";
-         * <li>{@code -at-least-one-member-of}: tests whether one of the values in a given bag is in another given bag</li>
+         * Constructor that creates a function from its signature definition
+         *
+         * @param name           function name
+         * @param returnType     function return type
+         * @param varargs        true iff the function takes a variable number of arguments
+         * @param parameterTypes function parameter types. Note: the "? extends" allows using {@link BagDatatype}.
+         * @throws IllegalArgumentException if ( {@code name == null || returnType == null || parameterTypes == null || parameterTypes.size() < 1 })
          */
-
-        public AtLeastOneMemberOf() {
-            super(paramBagType);
+        public AtLeastOneMemberOf(String name, Datatype<BooleanValue> returnType, boolean varargs, List<? extends Datatype<Bag<GeometryValue>>> parameterTypes) throws IllegalArgumentException {
+            super(name, returnType, varargs, parameterTypes);
         }
 
         @Override
-        protected BooleanValue eval(final Bag<GeometryValue>[] bagArgs) {
-            return BooleanValue.valueOf(eval(bagArgs[0], bagArgs[1]));
+        public FirstOrderFunctionCall<BooleanValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerBagEval<>(functionSignature, argExpressions) {
+
+                @Override
+                protected BooleanValue evaluate(final Bag<GeometryValue>[] bagArgs) throws IndeterminateEvaluationException {
+                    if (bagArgs.length != 2)
+                        throw new IllegalArgumentException("Function " + ID + " requires exactly two bag arguments but given " + bagArgs.length);
+
+                    return new BooleanValue(eval(bagArgs[0], bagArgs[1]));
+                }
+            };
         }
 
-        private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) {
+        private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
             final Iterator<V> g0i = bag0.iterator();
             final Iterator<V> g1i = bag1.iterator();
 
@@ -199,16 +283,10 @@ public class BagSetFunctions {
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
+                    testPrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        try {
-                            if (!tg.transformCRS(g0, g1)) {
-                                return false;
-                            }
-                        }
-                        catch (IndeterminateEvaluationException e) {
-                            return false;
-                        }
+                        tg.transformCRS(g0, g1);
                     }
                     if (g0.equals(g1))
                         return true;
@@ -217,27 +295,71 @@ public class BagSetFunctions {
 
             return false;
         }
+
+        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
+        {
+            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
+            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
+
+            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
+            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
+
+            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
+            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
+            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG2 == SOURCE_POLICY) &&
+                    (precisionG1 > precisionG2))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG1 == SOURCE_POLICY) &&
+                    (precisionG2 > precisionG1))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+
+            return true;
+        }
+
     }
 
-    public static class Intersection extends FirstOrderBagFunctions.Intersection<GeometryValue> {
+    public static class Intersection extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, Bag<GeometryValue>>{
+
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_INTERSECTION;
 
+        public Intersection()
+        {
+            super(ID, GeometryValue.DATATYPE.getBagDatatype(), true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
+        }
         /**
-         * Function identifier
-         * public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-intersection";
-         * <li>{@code -intersection}: computes the intersection set of two bags</li>
+         * Constructor that creates a function from its signature definition
+         *
+         * @param name           function name
+         * @param returnType     function return type
+         * @param varargs        true iff the function takes a variable number of arguments
+         * @param parameterTypes function parameter types. Note: the "? extends" allows using {@link BagDatatype}.
+         * @throws IllegalArgumentException if ( {@code name == null || returnType == null || parameterTypes == null || parameterTypes.size() < 1 })
          */
-
-        public Intersection() {
-            super(paramType, paramBagType);
+        public Intersection(String name, Datatype<Bag<GeometryValue>> returnType, boolean varargs, List<? extends Datatype<Bag<GeometryValue>>> parameterTypes) throws IllegalArgumentException {
+            super(name, returnType, varargs, parameterTypes);
         }
 
         @Override
-        protected Bag<GeometryValue> eval(final Bag<GeometryValue>[] bagArgs) {
-            return Bags.newBag(paramType, eval(bagArgs[0], bagArgs[1]));
+        public FirstOrderFunctionCall<Bag<GeometryValue>> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerBagEval<>(functionSignature, argExpressions) {
+
+                @Override
+                protected Bag<GeometryValue> evaluate(final Bag<GeometryValue>[] bagArgs) throws IndeterminateEvaluationException {
+                    if (bagArgs.length != 2)
+                        throw new IllegalArgumentException("Function " + ID + " requires exactly two bag arguments but given " + bagArgs.length);
+
+                    return Bags.newBag(paramType, eval(bagArgs[0], bagArgs[1]));
+                }
+            };
         }
 
-        private <V extends AttributeValue> Collection<GeometryValue> eval(final Bag<V> bag0, final Bag<V> bag1) {
+        private <V extends AttributeValue> Collection<GeometryValue> eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
             final Iterator<V> g0i = bag0.iterator();
             final Iterator<V> g1i = bag1.iterator();
 
@@ -248,16 +370,10 @@ public class BagSetFunctions {
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
+                    testPrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        try {
-                            if (!tg.transformCRS(g0, g1)) {
-                                return new ArrayList<GeometryValue>();
-                            }
-                        }
-                        catch (IndeterminateEvaluationException e) {
-                            return new ArrayList<GeometryValue>();
-                        }
+                        tg.transformCRS(g0, g1);
                     }
                     if (g0.equals(g1))
                         intersection.add(gv1);
@@ -266,77 +382,168 @@ public class BagSetFunctions {
 
             return intersection;
         }
+
+        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
+        {
+            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
+            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
+
+            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
+            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
+
+            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
+            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
+            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG2 == SOURCE_POLICY) &&
+                    (precisionG1 > precisionG2))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG1 == SOURCE_POLICY) &&
+                    (precisionG2 > precisionG1))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+
+            return true;
+        }
+
     }
 
-    public static class Union extends FirstOrderBagFunctions.Union<GeometryValue> {
+    public static class Union extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, Bag<GeometryValue>>{
+
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_UNION;
 
+        public Union()
+        {
+            super(ID, GeometryValue.DATATYPE.getBagDatatype(), true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
+        }
         /**
-         * Function identifier
-         * public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-union";
-         * <li>{@code -union}: computes the union set of two bags</li>
+         * Constructor that creates a function from its signature definition
+         *
+         * @param name           function name
+         * @param returnType     function return type
+         * @param varargs        true iff the function takes a variable number of arguments
+         * @param parameterTypes function parameter types. Note: the "? extends" allows using {@link BagDatatype}.
+         * @throws IllegalArgumentException if ( {@code name == null || returnType == null || parameterTypes == null || parameterTypes.size() < 1 })
          */
-
-        public Union() {
-            super(paramType, paramBagType);
+        public Union(String name, Datatype<Bag<GeometryValue>> returnType, boolean varargs, List<? extends Datatype<Bag<GeometryValue>>> parameterTypes) throws IllegalArgumentException {
+            super(name, returnType, varargs, parameterTypes);
         }
 
         @Override
-        protected Bag<GeometryValue> eval(final Bag<GeometryValue>[] bagArgs) {
-            return Bags.newBag(paramType, eval(bagArgs[0], bagArgs[1]));
+        public FirstOrderFunctionCall<Bag<GeometryValue>> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerBagEval<>(functionSignature, argExpressions) {
+
+                @Override
+                protected Bag<GeometryValue> evaluate(final Bag<GeometryValue>[] bagArgs) throws IndeterminateEvaluationException {
+                    if (bagArgs.length != 2)
+                        throw new IllegalArgumentException("Function " + ID + " requires exactly two bag arguments but given " + bagArgs.length);
+
+                    return Bags.newBag(paramType, eval(bagArgs[0], bagArgs[1]));
+                }
+            };
         }
 
-        private <V extends AttributeValue> Collection<GeometryValue> eval(final Bag<V> bag0, final Bag<V> bag1) {
-            final Iterator<V> g0i = (Iterator<V>) bag0.iterator();
-            final Iterator<V> g1i = (Iterator<V>) bag1.iterator();
+        private <V extends AttributeValue> Collection<GeometryValue> eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
 
             Collection<GeometryValue> union = new ArrayList<GeometryValue>();
-            while (g0i.hasNext()) {
-                final GeometryValue gv0 = (GeometryValue) g0i.next();
-                Geometry g0 = gv0.getGeometry();
-                while (g1i.hasNext()) {
-                    final GeometryValue gv1 = (GeometryValue) g1i.next();
-                    Geometry g1 = gv1.getGeometry();
+            // initialize the result with the contents from bag0
+            union.addAll((Collection<? extends GeometryValue>) bag0.elements());
+
+            final Iterator<GeometryValue> g1i = (Iterator<GeometryValue>) bag1.iterator();
+            while (g1i.hasNext())
+            {
+                final GeometryValue gv1 = g1i.next();
+                Geometry g1 = gv1.getGeometry();
+                final Iterator<GeometryValue> g0i = (Iterator<GeometryValue>) bag0.iterator();
+                boolean duplicate = true;
+                while (g0i.hasNext())
+                {
+                    Geometry g0 = g0i.next().getGeometry();
+                    testPrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        try {
-                            if (!tg.transformCRS(g0, g1)) {
-                                return new ArrayList<GeometryValue>();
-                            }
-                        }
-                        catch (IndeterminateEvaluationException e) {
-                            return new ArrayList<GeometryValue>();
-                        }
+                        tg.transformCRS(g0, g1.getSRID(), true);
                     }
-                    if (!g0.equals(g1))
-                        union.add(gv1);
+                    if (g0.equals(g1))
+                    {
+                        duplicate = true;
+                        break;
+                    }
                 }
+                if (!duplicate)
+                    union.add(gv1);
             }
 
             return union;
         }
+
+        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
+        {
+            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
+            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
+
+            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
+            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
+
+            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
+            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
+            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG2 == SOURCE_POLICY) &&
+                    (precisionG1 > precisionG2))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG1 == SOURCE_POLICY) &&
+                    (precisionG2 > precisionG1))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+
+            return true;
+        }
+
     }
 
-    public static class Subset extends FirstOrderBagFunctions.Subset<GeometryValue> {
+    public static class Subset extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>>{
+
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_SUBSET;
 
+        public Subset()
+        {
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
+        }
         /**
-         * Function identifier
-         * public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-subset";
-         * <li>{@code -subset}: tests if bag from first argument is subset of bag from second argument</li>
+         * Constructor that creates a function from its signature definition
+         *
+         * @param name           function name
+         * @param returnType     function return type
+         * @param varargs        true iff the function takes a variable number of arguments
+         * @param parameterTypes function parameter types. Note: the "? extends" allows using {@link BagDatatype}.
+         * @throws IllegalArgumentException if ( {@code name == null || returnType == null || parameterTypes == null || parameterTypes.size() < 1 })
          */
-
-        public Subset() {
-            super(paramBagType);
+        public Subset(String name, Datatype<BooleanValue> returnType, boolean varargs, List<? extends Datatype<Bag<GeometryValue>>> parameterTypes) throws IllegalArgumentException {
+            super(name, returnType, varargs, parameterTypes);
         }
 
         @Override
-        protected BooleanValue eval(final Bag<GeometryValue>[] bagArgs) {
-            return BooleanValue.valueOf(eval(bagArgs[0], bagArgs[1]));
+        public FirstOrderFunctionCall<BooleanValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerBagEval<>(functionSignature, argExpressions) {
+
+                @Override
+                protected BooleanValue evaluate(final Bag<GeometryValue>[] bagArgs) throws IndeterminateEvaluationException {
+                    if (bagArgs.length != 2)
+                        throw new IllegalArgumentException("Function " + ID + " requires exactly two bag arguments but given " + bagArgs.length);
+
+                    return new BooleanValue(eval(bagArgs[0], bagArgs[1]));
+                }
+            };
         }
 
-
-        private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) {
+        private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
             final Iterator<V> g0i = bag0.iterator();
             final Iterator<V> g1i = bag1.iterator();
 
@@ -347,16 +554,10 @@ public class BagSetFunctions {
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
+                    testPrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        try {
-                            if (!tg.transformCRS(g0, g1)) {
-                                return false;
-                            }
-                        }
-                        catch (IndeterminateEvaluationException e) {
-                            return false;
-                        }
+                        tg.transformCRS(g0, g1);
                     }
                     if (g0.equals(g1)) {
                         status = true;
@@ -369,28 +570,71 @@ public class BagSetFunctions {
 
             return true;
         }
+
+        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
+        {
+            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
+            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
+
+            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
+            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
+
+            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
+            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
+            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG2 == SOURCE_POLICY) &&
+                    (precisionG1 > precisionG2))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG1 == SOURCE_POLICY) &&
+                    (precisionG2 > precisionG1))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+
+            return true;
+        }
+
     }
 
-    public static class SetEquals extends FirstOrderBagFunctions.SetEquals<GeometryValue> {
+    public static class SetEquals extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>>{
+
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_SET_EQUALS;
 
+        public SetEquals()
+        {
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
+        }
         /**
-         * Function identifier
-         * public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-set-equals";
-         * <li>{@code -set-equals}: tests if bag from first argument is subset of bag from second argument</li>
+         * Constructor that creates a function from its signature definition
+         *
+         * @param name           function name
+         * @param returnType     function return type
+         * @param varargs        true iff the function takes a variable number of arguments
+         * @param parameterTypes function parameter types. Note: the "? extends" allows using {@link BagDatatype}.
+         * @throws IllegalArgumentException if ( {@code name == null || returnType == null || parameterTypes == null || parameterTypes.size() < 1 })
          */
-
-        public SetEquals() {
-            super(paramBagType);
+        public SetEquals(String name, Datatype<BooleanValue> returnType, boolean varargs, List<? extends Datatype<Bag<GeometryValue>>> parameterTypes) throws IllegalArgumentException {
+            super(name, returnType, varargs, parameterTypes);
         }
 
         @Override
-        protected BooleanValue eval(final Bag<GeometryValue>[] bagArgs) {
-            return BooleanValue.valueOf(eval(bagArgs[0], bagArgs[1]));
+        public FirstOrderFunctionCall<BooleanValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerBagEval<>(functionSignature, argExpressions) {
+
+                @Override
+                protected BooleanValue evaluate(final Bag<GeometryValue>[] bagArgs) throws IndeterminateEvaluationException {
+                    if (bagArgs.length != 2)
+                        throw new IllegalArgumentException("Function " + ID + " requires exactly two bag arguments but given " + bagArgs.length);
+
+                    return new BooleanValue(eval(bagArgs[0], bagArgs[1]));
+                }
+            };
         }
 
-
-        private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) {
+        private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
             final Iterator<V> g0i = bag0.iterator();
             final Iterator<V> g1i = bag1.iterator();
 
@@ -404,16 +648,10 @@ public class BagSetFunctions {
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
+                    testPrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        try {
-                            if (!tg.transformCRS(g0, g1)) {
-                                return false;
-                            }
-                        }
-                        catch (IndeterminateEvaluationException e) {
-                            return false;
-                        }
+                        tg.transformCRS(g0, g1);
                     }
                     if (g0.equals(g1)) {
                         status = true;
@@ -431,16 +669,10 @@ public class BagSetFunctions {
                 while (g0i.hasNext()) {
                     final GeometryValue gv0 = (GeometryValue) g0i.next();
                     Geometry g0 = gv0.getGeometry();
+                    testPrecision(g0, g1);
                     if (g1.getSRID() != g0.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
-                        try {
-                            if (!tg.transformCRS(g1, g0)) {
-                                return false;
-                            }
-                        }
-                        catch (IndeterminateEvaluationException e) {
-                            return false;
-                        }
+                        tg.transformCRS(g1, g0);
                     }
                     if (g1.equals(g0)) {
                         status = true;
@@ -453,13 +685,40 @@ public class BagSetFunctions {
 
             return true;
         }
+
+        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
+        {
+            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
+            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
+
+            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
+            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
+
+            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
+            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
+            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG2 == SOURCE_POLICY) &&
+                    (precisionG1 > precisionG2))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
+                    (sourceG1 == SOURCE_POLICY) &&
+                    (precisionG2 > precisionG1))
+                throw new IndeterminateEvaluationException(
+                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+
+            return true;
+        }
+
     }
 
     public static class GeometryBag<AV extends AttributeValue> extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, GeometryValue> {
         /**
          * Function ID suffix for 'primitiveType-bag' functions
          */
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-bag";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_BAG;
 
         public GeometryBag() {
             super(ID, GeometryValue.FACTORY.getDatatype().getBagDatatype(), true, Collections.singletonList(GeometryValue.FACTORY.getDatatype()));
@@ -481,11 +740,20 @@ public class BagSetFunctions {
             return new BaseFirstOrderFunctionCall.EagerSinglePrimitiveTypeEval<>(functionSignature, argExpressions, remainingArgTypes) {
 
                 @Override
-                protected Bag<GeometryValue> evaluate(final Deque<GeometryValue> args) {
+                protected Bag<GeometryValue> evaluate(final Deque<GeometryValue> args)  throws IllegalArgumentException {
+                    int srid = 0;
                     List<GeometryValue> gvu = new ArrayList<GeometryValue>();
                     final Iterator<GeometryValue> i = args.iterator();
-                    while (i.hasNext())
-                        gvu.add(i.next());
+                    while (i.hasNext()) {
+                        GeometryValue gv = i.next();
+                        // All geometries must have the same SRS
+                        if (srid == 0)
+                            srid = gv.getGeometry().getSRID();
+                        else if (srid != gv.getGeometry().getSRID())
+                            throw new IllegalArgumentException("Function " + ID + " requires each bag member to have same SRS");
+
+                        gvu.add(gv);
+                    }
 
                     return Bags.newBag(GeometryValue.FACTORY.getDatatype(), gvu);
 

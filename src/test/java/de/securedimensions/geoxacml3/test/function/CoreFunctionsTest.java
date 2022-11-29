@@ -81,15 +81,6 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
         return Arrays
                 .asList(
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-from-wkt
-                        new Object[]{CoreFunctions.GeometryFromWKT.ID, Arrays.asList(new StringValue(wkt)), new GeometryValue(gDefault)},
-
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-from-wkt
-                        new Object[]{CoreFunctions.GeometryFromWKT.ID, Arrays.asList(new StringValue("GEOMETRYCOLLETION EMPTY")), null},
-
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-from-wkb
-                        new Object[]{CoreFunctions.GeometryFromWKB.ID, Arrays.asList(new StringValue(wkb)), new GeometryValue(gDefault)},
-
                         // urn:ogc:def:function:geoxacml:3.0:geometry-dimension
                         new Object[]{CoreFunctions.Dimension.ID, Arrays.asList(new GeometryValue(p00)), IntegerValue.valueOf(0)},
                         new Object[]{CoreFunctions.Dimension.ID, Arrays.asList(new GeometryValue(l00100)), IntegerValue.valueOf(1)},
@@ -141,9 +132,9 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
                         new Object[]{CoreFunctions.IsWithinDistance.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326), new DoubleValue(0.)), null},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-distance-equals
-                        new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(100.)), BooleanValue.TRUE},
-                        new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(10.)), BooleanValue.FALSE},
-                        new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326), new DoubleValue(0.)), null},
+                        new Object[]{CoreFunctions.EqualsDistance.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(100.)), BooleanValue.TRUE},
+                        new Object[]{CoreFunctions.EqualsDistance.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), new DoubleValue(10.)), BooleanValue.FALSE},
+                        new Object[]{CoreFunctions.EqualsDistance.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gSRID4326), new DoubleValue(0.)), null},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-relate
                         new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100), StringValue.parse("FF0FFF0F2")), BooleanValue.TRUE},

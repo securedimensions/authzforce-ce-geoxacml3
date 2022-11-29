@@ -21,10 +21,7 @@ import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.function.TopologicalFunctions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.ow2.authzforce.core.pdp.api.value.BooleanValue;
 import org.ow2.authzforce.core.pdp.api.value.Value;
@@ -33,6 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
 import java.util.*;
+
+import static de.securedimensions.geoxacml3.datatype.GeometryValue.SOURCE_ATTR_DESIGNATOR;
+import static de.securedimensions.geoxacml3.datatype.GeometryValue.SOURCE_POLICY;
 
 @RunWith(Parameterized.class)
 public class TopologicalFunctionsTest extends GeometryFunctionTest {
@@ -44,8 +44,15 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> params() {
+
         Geometry gDefault = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
         gDefault.setSRID(-4326);
+
+        Geometry gDefaultADRPrecision1 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77, 38));
+        gDefaultADRPrecision1.setSRID(-4326);
+
+        Geometry gDefaultADRPrecision9 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
+        gDefaultADRPrecision9.setSRID(-4326);
 
         Geometry gSRS4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
         gSRS4326.setSRID(4326);
@@ -86,18 +93,39 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
         Geometry pg00_100 = GeometryValue.Factory.GEOMETRY_FACTORY.createPolygon(new LinearRing(cs00_100, GeometryValue.Factory.GEOMETRY_FACTORY));
         pg00_100.setSRID(-4326);
 
-        Map<QName, String> xmlAttribute = new HashMap<QName, String>();
-        xmlAttribute.put(GeometryValue.xmlAllowTransformation, "true");
+        Map<QName, String> xmlPrecision1SourceADR = new HashMap<QName, String>();
+        xmlPrecision1SourceADR.put(GeometryValue.xmlPrecision, "1.0");
+        xmlPrecision1SourceADR.put(GeometryValue.SOURCE, SOURCE_ATTR_DESIGNATOR);
+        gDefaultADRPrecision1.setUserData(xmlPrecision1SourceADR);
+
+        Map<QName, String> xmlPrecision1SourcePolicy = new HashMap<QName, String>();
+        xmlPrecision1SourcePolicy.put(GeometryValue.xmlPrecision, "1.0");
+        xmlPrecision1SourcePolicy.put(GeometryValue.SOURCE, SOURCE_POLICY);
+        Geometry gDefaultPolicyPrecision1 = gDefaultADRPrecision1.copy();
+        gDefaultPolicyPrecision1.setUserData(xmlPrecision1SourcePolicy);
+
+        Map<QName, String> xmlPrecision9SourceADR = new HashMap<QName, String>();
+        xmlPrecision9SourceADR.put(GeometryValue.xmlPrecision, "9.0");
+        xmlPrecision9SourceADR.put(GeometryValue.SOURCE, SOURCE_ATTR_DESIGNATOR);
+        gDefaultADRPrecision9.setUserData(xmlPrecision9SourceADR);
+
+        Map<QName, String> xmlAllowTransformation = new HashMap<QName, String>();
+        xmlAllowTransformation.put(GeometryValue.xmlAllowTransformation, "true");
 
         Geometry gDefaultAllowTransform = gDefault.copy();
-        gDefaultAllowTransform.setUserData(xmlAttribute);
+        gDefaultAllowTransform.setUserData(xmlAllowTransformation);
 
         Geometry gSRID4326AllowTransform = gSRID4326.copy();
-        gSRID4326AllowTransform.setUserData(xmlAttribute);
+        gSRID4326AllowTransform.setUserData(xmlAllowTransformation);
 
 
         return Arrays
                 .asList(
+                        // urn:ogc:def:function:geoxacml:3.0:geometry-equal test precision
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gDefaultADRPrecision1)), BooleanValue.FALSE},
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefaultPolicyPrecision1), new GeometryValue(gDefaultADRPrecision1)), BooleanValue.TRUE},
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefaultPolicyPrecision1), new GeometryValue(gDefaultADRPrecision9)), null},
+
                         // urn:ogc:def:function:geoxacml:3.0:geometry-equal
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gDefault)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(p00), new GeometryValue(p100)), BooleanValue.FALSE},

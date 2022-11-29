@@ -17,18 +17,23 @@
  */
 package de.securedimensions.geoxacml3.datatype;
 
+import de.securedimensions.geoxacml3.crs.TransformGeometry;
+import de.securedimensions.geoxacml3.function.TopologicalFunctions;
 import de.securedimensions.io.geojson.GeoJsonReader;
 import net.sf.saxon.s9api.ItemType;
 import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.s9api.XdmItem;
 import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
+import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
+import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 import org.ow2.authzforce.core.pdp.api.expression.XPathCompilerProxy;
 import org.ow2.authzforce.core.pdp.api.value.AttributeDatatype;
 import org.ow2.authzforce.core.pdp.api.value.SimpleValue;
@@ -58,15 +63,24 @@ public final class GeometryValue extends SimpleValue<Geometry> {
 
     public static final String ID = "urn:ogc:def:dataType:geoxacml:3.0:geometry";
     public static final String FUNCTION_PREFIX = "urn:ogc:def:function:geoxacml:3.0:geometry";
+    public static final String ERROR_PREFIX = "urn:ogc:def:function:geoxacml:3.0:";
 
     public static final QName xmlSRID = new QName("http://www.opengis.net/spec/geoxacml/3.0", "srid");
     public static final QName xmlSRS = new QName("http://www.opengis.net/spec/geoxacml/3.0", "srs");
 
     public static final QName xmlAllowTransformation = new QName("http://www.opengis.net/spec/geoxacml/3.0", "allowTransformation");
 
+    public static final QName xmlPrecision = new QName("http://www.opengis.net/spec/geoxacml/3.0", "precision");
+    public static final QName SOURCE = new QName("http://www.opengis.net/spec/geoxacml/3.0", "source");
+    public static final String SOURCE_ATTR_DESIGNATOR = "AttributeDesignator";
+    public static final String SOURCE_POLICY = "Policy";
     public static final QName xmlAttributeId = new QName("http://www.opengis.net/spec/geoxacml/3.0", "attributeId");
     public static final QName xmlCategoryId = new QName("http://www.opengis.net/spec/geoxacml/3.0", "categoryId");
 
+    public static final String SRS_ERROR = ERROR_PREFIX + "srs-error";
+    public static final String GEOMETRY_ERROR = ERROR_PREFIX + "geometry-error";
+    public static final String GEOMETRYCOLLECTION_ERROR = ERROR_PREFIX + "geometrycollection-error";
+    public static final String PRECISION_ERROR = ERROR_PREFIX + "precision-error";
     public static final AttributeDatatype<GeometryValue> DATATYPE =
             new AttributeDatatype<GeometryValue>(
                     GeometryValue.class,
@@ -78,12 +92,24 @@ public final class GeometryValue extends SimpleValue<Geometry> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeometryValue.class);
     private transient volatile XdmItem xdmItem = null;
 
+    private transient volatile int hashCode = 0;
+
     public GeometryValue(Geometry g) {
 
         super(g);
         value.setUserData(g.getUserData());
     }
 
+    @Override
+    public int hashCode()
+    {
+        if (hashCode == 0)
+        {
+            hashCode = value.hashCode();
+        }
+
+        return hashCode;
+    }
     /*
      * (non-Javadoc)
      *
@@ -108,6 +134,9 @@ public final class GeometryValue extends SimpleValue<Geometry> {
         Geometry g1 = this.getUnderlyingValue();
         Geometry g2 = ((GeometryValue) obj).getUnderlyingValue();
 
+        if (g1.getSRID() != g2.getSRID())
+            return false;
+
         // Test for exact equal - NOT for topological equals. That is done via the geometry-equals function.
         // This function is the basic primitive that is used e.g. with Bag/Set functions
         return g1.equalsExact(g2);
@@ -126,14 +155,14 @@ public final class GeometryValue extends SimpleValue<Geometry> {
     @Override
     public XdmItem getXdmItem() {
         if (xdmItem == null) {
-            WKTWriter wktWriter = new WKTWriter();
-            xdmItem = new XdmAtomicValue(wktWriter.write(value));
+            xdmItem = new XdmAtomicValue(value.toText());
         }
         return null;
     }
 
     public String toString() {
-        return "SRID=" + this.getGeometry().getSRID() + ";" + this.getGeometry();
+
+        return value.toText();
     }
 
     @Override
@@ -157,6 +186,25 @@ public final class GeometryValue extends SimpleValue<Geometry> {
         @Override
         public final GeometryValue getInstance(final Serializable content, final Map<QName, String> otherXmlAttributes, final Optional<XPathCompilerProxy> xPathCompiler) throws IllegalArgumentException {
             try {
+                int srid = -4326;
+                if (otherXmlAttributes != null && !otherXmlAttributes.isEmpty()) {
+                    if (otherXmlAttributes.containsKey(xmlSRID))
+                        srid = Integer.parseInt(otherXmlAttributes.get(xmlSRID));
+                    else if (otherXmlAttributes.containsKey(xmlSRS)) {
+                        String srs = otherXmlAttributes.get(xmlSRS);
+                        if (srs.toUpperCase().contains("WGS84") || srs.toUpperCase().contains("CRS84"))
+                            srid = -4326;
+                        else {
+                            String []tokens = srs.split(":");
+                            if (tokens.length != 2)
+                                throw new IllegalArgumentException("SRS pattern is EPSG:<srid>");
+                            else if (!tokens[0].equalsIgnoreCase("EPSG"))
+                                throw new IllegalArgumentException("SRS must start with authority string 'EPSG'");
+                            else
+                                srid = Integer.parseInt(tokens[1]);
+                        }
+                    }
+                }
                 Geometry g = null;
                 if (content instanceof String) {
                     // XML encoded as AttributeValue with String value
@@ -205,25 +253,6 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                     }
                      */
                     String val = (String) content;
-                    int srid = -4326;
-                    if (otherXmlAttributes != null && !otherXmlAttributes.isEmpty()) {
-                        if (otherXmlAttributes.containsKey(xmlSRID))
-                            srid = Integer.parseInt(otherXmlAttributes.get(xmlSRID));
-                        else if (otherXmlAttributes.containsKey(xmlSRS)) {
-                            String srs = otherXmlAttributes.get(xmlSRS);
-                            if (srs.toUpperCase().contains("WGS84") || srs.toUpperCase().contains("CRS84"))
-                                srid = -4326;
-                            else {
-                                String []tokens = srs.split(":");
-                                if (tokens.length != 2)
-                                    throw new IllegalArgumentException("SRS pattern is EPSG:<srid>");
-                                else if (!tokens[0].equalsIgnoreCase("EPSG"))
-                                    throw new IllegalArgumentException("SRS must start with authority string 'EPSG'");
-                                else
-                                    srid = Integer.parseInt(tokens[1]);
-                            }
-                        }
-                    }
                     if (Character.isDigit(val.charAt(0))) {
                         WKBReader wkbReader = new WKBReader(GEOMETRY_FACTORY);
                         g = wkbReader.read(WKBReader.hexToBytes(val));
@@ -252,24 +281,185 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                     JSONObject geojson = ((SerializableJSONObject) content).get();
                     GeoJsonReader geojsonReader = new GeoJsonReader();
                     g = geojsonReader.create(geojson.toMap(), GEOMETRY_FACTORY);
-                    g.setSRID(-4326);
+                    g.setSRID(srid);
 
                 }
                 else {
                     throw new IllegalArgumentException("Geometry encoding not supported");
                 }
-                // The Core Conformance Class does not support GeometryCollection processing
-                if (g.getGeometryType().equalsIgnoreCase("GEOMETRYCOLLECTION"))
-                    throw new IllegalArgumentException("GeometryCollection not supported");
+                // No heterogeneous GeometryCollection
+                if (g.getGeometryType().equalsIgnoreCase("GEOMETRYCOLLECTION")) {
+                    String geometryType = null;
+                    GeometryCollection gc = (GeometryCollection) g;
+                    int numGeometries = gc.getNumGeometries();
+                    for (int ix=0; ix < numGeometries; ix++)
+                    {
+                        if (geometryType == null)
+                            geometryType = gc.getGeometryN(ix).getGeometryType();
+                        else if (geometryType != gc.getGeometryN(ix).getGeometryType())
+                            throw new IllegalArgumentException("GeometryCollection must be homogeneous");
+                    }
+                }
 
                 g.setUserData(otherXmlAttributes);
                 return new GeometryValue(g);
             } catch (ParseException e) {
-                throw new IllegalArgumentException("Geometry decoding error",e);
+                throw new IllegalArgumentException(GEOMETRY_ERROR,e);
             }
 
 
         }
     }
+
+    /**
+     * Geometry specific functions
+     */
+
+    private boolean testCRS(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
+    {
+        if (g1.getSRID() != g2.getSRID()) {
+            TransformGeometry tg = new TransformGeometry();
+            tg.transformCRS(g1, g2);
+        }
+        return true;
+    }
+
+    private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
+    {
+        Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
+        Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
+
+        double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
+        double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
+
+        String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
+        String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
+        if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
+            (sourceG2 == SOURCE_POLICY) &&
+            (precisionG1 > precisionG2))
+            throw new IndeterminateEvaluationException(
+                    new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+        if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
+            (sourceG1 == SOURCE_POLICY) &&
+            (precisionG2 > precisionG1))
+            throw new IndeterminateEvaluationException(
+                    new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
+
+
+        return true;
+    }
+
+    public boolean compare(GeometryValue gv, String id) throws IndeterminateEvaluationException
+    {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        switch (id)
+        {
+            case TopologicalFunctions.Equal.EQUAL_SUFFIX:
+            case TopologicalFunctions.Equals.EQUALS_SUFFIX:
+                return g1.equals(g2);
+            case TopologicalFunctions.Disjoint.DISJOINT_SUFFIX:
+                return g1.disjoint(g2);
+            case TopologicalFunctions.Touches.TOUCHES_SUFFIX:
+                return g1.touches(g2);
+            case TopologicalFunctions.Crosses.CROSSES_SUFFIX:
+                return g1.crosses(g2);
+            case TopologicalFunctions.Within.WITHIN_SUFFIX:
+                return g1.within(g2);
+            case TopologicalFunctions.Contains.CONTAINS_SUFFIX:
+                return g1.contains(g2);
+            case TopologicalFunctions.Overlaps.OVERLAPS_SUFFIX:
+                return g1.overlaps(g2);
+            case TopologicalFunctions.Intersects.INTERSECTS_SUFFIX:
+                return g1.intersects(g2);
+        }
+        throw new IllegalArgumentException("Function: " + ID + " unknown");
+    }
+
+    public double distance(GeometryValue gv) throws IndeterminateEvaluationException {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        return g1.distance(g2);
+    }
+
+    public Geometry intersection(GeometryValue gv) throws IndeterminateEvaluationException {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        Geometry g = g1.intersection(g2);
+        g.setSRID(g1.getSRID());
+        return g;
+    }
+
+    public Geometry union(GeometryValue gv) throws IndeterminateEvaluationException {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        Geometry g = g1.union(g2);
+        g.setSRID(g1.getSRID());
+        return g;
+    }
+
+    public Geometry difference(GeometryValue gv) throws IndeterminateEvaluationException {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        Geometry g = g1.difference(g2);
+        g.setSRID(g1.getSRID());
+        return g;
+    }
+
+    public Geometry symDifference(GeometryValue gv) throws IndeterminateEvaluationException {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        Geometry g = g1.symDifference(g2);
+        g.setSRID(g1.getSRID());
+        return g;
+    }
+
+    public boolean equalsDistance(GeometryValue gv, double d) throws IndeterminateEvaluationException {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        return (g1.distance(g2) == d);
+
+    }
+
+    public boolean isWithinDistance(GeometryValue gv, double d) throws IndeterminateEvaluationException {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        return g1.isWithinDistance(g2, d);
+    }
+
+    public boolean relate(GeometryValue gv, String r) throws IndeterminateEvaluationException {
+        Geometry g1 = this.getGeometry();
+        Geometry g2 = gv.getGeometry();
+        testPrecision(g1, g2);
+        testCRS(g1, g2);
+
+        return g1.relate(g2, r);
+    }
+
 }
 

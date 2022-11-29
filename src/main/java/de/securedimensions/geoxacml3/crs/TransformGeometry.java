@@ -18,7 +18,6 @@
 package de.securedimensions.geoxacml3.crs;
 
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
-import net.sf.saxon.value.BooleanValue;
 import org.locationtech.jts.geom.Geometry;
 import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
@@ -27,12 +26,18 @@ import javax.xml.namespace.QName;
 import java.util.Map;
 import java.util.Optional;
 
+import static de.securedimensions.geoxacml3.datatype.GeometryValue.SRS_ERROR;
+
 public class TransformGeometry {
 
     public TransformGeometry() {
     }
 
-    public boolean transformCRS(Geometry g, int toSRID) {
+    public boolean transformCRS(Geometry g, int toSRID) throws IndeterminateEvaluationException {
+        return transformCRS(g, toSRID, false);
+    }
+
+    public boolean transformCRS(Geometry g, int toSRID, boolean raiseException) throws IndeterminateEvaluationException {
         Map<QName, String> otherXmlAttributes = (Map<QName, String>) g.getUserData();
         boolean allowTransformG = (otherXmlAttributes != null) ? Boolean.valueOf(otherXmlAttributes.get(GeometryValue.xmlAllowTransformation)) : false;
 
@@ -56,8 +61,13 @@ public class TransformGeometry {
             }
             return true;
         }
-        return false;
+        if (raiseException)
+            throw new IndeterminateEvaluationException(
+                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("SRS transformation prohibited")));
+        else
+            return false;
     }
+
     public boolean transformCRS(Geometry g1, Geometry g2) throws IndeterminateEvaluationException {
 
         /*
@@ -97,7 +107,7 @@ public class TransformGeometry {
 
         if (!allowTransformG1 && !allowTransformG2)
             throw new IndeterminateEvaluationException(
-                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("SRS transformation prohibited")));
+                    new ImmutableXacmlStatus(SRS_ERROR, Optional.of("SRS transformation prohibited")));
 
 
         // We try to find the geometry to transform based on fewest coordinates first

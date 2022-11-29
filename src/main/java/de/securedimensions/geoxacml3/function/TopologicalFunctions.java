@@ -41,8 +41,35 @@ public final class TopologicalFunctions {
     /**
      * required by XACML3 "type-equal" (not equal*s* as defined in Simple Features)
      */
+    public final static class Equal extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
+        public static final String EQUAL_SUFFIX = "-equal";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + EQUAL_SUFFIX;
+
+        public Equal() {
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+        }
+
+        protected boolean testCRS() {return true;}
+        @Override
+        public FirstOrderFunctionCall<BooleanValue> newCall(final List<Expression<?>> argExpressions, final Datatype<?>... remainingArgTypes) {
+
+            return new BaseFirstOrderFunctionCall.EagerSinglePrimitiveTypeEval<BooleanValue, GeometryValue>(functionSignature, argExpressions, remainingArgTypes) {
+
+                @Override
+                protected BooleanValue evaluate(final Deque<GeometryValue> args) throws IndeterminateEvaluationException {
+                    if (args.size() != 2)
+                        throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
+
+                    return new BooleanValue(args.poll().compare(args.poll(), EQUAL_SUFFIX));
+                }
+
+            };
+        }
+    }
+
     public static final class Equals extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-equals";
+        public static final String EQUALS_SUFFIX = "-equals";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + EQUALS_SUFFIX;
 
         public Equals() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
@@ -58,62 +85,17 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.equals(g2));
+                    return new BooleanValue(args.poll().compare(args.poll(), EQUALS_SUFFIX));
                 }
 
             };
         }
 
-    }
-
-    public final static class Equal extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-equal";
-
-        public Equal() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
-        }
-
-        @Override
-        public FirstOrderFunctionCall<BooleanValue> newCall(final List<Expression<?>> argExpressions, final Datatype<?>... remainingArgTypes) {
-
-            return new BaseFirstOrderFunctionCall.EagerSinglePrimitiveTypeEval<BooleanValue, GeometryValue>(functionSignature, argExpressions, remainingArgTypes) {
-
-                @Override
-                protected BooleanValue evaluate(final Deque<GeometryValue> args) throws IndeterminateEvaluationException {
-                    if (args.size() != 2)
-                        throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
-
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.equals(g2));
-                }
-
-            };
-        }
     }
 
     public final static class Disjoint extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-disjoint";
+        public static final String DISJOINT_SUFFIX = "-disjoint";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + DISJOINT_SUFFIX;
 
         public Disjoint() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
@@ -129,18 +111,7 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.disjoint(g2));
+                    return new BooleanValue(args.poll().compare(args.poll(), DISJOINT_SUFFIX));
                 }
 
             };
@@ -148,7 +119,8 @@ public final class TopologicalFunctions {
     }
 
     public final static class Touches extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-touches";
+        public static final String TOUCHES_SUFFIX = "-touches";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + TOUCHES_SUFFIX;
 
         public Touches() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
@@ -164,18 +136,7 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.touches(g2));
+                    return new BooleanValue(args.poll().compare(args.poll(), TOUCHES_SUFFIX));
                 }
 
             };
@@ -183,7 +144,8 @@ public final class TopologicalFunctions {
     }
 
     public final static class Crosses extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-crosses";
+        public static final String CROSSES_SUFFIX = "-crosses";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + CROSSES_SUFFIX;
 
         public Crosses() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
@@ -199,18 +161,7 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.crosses(g2));
+                    return new BooleanValue(args.poll().compare(args.poll(), CROSSES_SUFFIX));
                 }
 
             };
@@ -218,7 +169,8 @@ public final class TopologicalFunctions {
     }
 
     public final static class Within extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-within";
+        public static final String WITHIN_SUFFIX = "-within";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + WITHIN_SUFFIX;
 
         public Within() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
@@ -234,18 +186,7 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.within(g2));
+                    return new BooleanValue(args.poll().compare(args.poll(), WITHIN_SUFFIX));
                 }
 
             };
@@ -253,7 +194,8 @@ public final class TopologicalFunctions {
     }
 
     public final static class Contains extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-contains";
+        public static final String CONTAINS_SUFFIX = "-contains";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + CONTAINS_SUFFIX;
 
         public Contains() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
@@ -269,18 +211,7 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.contains(g2));
+                    return new BooleanValue(args.poll().compare(args.poll(), CONTAINS_SUFFIX));
                 }
 
             };
@@ -288,7 +219,8 @@ public final class TopologicalFunctions {
     }
 
     public final static class Overlaps extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-overlaps";
+        public static final String OVERLAPS_SUFFIX = "-overlaps";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + OVERLAPS_SUFFIX;
 
         public Overlaps() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
@@ -304,18 +236,7 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.overlaps(g2));
+                    return new BooleanValue(args.poll().compare(args.poll(), OVERLAPS_SUFFIX));
                 }
 
             };
@@ -323,7 +244,8 @@ public final class TopologicalFunctions {
     }
 
     public final static class Intersects extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-intersects";
+        public static final String INTERSECTS_SUFFIX = "-intersects";
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + INTERSECTS_SUFFIX;
 
         public Intersects() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
@@ -339,18 +261,7 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    Geometry g1 = args.poll().getGeometry();
-                    Geometry g2 = args.poll().getGeometry();
-
-                    if (g1.getSRID() != g2.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        if (!tg.transformCRS(g1, g2)) {
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus("urn:ogc:def:function:geoxacml:3.0:crs-error", Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
-                        }
-                    }
-
-                    return new BooleanValue(g1.intersects(g2));
+                    return new BooleanValue(args.poll().compare(args.poll(), INTERSECTS_SUFFIX));
                 }
 
             };

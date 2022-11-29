@@ -253,6 +253,8 @@ public abstract class GeometryFunctionTest {
                     Assert.assertEquals(toString, expectedResult, actualResult);
                 else if (expectedResult instanceof DoubleValue)
                     Assert.assertEquals(toString, expectedResult, actualResult);
+                else if (expectedResult instanceof StringValue)
+                    Assert.assertEquals(toString, expectedResult, actualResult);
                 else if (expectedResult instanceof GeometryValue) {
                     Geometry expectedG = ((GeometryValue) expectedResult).getGeometry();
                     Geometry actualG = ((GeometryValue) actualResult).getGeometry();
@@ -278,8 +280,31 @@ public abstract class GeometryFunctionTest {
 
                     Assert.assertTrue(toString, cond);
                 }
+                else if (expectedResult instanceof Bag && actualResult instanceof Bag)
+                {
+                    Iterator<GeometryValue> ie = ((Bag<GeometryValue>) expectedResult).iterator();
+                    Iterator<GeometryValue> ia = ((Bag<GeometryValue>) actualResult).iterator();
+                    boolean cond = true;
+                    while (ie.hasNext() && ia.hasNext())
+                    {
+                        Geometry ge = ie.next().getGeometry();
+                        Geometry ga = ia.next().getGeometry();
+                        cond = ((ge.equals(ga)) && (ge.getSRID() == ga.getSRID()));
+                        if (cond == false)
+                            break;
+                    }
+                    Assert.assertTrue(toString, cond);
+                }
+                else
+                    Assert.assertTrue(toString, false);
             }
         } catch (final IndeterminateEvaluationException e) {
+            if (expectedResult != null) {
+                // unexpected error
+                throw e;
+            }
+        }
+        catch (final IllegalArgumentException e) {
             if (expectedResult != null) {
                 // unexpected error
                 throw e;

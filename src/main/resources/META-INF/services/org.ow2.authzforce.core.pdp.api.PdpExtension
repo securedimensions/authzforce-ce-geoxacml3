@@ -10,9 +10,6 @@ de.securedimensions.geoxacml3.function.TopologicalFunctions$Contains
 de.securedimensions.geoxacml3.function.TopologicalFunctions$Overlaps
 de.securedimensions.geoxacml3.function.TopologicalFunctions$Intersects
 
-de.securedimensions.geoxacml3.function.CoreFunctions$GeometryFromWKT
-de.securedimensions.geoxacml3.function.CoreFunctions$GeometryFromWKB
-
 de.securedimensions.geoxacml3.function.CoreFunctions$Dimension
 de.securedimensions.geoxacml3.function.CoreFunctions$GeometryType
 de.securedimensions.geoxacml3.function.CoreFunctions$SRID
@@ -20,7 +17,7 @@ de.securedimensions.geoxacml3.function.CoreFunctions$IsSimple
 de.securedimensions.geoxacml3.function.CoreFunctions$IsEmpty
 
 de.securedimensions.geoxacml3.function.CoreFunctions$IsWithinDistance
-de.securedimensions.geoxacml3.function.CoreFunctions$DistanceEquals
+de.securedimensions.geoxacml3.function.CoreFunctions$EqualsDistance
 de.securedimensions.geoxacml3.function.CoreFunctions$Relate
 de.securedimensions.geoxacml3.function.CoreFunctions$Length
 de.securedimensions.geoxacml3.function.CoreFunctions$Area
@@ -49,7 +46,7 @@ de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryIntersection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryUnion
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryDifference
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometrySymDifference
-de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagToGeometryCollection
+de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagToHomogeneousCollection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagFromGeometryCollection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$EnsureSRS
 

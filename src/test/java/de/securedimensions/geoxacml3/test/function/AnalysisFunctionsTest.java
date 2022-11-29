@@ -123,7 +123,7 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
                         new Object[]{AnalysisFunctions.GeometryBagFromGeometryCollection.ID, Arrays.asList(new GeometryValue(gc)), bag},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-collection-from-geometry-bag
-                        new Object[]{AnalysisFunctions.GeometryBagToGeometryCollection.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(p00), new GeometryValue(p100)))), new GeometryValue(gc)}
+                        new Object[]{AnalysisFunctions.GeometryBagToHomogeneousCollection.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(p00), new GeometryValue(p100)))), new GeometryValue(gc)}
 
                 );
     }
