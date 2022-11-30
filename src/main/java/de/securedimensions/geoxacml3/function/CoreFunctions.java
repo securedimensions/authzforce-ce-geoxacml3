@@ -255,7 +255,13 @@ public class CoreFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new DoubleValue(args.poll().distance(args.poll()));
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
+                    UtilityFunctions uf = new UtilityFunctions();
+                    uf.ensurePrecision(g1, g2);
+                    uf.ensureCRS(g1, g2);
+
+                    return new DoubleValue(g1.distance(g2));
                 }
 
             };
@@ -281,7 +287,13 @@ public class CoreFunctions {
                     GeometryValue gv1 = (GeometryValue)args.poll();
                     GeometryValue gv2 = (GeometryValue)args.poll();
                     final Double d = ((DoubleValue) args.poll()).getUnderlyingValue();
-                    return new BooleanValue(gv1.isWithinDistance(gv2, d));
+                    Geometry g1 = gv1.getGeometry();
+                    Geometry g2 = gv2.getGeometry();
+                    UtilityFunctions uf = new UtilityFunctions();
+                    uf.ensurePrecision(g1, g2);
+                    uf.ensureCRS(g1, g2);
+
+                    return new BooleanValue(g1.isWithinDistance(g2, d));
                 }
             };
         }
@@ -307,7 +319,13 @@ public class CoreFunctions {
                     GeometryValue gv2 = (GeometryValue)args.poll();
 
                     final Double d = ((DoubleValue) args.poll()).getUnderlyingValue();
-                    return new BooleanValue(gv1.equalsDistance(gv2, d));
+                    Geometry g1 = gv1.getGeometry();
+                    Geometry g2 = gv2.getGeometry();
+                    UtilityFunctions uf = new UtilityFunctions();
+                    uf.ensurePrecision(g1, g2);
+                    uf.ensureCRS(g1, g2);
+
+                    return new BooleanValue(g1.distance(g2) == d);
                 }
             };
         }
@@ -333,7 +351,13 @@ public class CoreFunctions {
                     GeometryValue gv2 = (GeometryValue)args.poll();
 
                     final String r = ((StringValue) args.poll()).getUnderlyingValue();
-                    return new BooleanValue(gv1.relate(gv2, r));
+                    Geometry g1 = gv1.getGeometry();
+                    Geometry g2 = gv2.getGeometry();
+                    UtilityFunctions uf = new UtilityFunctions();
+                    uf.ensurePrecision(g1, g2);
+                    uf.ensureCRS(g1, g2);
+
+                    return new BooleanValue(g1.relate(g2, r));
                 }
             };
         }

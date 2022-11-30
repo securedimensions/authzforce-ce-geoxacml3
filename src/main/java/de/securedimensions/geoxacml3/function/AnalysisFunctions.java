@@ -21,7 +21,6 @@ import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
-import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 import org.ow2.authzforce.core.pdp.api.expression.Expression;
 import org.ow2.authzforce.core.pdp.api.func.BaseFirstOrderFunctionCall;
@@ -182,7 +181,15 @@ public class AnalysisFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new GeometryValue(args.poll().intersection(args.poll()));
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
+                    UtilityFunctions uf = new UtilityFunctions();
+                    uf.ensurePrecision(g1, g2);
+                    uf.ensureCRS(g1, g2);
+
+                    Geometry g = g1.intersection(g2);
+                    g.setSRID(g1.getSRID());
+                    return new GeometryValue(g);
                 }
 
             };
@@ -206,7 +213,15 @@ public class AnalysisFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new GeometryValue(args.poll().union(args.poll()));
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
+                    UtilityFunctions uf = new UtilityFunctions();
+                    uf.ensurePrecision(g1, g2);
+                    uf.ensureCRS(g1, g2);
+
+                    Geometry g = g1.union(g2);
+                    g.setSRID(g1.getSRID());
+                    return new GeometryValue(g);
                 }
 
             };
@@ -230,7 +245,15 @@ public class AnalysisFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new GeometryValue(args.poll().difference(args.poll()));
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
+                    UtilityFunctions uf = new UtilityFunctions();
+                    uf.ensurePrecision(g1, g2);
+                    uf.ensureCRS(g1, g2);
+
+                    Geometry g = g1.difference(g2);
+                    g.setSRID(g1.getSRID());
+                    return new GeometryValue(g);
                 }
 
             };
@@ -254,20 +277,28 @@ public class AnalysisFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new GeometryValue(args.poll().symDifference(args.poll()));
+                    Geometry g1 = args.poll().getGeometry();
+                    Geometry g2 = args.poll().getGeometry();
+                    UtilityFunctions uf = new UtilityFunctions();
+                    uf.ensurePrecision(g1, g2);
+                    uf.ensureCRS(g1, g2);
+
+                    Geometry g = g1.symDifference(g2);
+                    g.setSRID(g1.getSRID());
+                    return new GeometryValue(g);
                 }
 
             };
         }
     }
 
-    public static class GeometryBagFromGeometryCollection<AV extends AttributeValue> extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, GeometryValue> {
+    public static class GeometryBagFromCollection<AV extends AttributeValue> extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, GeometryValue> {
         /**
          * Function ID suffix for 'primitiveType-bag' functions
          */
         public static final String ID = GeometryValue.FUNCTION_PREFIX + "-bag-from-collection";
 
-        public GeometryBagFromGeometryCollection() {
+        public GeometryBagFromCollection() {
             super(ID, GeometryValue.FACTORY.getDatatype().getBagDatatype(), true, Collections.singletonList(GeometryValue.FACTORY.getDatatype()));
 
         }
@@ -278,7 +309,7 @@ public class AnalysisFunctions {
          * @param paramType    bag's primitive datatype
          * @param paramBagType bag datatype
          */
-        public GeometryBagFromGeometryCollection(final BagDatatype<GeometryValue> paramBagType, final Datatype<GeometryValue> paramType) {
+        public GeometryBagFromCollection(final BagDatatype<GeometryValue> paramBagType, final Datatype<GeometryValue> paramType) {
             super(ID, paramBagType, true, Collections.singletonList(paramType));
         }
 

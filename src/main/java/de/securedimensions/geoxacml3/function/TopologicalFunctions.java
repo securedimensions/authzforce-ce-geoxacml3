@@ -60,7 +60,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), EQUAL_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), EQUAL_SUFFIX));
                 }
 
             };
@@ -85,7 +86,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), EQUALS_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), EQUALS_SUFFIX));
                 }
 
             };
@@ -111,7 +113,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), DISJOINT_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), DISJOINT_SUFFIX));
                 }
 
             };
@@ -136,7 +139,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), TOUCHES_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), TOUCHES_SUFFIX));
                 }
 
             };
@@ -161,7 +165,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), CROSSES_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), CROSSES_SUFFIX));
                 }
 
             };
@@ -186,7 +191,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), WITHIN_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), WITHIN_SUFFIX));
                 }
 
             };
@@ -211,7 +217,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), CONTAINS_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), CONTAINS_SUFFIX));
                 }
 
             };
@@ -236,7 +243,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), OVERLAPS_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), OVERLAPS_SUFFIX));
                 }
 
             };
@@ -261,7 +269,8 @@ public final class TopologicalFunctions {
                     if (args.size() != 2)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    return new BooleanValue(args.poll().compare(args.poll(), INTERSECTS_SUFFIX));
+                    UtilityFunctions uf = new UtilityFunctions();
+                    return new BooleanValue(uf.compare(args.poll(), args.poll(), INTERSECTS_SUFFIX));
                 }
 
             };

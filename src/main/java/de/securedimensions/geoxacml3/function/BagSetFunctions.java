@@ -162,10 +162,11 @@ public class BagSetFunctions {
          */
         private <V extends AttributeValue> boolean eval(final V arg0, final Bag<V> bag) throws IndeterminateEvaluationException {
             Geometry g = ((GeometryValue) arg0).getGeometry();
+            UtilityFunctions uf = new UtilityFunctions();
             final Iterator<GeometryValue> i = (Iterator<GeometryValue>) bag.iterator();
             while (i.hasNext()) {
                 Geometry gi = i.next().getGeometry();
-                testPrecision(g, gi);
+                uf.ensurePrecision(g, gi);
                 if (gi.getSRID() != g.getSRID()) {
                     TransformGeometry tg = new TransformGeometry();
                     // first, we try to transform g as it is only one geometry
@@ -210,32 +211,6 @@ public class BagSetFunctions {
             return false;
         }
 
-        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
-        {
-            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
-            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
-
-            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
-            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
-
-            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
-            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
-            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG2 == SOURCE_POLICY) &&
-                    (precisionG1 > precisionG2))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG1 == SOURCE_POLICY) &&
-                    (precisionG2 > precisionG1))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-
-            return true;
-        }
-
     }
 
     public static class AtLeastOneMemberOf extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>>{
@@ -277,13 +252,14 @@ public class BagSetFunctions {
             final Iterator<V> g0i = bag0.iterator();
             final Iterator<V> g1i = bag1.iterator();
 
+            UtilityFunctions uf = new UtilityFunctions();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
                 Geometry g0 = gv0.getGeometry();
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
-                    testPrecision(g0, g1);
+                    uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
                         tg.transformCRS(g0, g1);
@@ -294,32 +270,6 @@ public class BagSetFunctions {
             }
 
             return false;
-        }
-
-        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
-        {
-            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
-            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
-
-            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
-            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
-
-            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
-            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
-            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG2 == SOURCE_POLICY) &&
-                    (precisionG1 > precisionG2))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG1 == SOURCE_POLICY) &&
-                    (precisionG2 > precisionG1))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-
-            return true;
         }
 
     }
@@ -363,6 +313,8 @@ public class BagSetFunctions {
             final Iterator<V> g0i = bag0.iterator();
             final Iterator<V> g1i = bag1.iterator();
 
+            UtilityFunctions uf = new UtilityFunctions();
+
             Collection<GeometryValue> intersection = new ArrayList<GeometryValue>();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
@@ -370,7 +322,7 @@ public class BagSetFunctions {
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
-                    testPrecision(g0, g1);
+                    uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
                         tg.transformCRS(g0, g1);
@@ -381,32 +333,6 @@ public class BagSetFunctions {
             }
 
             return intersection;
-        }
-
-        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
-        {
-            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
-            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
-
-            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
-            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
-
-            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
-            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
-            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG2 == SOURCE_POLICY) &&
-                    (precisionG1 > precisionG2))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG1 == SOURCE_POLICY) &&
-                    (precisionG2 > precisionG1))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-
-            return true;
         }
 
     }
@@ -452,6 +378,8 @@ public class BagSetFunctions {
             // initialize the result with the contents from bag0
             union.addAll((Collection<? extends GeometryValue>) bag0.elements());
 
+            UtilityFunctions uf = new UtilityFunctions();
+
             final Iterator<GeometryValue> g1i = (Iterator<GeometryValue>) bag1.iterator();
             while (g1i.hasNext())
             {
@@ -462,7 +390,7 @@ public class BagSetFunctions {
                 while (g0i.hasNext())
                 {
                     Geometry g0 = g0i.next().getGeometry();
-                    testPrecision(g0, g1);
+                    uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
                         tg.transformCRS(g0, g1.getSRID(), true);
@@ -478,32 +406,6 @@ public class BagSetFunctions {
             }
 
             return union;
-        }
-
-        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
-        {
-            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
-            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
-
-            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
-            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
-
-            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
-            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
-            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG2 == SOURCE_POLICY) &&
-                    (precisionG1 > precisionG2))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG1 == SOURCE_POLICY) &&
-                    (precisionG2 > precisionG1))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-
-            return true;
         }
 
     }
@@ -547,6 +449,7 @@ public class BagSetFunctions {
             final Iterator<V> g0i = bag0.iterator();
             final Iterator<V> g1i = bag1.iterator();
 
+            UtilityFunctions uf = new UtilityFunctions();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
                 Geometry g0 = gv0.getGeometry();
@@ -554,7 +457,7 @@ public class BagSetFunctions {
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
-                    testPrecision(g0, g1);
+                    uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
                         tg.transformCRS(g0, g1);
@@ -567,32 +470,6 @@ public class BagSetFunctions {
                 if (status == false)
                     return false;
             }
-
-            return true;
-        }
-
-        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
-        {
-            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
-            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
-
-            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
-            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
-
-            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
-            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
-            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG2 == SOURCE_POLICY) &&
-                    (precisionG1 > precisionG2))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG1 == SOURCE_POLICY) &&
-                    (precisionG2 > precisionG1))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
 
             return true;
         }
@@ -641,6 +518,7 @@ public class BagSetFunctions {
             if (bag0.size() != bag1.size())
                 return false;
 
+            UtilityFunctions uf = new UtilityFunctions();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
                 Geometry g0 = gv0.getGeometry();
@@ -648,7 +526,7 @@ public class BagSetFunctions {
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
-                    testPrecision(g0, g1);
+                    uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
                         tg.transformCRS(g0, g1);
@@ -669,7 +547,7 @@ public class BagSetFunctions {
                 while (g0i.hasNext()) {
                     final GeometryValue gv0 = (GeometryValue) g0i.next();
                     Geometry g0 = gv0.getGeometry();
-                    testPrecision(g0, g1);
+                    uf.ensurePrecision(g0, g1);
                     if (g1.getSRID() != g0.getSRID()) {
                         TransformGeometry tg = new TransformGeometry();
                         tg.transformCRS(g1, g0);
@@ -682,32 +560,6 @@ public class BagSetFunctions {
                 if (status == false)
                     return false;
             }
-
-            return true;
-        }
-
-        private boolean testPrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
-        {
-            Map<QName, String> otherXmlAttributesG1 = (Map<QName, String>) g1.getUserData();
-            Map<QName, String> otherXmlAttributesG2 = (Map<QName, String>) g2.getUserData();
-
-            double precisionG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
-            double precisionG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
-
-            String sourceG1 = (otherXmlAttributesG1 != null) && otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
-            String sourceG2 = (otherXmlAttributesG2 != null) && otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
-            if ((sourceG1 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG2 == SOURCE_POLICY) &&
-                    (precisionG1 > precisionG2))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
-            if ((sourceG2 == SOURCE_ATTR_DESIGNATOR) &&
-                    (sourceG1 == SOURCE_POLICY) &&
-                    (precisionG2 > precisionG1))
-                throw new IndeterminateEvaluationException(
-                        new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("PEP requesting higher geometry precision than supported by the policy")));
-
 
             return true;
         }

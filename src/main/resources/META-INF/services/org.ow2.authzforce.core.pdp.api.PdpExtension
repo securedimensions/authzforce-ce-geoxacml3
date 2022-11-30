@@ -47,7 +47,7 @@ de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryUnion
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryDifference
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometrySymDifference
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagToHomogeneousCollection
-de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagFromGeometryCollection
+de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagFromCollection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$EnsureSRS
 
 de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$StrictVariantFactory

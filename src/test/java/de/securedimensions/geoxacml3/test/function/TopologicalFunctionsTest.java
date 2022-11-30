@@ -125,6 +125,8 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gDefaultADRPrecision1)), BooleanValue.FALSE},
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefaultPolicyPrecision1), new GeometryValue(gDefaultADRPrecision1)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefaultPolicyPrecision1), new GeometryValue(gDefaultADRPrecision9)), null},
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefaultADRPrecision1), new GeometryValue(gDefaultADRPrecision1)), BooleanValue.TRUE},
+                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefaultADRPrecision1), new GeometryValue(gDefaultADRPrecision9)), null},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-equal
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gDefault), new GeometryValue(gDefault)), BooleanValue.TRUE},

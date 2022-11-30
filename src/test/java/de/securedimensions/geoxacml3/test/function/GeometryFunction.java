@@ -114,7 +114,7 @@ public enum GeometryFunction {
 
         /* Conformance Class Analysis */
         // Constructive Functions supporting GeometryCollection
-        geometryFunctions.add(new AnalysisFunctions.GeometryBagFromGeometryCollection());
+        geometryFunctions.add(new AnalysisFunctions.GeometryBagFromCollection());
         geometryFunctions.add(new AnalysisFunctions.GeometryBagToHomogeneousCollection());
 
         return new ImmutableFunctionRegistry(geometryFunctions, null);
