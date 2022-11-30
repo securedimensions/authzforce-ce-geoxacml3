@@ -134,7 +134,7 @@ public class BagSetFunctions {
          *            primitive value array class
          */
         public BagContains(final Datatype<GeometryValue> paramType, final BagDatatype<GeometryValue> paramBagType, final Class<GeometryValue[]> paramArrayClass) {
-            super(ID, StandardDatatypes.BOOLEAN, false, Arrays.asList(paramType, paramBagType));
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(paramType, paramBagType));
             this.arrayClass = paramArrayClass;
             this.bagType = paramBagType;
         }
@@ -250,12 +250,12 @@ public class BagSetFunctions {
 
         private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
             final Iterator<V> g0i = bag0.iterator();
-            final Iterator<V> g1i = bag1.iterator();
 
             UtilityFunctions uf = new UtilityFunctions();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
                 Geometry g0 = gv0.getGeometry();
+                final Iterator<V> g1i = bag1.iterator();
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
