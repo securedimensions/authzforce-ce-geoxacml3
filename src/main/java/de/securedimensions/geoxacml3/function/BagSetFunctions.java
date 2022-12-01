@@ -311,7 +311,6 @@ public class BagSetFunctions {
 
         private <V extends AttributeValue> Collection<GeometryValue> eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
             final Iterator<V> g0i = bag0.iterator();
-            final Iterator<V> g1i = bag1.iterator();
 
             UtilityFunctions uf = new UtilityFunctions();
 
@@ -319,6 +318,7 @@ public class BagSetFunctions {
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
                 Geometry g0 = gv0.getGeometry();
+                final Iterator<V> g1i = bag1.iterator();
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
                     Geometry g1 = gv1.getGeometry();
@@ -447,12 +447,13 @@ public class BagSetFunctions {
 
         private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
             final Iterator<V> g0i = bag0.iterator();
-            final Iterator<V> g1i = bag1.iterator();
+
 
             UtilityFunctions uf = new UtilityFunctions();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
                 Geometry g0 = gv0.getGeometry();
+                final Iterator<V> g1i = bag1.iterator();
                 boolean status = false;
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
@@ -512,16 +513,16 @@ public class BagSetFunctions {
         }
 
         private <V extends AttributeValue> boolean eval(final Bag<V> bag0, final Bag<V> bag1) throws IndeterminateEvaluationException {
-            final Iterator<V> g0i = bag0.iterator();
-            final Iterator<V> g1i = bag1.iterator();
-
             if (bag0.size() != bag1.size())
                 return false;
+
+            final Iterator<V> g0i = bag0.iterator();
 
             UtilityFunctions uf = new UtilityFunctions();
             while (g0i.hasNext()) {
                 final GeometryValue gv0 = (GeometryValue) g0i.next();
                 Geometry g0 = gv0.getGeometry();
+                final Iterator<V> g1i = bag1.iterator();
                 boolean status = false;
                 while (g1i.hasNext()) {
                     final GeometryValue gv1 = (GeometryValue) g1i.next();
@@ -540,12 +541,14 @@ public class BagSetFunctions {
                     return false;
             }
 
+            final Iterator<V> g1i = bag1.iterator();
             while (g1i.hasNext()) {
                 final GeometryValue gv1 = (GeometryValue) g1i.next();
                 Geometry g1 = gv1.getGeometry();
+                final Iterator<V> gxi = bag0.iterator();
                 boolean status = false;
-                while (g0i.hasNext()) {
-                    final GeometryValue gv0 = (GeometryValue) g0i.next();
+                while (gxi.hasNext()) {
+                    final GeometryValue gv0 = (GeometryValue) gxi.next();
                     Geometry g0 = gv0.getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g1.getSRID() != g0.getSRID()) {
