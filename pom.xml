@@ -58,6 +58,9 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>META-INF/services/org.ow2.authzforce.core.pdp.api.PdpExtension</include>
+                    <include>de/securedimensions/geoxacml3/pdp/io/Request.schema.json</include>
+                    <include>de/securedimensions/geoxacml3/pdp/io/Response.schema.json</include>
+                    <include>de/securedimensions/geoxacml3/pdp/io/Policy.schema.json</include>
                 </includes>
             </resource>
         </resources>

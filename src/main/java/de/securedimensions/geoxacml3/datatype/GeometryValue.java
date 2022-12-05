@@ -72,6 +72,12 @@ public final class GeometryValue extends SimpleValue<Geometry> {
     public static final QName xmlAllowTransformation = new QName("http://www.opengis.net/spec/geoxacml/3.0", "allowTransformation");
 
     public static final QName xmlPrecision = new QName("http://www.opengis.net/spec/geoxacml/3.0", "precision");
+    public static final QName jsonSRID = new QName("http://www.opengis.net/spec/geoxacml/3.0", "SRID");
+    public static final QName jsonSRS = new QName("http://www.opengis.net/spec/geoxacml/3.0", "SRS");
+
+    public static final QName jsonAllowTransformation = new QName("http://www.opengis.net/spec/geoxacml/3.0", "AllowTransformation");
+
+    public static final QName jsonPrecision = new QName("http://www.opengis.net/spec/geoxacml/3.0", "Precision");
     public static final QName SOURCE = new QName("http://www.opengis.net/spec/geoxacml/3.0", "source");
     public static final String SOURCE_ATTR_DESIGNATOR = "AttributeDesignator";
     public static final String SOURCE_POLICY = "Policy";

@@ -52,3 +52,6 @@ de.securedimensions.geoxacml3.function.AnalysisFunctions$EnsureSRS
 
 de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$StrictVariantFactory
 de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$LaxVariantFactory
+
+de.securedimensions.geoxacml3.pdp.io.GeoXacmlJsonRequestPreprocessor$LaxVariantFactory
+de.securedimensions.geoxacml3.pdp.io.GeoXacmlJsonRequestPreprocessor$StrictVariantFactory
