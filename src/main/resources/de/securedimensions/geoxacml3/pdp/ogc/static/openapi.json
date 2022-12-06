@@ -1,0 +1,93 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "OGC GeoXACML 3.0 - OpenAPI 3.0",
+    "description": "This is the implementation based on the OGC GeoXACML 3.0 specification.  You can find out more about\nGeoXACML 3.0 at [https://www.ogc.org](https://www.ogc.org).",
+    "termsOfService": "https://ogc.demo.secure-dimensions.de/termsOfUse",
+    "contact": {
+      "email": "info@secure-dimensions.de"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "0.1"
+  },
+  "externalDocs": {
+    "description": "Find out more about GeoXACML 3.0",
+    "url": "https://www.ogc.org/projects/groups/geoxacmlswg"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp"
+    }
+  ],
+  "tags": [
+    {
+      "name": "geoPDP",
+      "description": "GeoXACML 3.0 compliant endpoint to receive Authorization Decisions"
+    }
+  ],
+  "paths": {
+    "/": {
+      "post": {
+        "tags": [
+          "geoPDP"
+        ],
+        "summary": "Request an Authorization Decision",
+        "description": "Use GeoXACML 3.0 or XACML 3.0 request structure",
+        "operationId": "getAD",
+        "requestBody": {
+          "description": "GeoXACML 3.0 ADR",
+          "content": {
+            "application/xacml+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            },
+            "application/xacml+xml": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Decision",
+            "content": {
+              "application/xacml+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              },
+              "application/xacml+xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Media type not supported"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Request": {
+        "title": "GeoXCML ADR",
+        "description": "GeoXACML structure compliant Authorizatio Decision Request",
+        "type": "object"
+      },
+      "Response": {
+        "title": "GeoXACML AD",
+        "description": "XACML structure compliant Authorization Decision",
+        "type": "object"
+      }
+    }
+  }
+}

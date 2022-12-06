@@ -1,0 +1,121 @@
+{
+	"$schema": "http://json-schema.org/draft-06/schema",
+	"$id": "Request.schema.json",
+	"title": "JSON schema of Request object defined in JSON profile of GeoXACML 3.0 v1.0",
+	"description": "",
+	"definitions": {
+		"AttributeValueType": {
+			"description": "Security warning: this definition allows any JSON object as value. TODO: find a way to validate it somehow. Possible solutions: 1) Modify this schema in production to restrict possible values as much as possible. 2) Any equivalent of XML processContents='strict'. 3) Any JSON processor that enforces a max text length, max number of keys, max object depth.",
+			"anyOf": [
+				{"type": "boolean"},
+				{"type": "number"},
+				{"type": "string"},
+				{"type": "object"},
+				{
+					"type": "array",
+					"items": {"type": "boolean"},
+					"minItems": 0
+				},
+				{
+					"type": "array",
+					"items": {
+						"type": [
+							"string",
+							"number"
+						]
+					},
+					"minItems": 0
+				},
+				{
+					"type": "array",
+					"items": {"type": "object"},
+					"minItems": 0
+				}
+			]
+		},
+		"AttributeType": {
+			"type": "object",
+			"properties": {
+				"AttributeId": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"SRS": {"type": "string"},
+				"Issuer": {"type": "string"},
+				"IncludeInResult": {"type": "boolean"},
+				"DataType": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"Value": {"$ref": "#/definitions/AttributeValueType"}
+			}
+		},
+		"AttributeCategoryType": {
+			"type": "object",
+			"properties": {
+				"CategoryId": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"Id": {"type": "string"},
+				"Content": {"type": "string"},
+				"Attribute": {
+					"type": "array",
+					"items": {"$ref": "#/definitions/AttributeType"},
+					"minItems": 0
+				}
+			},
+			"required": ["CategoryId"],
+			"additionalProperties": true
+		},
+		"RequestReferenceType": {
+			"type": "object",
+			"properties": {
+				"ReferenceId": {
+					"type": "array",
+					"items": {
+						"description": "Each item is a Category/Id",
+						"type": "string"
+					},
+					"minItems": 1
+				}
+			},
+			"required": ["ReferenceId"],
+			"additionalProperties": false
+		},
+		"MultiRequestsType": {
+			"type": "object",
+			"properties": {
+				"RequestReference": {
+					"type": "array",
+					"items": {"$ref": "#/definitions/RequestReferenceType"},
+					"minItems": 1
+				}
+			},
+			"required": ["RequestReference"],
+			"additionalProperties": false
+		},
+		"RequestType": {
+			"type": "object",
+			"properties": {
+				"ReturnPolicyIdList": {"type": "boolean"},
+				"CombinedDecision": {"type": "boolean"},
+				"XPathVersion": {"type": "string"},
+				"Category": {
+					"type": "array",
+					"items": {"$ref": "#/definitions/AttributeCategoryType"},
+					"minItems": 1
+				},
+				"MultiRequests": {"$ref": "#/definitions/MultiRequestsType"}
+			},
+			"required": ["Category"],
+			"additionalProperties": false
+		}
+	},
+	"type": "object",
+	"properties": {
+		"Request": {"$ref": "#/definitions/RequestType"}
+	},
+	"required": ["Request"],
+	"additionalProperties": false
+}

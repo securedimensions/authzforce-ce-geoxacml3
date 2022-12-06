@@ -61,6 +61,7 @@
                     <include>de/securedimensions/geoxacml3/pdp/io/Request.schema.json</include>
                     <include>de/securedimensions/geoxacml3/pdp/io/Response.schema.json</include>
                     <include>de/securedimensions/geoxacml3/pdp/io/Policy.schema.json</include>
+                    <include>de/securedimensions/geoxacml3/pdp/ogc/static/**</include>
                 </includes>
             </resource>
         </resources>
@@ -97,7 +98,17 @@
             <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
 
     </dependencies>
 </project>
