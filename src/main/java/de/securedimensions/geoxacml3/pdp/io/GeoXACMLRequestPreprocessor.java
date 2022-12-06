@@ -102,7 +102,7 @@ public final class GeoXACMLRequestPreprocessor extends BaseXacmlJaxbRequestPrepr
     }
 
     public static final class StrictVariantFactory extends BaseXacmlJaxbRequestPreprocessor.Factory {
-        public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:xacml-xml:default-strict";
+        public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-strict";
         public static final DecisionRequestPreprocessor.Factory<Request, IndividualXacmlJaxbRequest> INSTANCE = new StrictVariantFactory();
 
         public StrictVariantFactory() {
@@ -116,7 +116,7 @@ public final class GeoXACMLRequestPreprocessor extends BaseXacmlJaxbRequestPrepr
     }
 
     public static final class LaxVariantFactory extends BaseXacmlJaxbRequestPreprocessor.Factory {
-        public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:xacml-xml:default-lax";
+        public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-lax";
         public static final DecisionRequestPreprocessor.Factory<Request, IndividualXacmlJaxbRequest> INSTANCE = new LaxVariantFactory();
 
         public LaxVariantFactory() {
