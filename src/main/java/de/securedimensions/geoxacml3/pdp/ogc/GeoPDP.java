@@ -17,6 +17,9 @@
  */
 package de.securedimensions.geoxacml3.pdp.ogc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,8 +28,21 @@ import java.io.InputStream;
 
 public class GeoPDP implements Filter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoPDP.class);
+
+    private static String LANDING_PAGE_HTML;
+    private static String LANDING_PAGE_JSON;
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        try {
+            LANDING_PAGE_HTML = new String(GeoPDP.class.getResourceAsStream("landingpage.html").readAllBytes());
+            LANDING_PAGE_JSON = new String(GeoPDP.class.getResourceAsStream("landingpage.json").readAllBytes());
+        }
+        catch (IOException e)
+        {
+            LOGGER.error(e.getLocalizedMessage());
+        }
+
     }
 
     @Override
@@ -61,9 +77,11 @@ public class GeoPDP implements Filter {
 
     void doLandingPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (f(request).equalsIgnoreCase("json")) {
-            response.sendRedirect(request.getRequestURI() + "/static/landingpage.json");
+            response.setContentType("application/json");
+            response.getWriter().write(LANDING_PAGE_JSON.replaceAll("BASE_URL", request.getRequestURI()));
         } else {
-            response.sendRedirect(request.getRequestURI() + "/static/landingpage.html");
+            response.setContentType("text/html");
+            response.getWriter().write(LANDING_PAGE_HTML.replaceAll("BASE_URL", request.getRequestURI()));
         }
     }
 

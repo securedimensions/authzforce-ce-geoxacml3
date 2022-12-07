@@ -1,37 +1,37 @@
 {
     "title": "GeoXACML 3.0 Policy Decision Point Landing Page",
-    "description": "The GeoXACML 3.0 Policy Dcision Point supports the requesting of XACML 3.0 authorization decisions including the data-type Geometry",
+    "description": "The GeoXACML 3.0 Policy Decision Point supports the requesting of XACML 3.0 authorization decisions including the data-type Geometry",
     "attribution": "<a href='www.secure-dimensions.de' rel=' '>Secure Dimensions GmbH</a> <a href='https://creativecommons.org/licenses/by-nc-nd/3.0/de/deed.en'>CC-BY-NC-ND 3.0</a>",
     "links": [
         {
             "rel": "service-desc",
             "type": "application/json",
             "title": "API definition for this endpoint as JSON",
-            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/api?f=json"
+            "href": "BASE_URL/api?f=json"
         },
         {
             "rel": "service-desc",
             "type": "text/html",
             "title": "API definition for this endpoint as HTML",
-            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/api?f=html"
+            "href": "BASE_URL/api?f=html"
         },
         {
             "rel": "http://www.opengis.net/def/rel/ogc/1.0/conformance",
             "type": "application/json",
             "title": "Conformance Declaration as JSON",
-            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/conformance?f=json"
+            "href": "BASE_URL/conformance?f=json"
         },
         {
             "rel": "self",
             "type": "application/json",
             "title": "This Document",
-            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp?f=json"
+            "href": "BASE_URL?f=json"
         },
         {
             "rel": "alternate",
             "type": "text/html",
             "title": "This Document as HTML",
-            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp?f=html"
+            "href": "BASE_URL?f=html"
         }
     ]
 }
