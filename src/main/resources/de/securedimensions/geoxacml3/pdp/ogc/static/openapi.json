@@ -2,8 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "OGC GeoXACML 3.0 - OpenAPI 3.0",
-    "description": "This is the implementation based on the OGC GeoXACML 3.0 specification.  You can find out more about\nGeoXACML 3.0 at [https://www.ogc.org](https://www.ogc.org).",
-    "termsOfService": "https://ogc.demo.secure-dimensions.de/termsOfUse",
+    "description": "This is the implementation based on the OGC GeoXACML 3.0 specification.",
     "contact": {
       "email": "info@secure-dimensions.de"
     },
