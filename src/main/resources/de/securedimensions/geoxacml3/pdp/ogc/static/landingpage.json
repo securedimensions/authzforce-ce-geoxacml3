@@ -7,31 +7,31 @@
             "rel": "service-desc",
             "type": "application/json",
             "title": "API definition for this endpoint as JSON",
-            "href": "/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/api?f=json"
+            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/api?f=json"
         },
         {
             "rel": "service-desc",
             "type": "text/html",
             "title": "API definition for this endpoint as HTML",
-            "href": "/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/api?f=html"
+            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/api?f=html"
         },
         {
             "rel": "http://www.opengis.net/def/rel/ogc/1.0/conformance",
             "type": "application/json",
             "title": "Conformance Declaration as JSON",
-            "href": "/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/conformance?f=json"
+            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp/conformance?f=json"
         },
         {
             "rel": "self",
             "type": "application/json",
             "title": "This Document",
-            "href": "/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp?f=json"
+            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp?f=json"
         },
         {
             "rel": "alternate",
             "type": "text/html",
             "title": "This Document as HTML",
-            "href": "/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp?f=html"
+            "href": "/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp?f=html"
         }
     ]
 }
