@@ -19,6 +19,9 @@
   },
   "servers": [
     {
+      "url": "https://ogc.demo.secure-dimensions.de/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp"
+    },
+    {
       "url": "http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp"
     }
   ],
