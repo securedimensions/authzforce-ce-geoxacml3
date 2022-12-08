@@ -8,11 +8,21 @@ mvn pacakge
 * cp target/authzforce-geoxacml-<version>.jar <authzforce-server>/webapp/WEB-INF/lib
 * cp target/lib/jts-core-1.19.0.jar <authzforce-server>/webapp/WEB-INF/lib
 * cp target/lib/jts-io-common-1.19.0.jar <authzforce-server>/webapp/WEB-INF/lib
-* cp target/lib/log4j-over-slf4j-1.7.32.jar <authzforce-server>/webapp/WEB-INF/lib
+* cp target/lib/jul-to-slf4j-2.0.5.jar <authzforce-server>/webapp/WEB-INF/lib
 * cp target/lib/proj4j-1.1.5.jar <authzforce-server>/webapp/WEB-INF/lib
 
+## pdp.xml
+modify domain.tmpl/pdp.xml and domains/<default>/pdp.xml to include
+```xml
+<ioProcChain>
+    <requestPreproc>urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-lax</requestPreproc>
+</ioProcChain>
+<ioProcChain>
+    <requestPreproc>urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-lax</requestPreproc>
+</ioProcChain>
+```
 
-## Enable 
+## Enable GeoXACML extension
 PATCH <authzforce-server>/domains/<id>/pap/pdp.properties
 
 ```xml
@@ -55,7 +65,7 @@ PATCH <authzforce-server>/domains/<id>/pap/pdp.properties
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
     >urn:ogc:def:function:geoxacml:3.0:geometry-geometry-sym-difference</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-distance-equals</ns3:feature>
+    >urn:ogc:def:function:geoxacml:3.0:geometry-equals-distance</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
     >urn:ogc:def:function:geoxacml:3.0:geometry-bag</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
@@ -107,7 +117,7 @@ PATCH <authzforce-server>/domains/<id>/pap/pdp.properties
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
     >urn:ogc:def:function:geoxacml:3.0:geometry-area</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-ensure-crs</ns3:feature>
+    >urn:ogc:def:function:geoxacml:3.0:geometry-ensure-srs</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
     >urn:ogc:def:function:geoxacml:3.0:geometry-intersection</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
@@ -146,4 +156,211 @@ PATCH <authzforce-server>/domains/<id>/pap/pdp.properties
     >urn:ow2:authzforce:feature:pdp:result-postproc:xacml-json:default</ns3:feature>
     <ns3:rootPolicyRefExpression>root</ns3:rootPolicyRefExpression>
 </ns3:pdpPropertiesUpdate>
+```
+
+## Enable GeoXACML Media Types
+
+File <authzforce>/webapp/WEB-INF/beans.xml
+
+Update `<beans profile="-fastinfoset">`
+```xml
+<util:list id="xacmlJsonMediaTypes">
+         <!-- OASIS JSON Profile of XACML 3.0 -->
+         <value>application/xacml+json</value>
+         <!-- OGC JSON Profile of GeoXACML 3.0 -->
+         <value>application/geoxacml+json</value>
+      </util:list>
+      <util:list id="xacmlXmlMediaTypes">
+         <!-- OASIS XACML 3.0 -->
+         <value>application/xacml+xml</value>
+         <!-- OGC GeoXACML 3.0 -->
+         <value>application/geoxacml+xml</value>
+      </util:list>
+```
+
+Update `<bean class="org.ow2.authzforce.jaxrs.util.AcceptMediaTypeCheckingRequestFilter">`
+```xml
+<constructor-arg>
+                  <util:list>
+                     <value>application/xml</value>
+                     <!-- IETF RFC 7061 -->
+                     <value>application/xacml+xml</value>
+                     <value>application/json</value>
+                     <!-- OASIS JSON Profile of XACML 3.0 -->
+                     <value>application/xacml+json</value>
+                     <!-- GeoXACML 3.0 -->
+                     <value>application/geoxacml+xml</value>
+                     <value>application/geoxacml+json</value>
+                  </util:list>
+               </constructor-arg>
+```
+
+Update `<bean class="org.ow2.authzforce.webapp.NamespaceCollectingCxfJAXBElementProvider">`
+```xml
+<property name="produceMediaTypes" ref="xacmlXmlMediaTypes" />
+<property name="consumeMediaTypes" ref="xacmlXmlMediaTypes" />
+```
+
+Update `<bean class="org.ow2.authzforce.webapp.JsonRiCxfJaxrsProvider">`
+```xml
+ <property name="produceMediaTypes" ref="xacmlJsonMediaTypes" />
+<property name="consumeMediaTypes" ref="xacmlJsonMediaTypes" />
+```
+
+Update `<bean class="org.ow2.authzforce.webapp.org.apache.cxf.jaxrs.provider.json.JSONProvider">`
+```xml
+ <property name="produceMediaTypes" ref="defaultJsonMediaTypes" />
+<property name="consumeMediaTypes" ref="xacmlJsonMediaTypes" />
+```
+
+## Load GeoXACML JSON schema
+Copy the following JSON into `<authzforce>/conf/Request.schema.json`
+```json
+{
+	"$schema": "http://json-schema.org/draft-06/schema",
+	"$id": "Request.schema.json",
+	"title": "JSON schema of Request object defined in JSON profile of GeoXACML 3.0 v1.0",
+	"description": "",
+	"definitions": {
+		"AttributeValueType": {
+			"description": "Security warning: this definition allows any JSON object as value. TODO: find a way to validate it somehow. Possible solutions: 1) Modify this schema in production to restrict possible values as much as possible. 2) Any equivalent of XML processContents='strict'. 3) Any JSON processor that enforces a max text length, max number of keys, max object depth.",
+			"anyOf": [
+				{"type": "boolean"},
+				{"type": "number"},
+				{"type": "string"},
+				{"type": "object"},
+				{
+					"type": "array",
+					"items": {"type": "boolean"},
+					"minItems": 0
+				},
+				{
+					"type": "array",
+					"items": {
+						"type": [
+							"string",
+							"number"
+						]
+					},
+					"minItems": 0
+				},
+				{
+					"type": "array",
+					"items": {"type": "object"},
+					"minItems": 0
+				}
+			]
+		},
+		"AttributeType": {
+			"type": "object",
+			"properties": {
+				"AttributeId": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"SRS": {"type": "string"},
+				"Issuer": {"type": "string"},
+				"IncludeInResult": {"type": "boolean"},
+				"DataType": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"Value": {"$ref": "#/definitions/AttributeValueType"}
+			}
+		},
+		"AttributeCategoryType": {
+			"type": "object",
+			"properties": {
+				"CategoryId": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"Id": {"type": "string"},
+				"Content": {"type": "string"},
+				"Attribute": {
+					"type": "array",
+					"items": {"$ref": "#/definitions/AttributeType"},
+					"minItems": 0
+				}
+			},
+			"required": ["CategoryId"],
+			"additionalProperties": true
+		},
+		"RequestReferenceType": {
+			"type": "object",
+			"properties": {
+				"ReferenceId": {
+					"type": "array",
+					"items": {
+						"description": "Each item is a Category/Id",
+						"type": "string"
+					},
+					"minItems": 1
+				}
+			},
+			"required": ["ReferenceId"],
+			"additionalProperties": false
+		},
+		"MultiRequestsType": {
+			"type": "object",
+			"properties": {
+				"RequestReference": {
+					"type": "array",
+					"items": {"$ref": "#/definitions/RequestReferenceType"},
+					"minItems": 1
+				}
+			},
+			"required": ["RequestReference"],
+			"additionalProperties": false
+		},
+		"RequestType": {
+			"type": "object",
+			"properties": {
+				"ReturnPolicyIdList": {"type": "boolean"},
+				"CombinedDecision": {"type": "boolean"},
+				"XPathVersion": {"type": "string"},
+				"Category": {
+					"type": "array",
+					"items": {"$ref": "#/definitions/AttributeCategoryType"},
+					"minItems": 1
+				},
+				"MultiRequests": {"$ref": "#/definitions/MultiRequestsType"}
+			},
+			"required": ["Category"],
+			"additionalProperties": false
+		}
+	},
+	"type": "object",
+	"properties": {
+		"Request": {"$ref": "#/definitions/RequestType"}
+	},
+	"required": ["Request"],
+	"additionalProperties": false
+}
+```
+
+Update `authzforce-ce.xml`
+
+```xml
+<Environment name="org.ow2.authzforce.domains.xacmlJsonSchemaRelativePath" value="Request.schema.json" type="java.lang.String" override="false"
+                                 description="Path to JSON schema file for XACML JSON Profile's Request validation, relative to ${org.ow2.authzforce.config.dir} (if undefined/empty value, the Request.schema.json file from authzforce-ce-xacml-json-model project is used by default)" />
+```
+
+## Enable PDP
+In <authzforce>/webapp/WEB-INF/web.xml insert the following
+
+```xml
+<filter>
+      <description></description>
+      <filter-name>GeoPDP</filter-name>
+      <filter-class>de.securedimensions.geoxacml3.pdp.ogc.GeoPDP</filter-class>
+   </filter>
+   <filter-mapping>
+      <filter-name>GeoPDP</filter-name>
+       <servlet-name>CXFServlet</servlet-name>
+   </filter-mapping>
+<servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/static/*</url-pattern>
+</servlet-mapping>
 ```

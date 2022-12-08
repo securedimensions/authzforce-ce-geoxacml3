@@ -275,7 +275,9 @@ public abstract class GeometryFunctionTest {
                             if (cond == false)
                                 break;
                         }
-                    } else
+                    } else if (expectedG.isEmpty() && actualG.isEmpty())
+                        cond = true;
+                    else
                         cond = ((expectedG.equals(actualG)) && (expectedG.getSRID() == actualG.getSRID()));
 
                     Assert.assertTrue(toString, cond);

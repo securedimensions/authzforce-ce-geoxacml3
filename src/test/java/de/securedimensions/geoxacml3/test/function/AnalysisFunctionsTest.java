@@ -32,6 +32,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.gWMCRS84;
+import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.gWMSRS4326;
+
 @RunWith(Parameterized.class)
 public class AnalysisFunctionsTest extends GeometryFunctionTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoreFunctionsTest.class);
@@ -42,14 +45,6 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> params() {
-        Geometry gWGS84 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
-        gWGS84.setSRID(-4326);
-
-        Geometry gSRS4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
-        gSRS4326.setSRID(4326);
-
-        Geometry gSRID4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
-        gSRID4326.setSRID(4326);
 
         Geometry p00 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(0, 0));
         p00.setSRID(-4326);
@@ -85,8 +80,8 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
                 .asList(
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-ensure-srs
-                        new Object[]{AnalysisFunctions.EnsureSRS.ID, Arrays.asList(new GeometryValue(gWGS84), new StringValue("EPSG:4326")), new GeometryValue(gSRS4326)},
-                        new Object[]{AnalysisFunctions.EnsureSRS.ID, Arrays.asList(new GeometryValue(gSRS4326), new StringValue("EPSG:4326")), new GeometryValue(gSRS4326)},
+                        new Object[]{AnalysisFunctions.EnsureSRS.ID, Arrays.asList(new GeometryValue(gWMCRS84), new StringValue("EPSG:4326")), new GeometryValue(gWMSRS4326)},
+                        new Object[]{AnalysisFunctions.EnsureSRS.ID, Arrays.asList(new GeometryValue(gWMSRS4326), new StringValue("EPSG:4326")), new GeometryValue(gWMSRS4326)},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-envelope
                         new Object[]{AnalysisFunctions.Envelope.ID, Arrays.asList(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("POLYGON ((0 0, 0 100, 100 100, 100 0, 0 0))", null, Optional.empty())},

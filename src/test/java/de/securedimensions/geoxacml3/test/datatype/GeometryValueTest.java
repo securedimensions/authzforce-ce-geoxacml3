@@ -48,6 +48,94 @@ public class GeometryValueTest {
     private final Map<QName, String> otherXmlAttributes;
     private final XPathCompiler xPathCompiler;
 
+    /**
+    Test Geometries
+     */
+    public static Map<QName, String> xmlAttributeSRS4326 = new HashMap<QName, String>();
+    public static Map<QName, String> xmlAttributeWGS84 = new HashMap<QName, String>();
+
+    public static Map<QName, String> xmlAttributeSRID4326 = new HashMap<QName, String>();
+
+    public static Map<QName, String> xmlAttributeCRS84 = new HashMap<QName, String>();
+
+
+    public static Map<QName, String> xmlAttributePrecision1 = new HashMap<QName, String>();
+    public static Map<QName, String> xmlAttributePrecision9 = new HashMap<QName, String>();
+
+    public static Geometry gWMCRS84, gMCRS84, gWMSRS4326, gWMSRID4326, gWMSRID3857, lDefault, lEquator, lMeridian, lNotSimple, gEmpty;
+
+    public static Geometry pWashingtonDCCRS84, pUSACRS84, pCaliforniaCRS84, pNevadaCRS84, pMunichCRS84, pWorldCRS84;
+    public static GeometryCollection gHomogeneousCollection, gHeterogeneousCollection;
+
+    static {
+        xmlAttributeSRS4326.put(GeometryValue.xmlSRS, "EPSG:4326");
+        xmlAttributeWGS84.put(GeometryValue.xmlSRS, "WGS84");
+        xmlAttributeCRS84.put(GeometryValue.xmlSRS, "urn:ogc:def:crs:OGC::CRS84");
+        xmlAttributeSRID4326.put(GeometryValue.xmlSRID, "4326");
+
+        xmlAttributePrecision1.put(GeometryValue.xmlPrecision, "1.0");
+        xmlAttributePrecision9.put(GeometryValue.xmlPrecision, "9.0");
+
+        // Washington Monument in CRS84 (lon/lat)
+        gWMCRS84 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
+        gWMCRS84.setSRID(-4326);
+
+        // Munich in CRS84
+        gMCRS84 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(11.576124, 48.137154));
+        gMCRS84.setSRID(-4326);
+
+        // Washington Monument in EPSG:4326 (lat/lon)
+        gWMSRS4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
+        gWMSRS4326.setSRID(4326);
+
+        // Washington Monument in CRS84 (lon/lat)
+        gWMSRID4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
+        gWMSRID4326.setSRID(4326);
+
+        pWashingtonDCCRS84 = PolygonGenerator.fromBBox(-77.119759,38.791645,-76.909395,38.99511, GeometryValue.Factory.GEOMETRY_FACTORY);
+        pWashingtonDCCRS84.setSRID(-4326);
+
+        pUSACRS84 = PolygonGenerator.fromBBox(-124.763068,24.523096,	-66.949895,49.002494, GeometryValue.Factory.GEOMETRY_FACTORY);
+        pUSACRS84.setSRID(-4326);
+
+        pCaliforniaCRS84 = PolygonGenerator.fromBBox(-124.409591,	32.534156,	-114.131211,	42.009518, GeometryValue.Factory.GEOMETRY_FACTORY);
+        pCaliforniaCRS84.setSRID(-4326);
+
+        pNevadaCRS84 = PolygonGenerator.fromBBox(-120.005746,	35.001857,	-114.039648,	42.002207, GeometryValue.Factory.GEOMETRY_FACTORY);
+        pNevadaCRS84.setSRID(-4326);
+
+        pMunichCRS84 = PolygonGenerator.fromBBox(11.387727, 48.036465, 11.698190, 48.218848, GeometryValue.Factory.GEOMETRY_FACTORY);
+        pMunichCRS84.setSRID(-4326);
+
+        pWorldCRS84 = PolygonGenerator.fromBBox(-180, -90, 180, 90, GeometryValue.Factory.GEOMETRY_FACTORY);
+        pWorldCRS84.setSRID(-4326);
+
+        // Washington Monument in Web Mercator (east/north)
+        gWMSRID3857 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-8575527.92007827, 4705847.723791289));
+        gWMSRID3857.setSRID(3857);
+
+        lDefault = GeometryValue.Factory.GEOMETRY_FACTORY.createLineString(new Coordinate[] {gWMCRS84.getCoordinate(), gMCRS84.getCoordinate()});
+        lDefault.setSRID(-4326);
+
+        lEquator = GeometryValue.Factory.GEOMETRY_FACTORY.createLineString(new Coordinate[] {new Coordinate(-180, 0), new Coordinate(180, 0)});
+        lEquator.setSRID(-4326);
+
+        lMeridian = GeometryValue.Factory.GEOMETRY_FACTORY.createLineString(new Coordinate[] {new Coordinate(0, -90), new Coordinate(0, 90)});
+        lMeridian.setSRID(-4326);
+
+        lNotSimple = GeometryValue.Factory.GEOMETRY_FACTORY.createLineString(new Coordinate[] {new Coordinate(-180, 0), new Coordinate(180, 0), new Coordinate(0, -90), new Coordinate(0, 90)});
+        lNotSimple.setSRID(-4326);
+
+        gEmpty = GeometryValue.Factory.GEOMETRY_FACTORY.createEmpty(0);
+        gEmpty.setSRID(-4326);
+
+        Point []pHomogeneous = {(Point) gWMCRS84, (Point) gMCRS84};
+        gHomogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(pHomogeneous);
+
+        Geometry []pHeterogeneous = {(Point) gWMCRS84, (LineString)lDefault};
+        gHeterogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(pHeterogeneous);
+
+    }
     public GeometryValueTest(Object geometry, Map<QName, String> otherXmlAttributes, XPathCompiler xPathCompiler, String comment, Object result, Boolean isValid) {
         this.value = geometry;
         this.otherXmlAttributes = otherXmlAttributes;
@@ -59,70 +147,35 @@ public class GeometryValueTest {
 
     @Parameters
     public static Collection<Object[]> data() {
-        Map<QName, String> xmlAttributeSRS4326 = new HashMap<QName, String>();
-        xmlAttributeSRS4326.put(GeometryValue.xmlSRS, "EPSG:4326");
-        Map<QName, String> xmlAttributeWGS84 = new HashMap<QName, String>();
-        xmlAttributeWGS84.put(GeometryValue.xmlSRS, "WGS84");
-        Map<QName, String> xmlAttributeCRS84 = new HashMap<QName, String>();
-        xmlAttributeCRS84.put(GeometryValue.xmlSRS, "urn:ogc:def:crs:OGC::CRS84");
-        Map<QName, String> xmlAttributeSRID4326 = new HashMap<QName, String>();
-        xmlAttributeSRID4326.put(GeometryValue.xmlSRID, "4326");
-        Map<QName, String> xmlAttributePrecision1 = new HashMap<QName, String>();
-        xmlAttributePrecision1.put(GeometryValue.xmlPrecision, "1.0");
-
         Processor processor = new Processor(false);
         XPathCompiler xPathCompiler = processor.newXPathCompiler();
 
-        Geometry gDefault = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));
-        gDefault.setSRID(-4326);
-
-        Coordinate []cDefault = {new Coordinate(-77.035278, 38.889444), new Coordinate(38.889444, -77.035278)};
-        Geometry lDefault = GeometryValue.Factory.GEOMETRY_FACTORY.createLineString(cDefault);
-        lDefault.setSRID(-4326);
-
-        Geometry gSRS4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
-        gSRS4326.setSRID(4326);
-
-        Geometry gSRID4326 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(38.889444, -77.035278));
-        gSRS4326.setSRID(4326);
-
-        Point []pHomogeneous = {(Point) gDefault, (Point) gDefault};
-        GeometryCollection gHomogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(pHomogeneous);
-
-        Geometry []pHeterogeneous = {(Point)gDefault, (LineString)lDefault};
-        GeometryCollection gHeterogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(pHeterogeneous);
-
         JSONObject geojson = new JSONObject();
-        geojson.putOpt("type", gDefault.getGeometryType());
-        double[] coords = {gDefault.getCoordinate().getX(), gDefault.getCoordinate().getY()};
-        geojson.putOpt("coordinates", new JSONArray(coords));
+        geojson.putOpt("type", gWMCRS84.getGeometryType());
+        geojson.putOpt("coordinates", new JSONArray(new double[] {gWMCRS84.getCoordinate().getX(), gWMCRS84.getCoordinate().getY()}));
 
-        return Arrays
-                .asList(
+        return Arrays.asList(
+            // WKT encoding with default SRS (WGS84) and precision 1.0
+            new Object[]{gWMCRS84.toString(), xmlAttributePrecision1, xPathCompiler, "WKT with using precision 1.0", gWMCRS84, true},
 
-                    // WKT encoding with default SRS (WGS84) and precision 1.0
-                    new Object[]{gDefault.toString(), xmlAttributePrecision1, xPathCompiler, "WKT with using precision 1.0", gDefault, true},
+            // WKT encoding with default SRS (WGS84)
+            new Object[]{gWMCRS84.toString(), null, xPathCompiler, "WKT with using default SRS", gWMCRS84, true},
 
-                    // WKT encoding with default SRS (WGS84)
-                    new Object[]{gDefault.toString(), null, xPathCompiler, "WKT with using default SRS", gDefault, true},
+            // WKT encoding with SRS in otherXMLAttributes: SRS
+            new Object[]{gWMSRS4326.toString(), xmlAttributeSRS4326, xPathCompiler, "WKT using EPSG:4326 as attribute 'srs' in AttributeValue", gWMSRS4326, true},
+            new Object[]{gWMCRS84.toString(), xmlAttributeWGS84, xPathCompiler, "WKT using WGS84 as attribute 'srs' in AttributeValue", gWMSRS4326, true},
+            new Object[]{gWMCRS84.toString(), xmlAttributeCRS84, xPathCompiler, "WKT using CRS84 as attribute 'srs' in AttributeValue", gWMSRS4326, true},
 
-                    // WKT encoding with SRS in otherXMLAttributes: SRS
-                    new Object[]{gSRS4326.toString(), xmlAttributeSRS4326, xPathCompiler, "WKT using EPSG:4326 as attribute 'srs' in AttributeValue", gSRS4326, true},
-                    new Object[]{gDefault.toString(), xmlAttributeWGS84, xPathCompiler, "WKT using WGS84 as attribute 'srs' in AttributeValue", gSRS4326, true},
-                    new Object[]{gDefault.toString(), xmlAttributeCRS84, xPathCompiler, "WKT using CRS84 as attribute 'srs' in AttributeValue", gSRS4326, true},
+            // WKT encoding with SRS in otherXMLAttributes: SRID
+            new Object[]{gWMSRID4326.toString(), xmlAttributeSRID4326, xPathCompiler, "WKT using SRID as attribute 'srid' in AttributeValue", gWMSRID4326, true},
 
-                    // WKT encoding with SRS in otherXMLAttributes: SRID
-                    new Object[]{gSRID4326.toString(), xmlAttributeSRID4326, xPathCompiler, "WKT using SRID as attribute 'srid' in AttributeValue", gSRID4326, true},
+            // GeoJSON encoding with default SRS
+            new Object[]{new SerializableJSONObject(geojson), null, xPathCompiler, "GeoJSON using WGS84", gWMCRS84, true},
 
-                    // GeoJSON encoding with default SRS
-                    new Object[]{new SerializableJSONObject(geojson), null, xPathCompiler, "GeoJSON using WGS84", gDefault, true},
-
-                    // Homogeneous collection is allowed
-                    new Object[]{gHomogeneousCollection.toString(), null, xPathCompiler, "Homogeneous Collection", gHomogeneousCollection, true},
-                    new Object[]{gHeterogeneousCollection.toString(), null, xPathCompiler, "Heterogeneous Collection", new IllegalArgumentException("GeometryCollection must be homogeneous"), false}
-
-
-                        );
+            // Homogeneous collection is allowed
+            new Object[]{gHomogeneousCollection.toString(), null, xPathCompiler, "Homogeneous Collection", gHomogeneousCollection, true},
+            new Object[]{gHeterogeneousCollection.toString(), null, xPathCompiler, "Heterogeneous Collection", new IllegalArgumentException("GeometryCollection must be homogeneous"), false}
+        );
 
     }
 
@@ -161,4 +214,19 @@ public class GeometryValueTest {
         }
     }
 
+    private static class PolygonGenerator extends org.locationtech.jts.geom.Polygon {
+
+        public PolygonGenerator(LinearRing shell, LinearRing[] holes, GeometryFactory factory) {
+            super(shell, holes, factory);
+        }
+
+        public static Polygon fromBBox(double xmin, double ymin, double xmax, double ymax, GeometryFactory gf)
+        {
+            Coordinate c1 = new Coordinate(xmin, ymin);
+            Coordinate c2 = new Coordinate(xmin, ymax);
+            Coordinate c3 = new Coordinate(xmax, ymax);
+            Coordinate c4 = new Coordinate(xmax, ymin);
+            return gf.createPolygon(new Coordinate[] {c1, c2, c3, c4, c1});
+        }
+    }
 }

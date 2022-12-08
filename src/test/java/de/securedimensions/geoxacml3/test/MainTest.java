@@ -18,10 +18,7 @@
 package de.securedimensions.geoxacml3.test;
 
 import de.securedimensions.geoxacml3.test.datatype.GeometryValueTest;
-import de.securedimensions.geoxacml3.test.function.AnalysisFunctionsTest;
-import de.securedimensions.geoxacml3.test.function.BagSetFunctionsTest;
-import de.securedimensions.geoxacml3.test.function.CoreFunctionsTest;
-import de.securedimensions.geoxacml3.test.function.TopologicalFunctionsTest;
+import de.securedimensions.geoxacml3.test.function.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -30,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses(value = {GeometryValueTest.class, TopologicalFunctionsTest.class, CoreFunctionsTest.class, AnalysisFunctionsTest.class, BagSetFunctionsTest.class})
+@Suite.SuiteClasses(value = {GeometryValueTest.class, TopologicalFunctionsTest.class, CoreFunctionsTest.class, AnalysisFunctionsTest.class, BagSetFunctionsTest.class, CRSTransformationTest.class, PrecisionTest.class})
 public class MainTest {
     /**
      * the logger we'll use for all messages

@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.ow2.authzforce</groupId>
             <artifactId>authzforce-ce-core-pdp-api</artifactId>
-            <version>21.2.0</version>
+            <version>21.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.jts</groupId>
@@ -109,7 +109,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
             <version>2.0.5</version>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

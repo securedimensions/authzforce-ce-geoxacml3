@@ -103,8 +103,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
 
     public GeometryValue(Geometry g) {
 
-        super(g);
-        value.setUserData(g.getUserData());
+        super(g.copy());
     }
 
     @Override
