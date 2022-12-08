@@ -183,10 +183,10 @@ public class BagSetFunctions {
                                 String attributeId = userDataG.get(GeometryValue.xmlAttributeId);
                                 Map<QName, String> otherAttributes = new HashMap<>();
                                 otherAttributes.put(GeometryValue.xmlAttributeId, userDataG.get(GeometryValue.xmlAttributeId));
-                                AttributeValueType av = new AttributeValueType(List.of(g), GeometryValue.DATATYPE.getId(), otherAttributes);
+                                AttributeValueType av = new AttributeValueType(List.of(), GeometryValue.DATATYPE.getId(), otherAttributes);
                                 attributeValues.add(av);
                                 MissingAttributeDetail mad = new MissingAttributeDetail(attributeValues, categoryId, attributeId, GeometryValue.DATATYPE.getId(), null);
-
+                                throw new IndeterminateEvaluationException(GeometryValue.SRS_ERROR, mad, Optional.of("Function " + ID + " please resend request and use specified SRS"));
                             }
                             Map<QName, String> userDataGi = (Map<QName, String>) gi.getUserData();
                             if ((userDataGi != null)&& (!userDataGi.isEmpty()))
@@ -195,13 +195,12 @@ public class BagSetFunctions {
                                 String attributeId = userDataGi.get(GeometryValue.xmlAttributeId);
                                 Map<QName, String> otherAttributes = new HashMap<>();
                                 otherAttributes.put(GeometryValue.xmlAttributeId, userDataGi.get(GeometryValue.xmlAttributeId));
-                                AttributeValueType av = new AttributeValueType(List.of(gi), GeometryValue.DATATYPE.getId(), otherAttributes);
+                                AttributeValueType av = new AttributeValueType(List.of(), GeometryValue.DATATYPE.getId(), otherAttributes);
                                 attributeValues.add(av);
                                 MissingAttributeDetail mad = new MissingAttributeDetail(attributeValues, categoryId, attributeId, GeometryValue.DATATYPE.getId(), null);
-                                mad.getAttributeValues();
+                                throw new IndeterminateEvaluationException(GeometryValue.SRS_ERROR, mad, Optional.of("Function " + ID + " please resend request and use specified SRS"));
                             }
-                            throw new IndeterminateEvaluationException(
-                                    new ImmutableXacmlStatus(GeometryValue.SRS_ERROR, Optional.of("Function " + ID + " expects same SRS for both geometry parameters")));
+
                         }
                     }
                 }
