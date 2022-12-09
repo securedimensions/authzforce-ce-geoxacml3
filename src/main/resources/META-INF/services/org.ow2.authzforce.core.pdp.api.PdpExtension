@@ -54,3 +54,5 @@ de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$LaxVariantFacto
 
 de.securedimensions.geoxacml3.pdp.io.GeoXacmlJsonRequestPreprocessor$LaxVariantFactory
 de.securedimensions.geoxacml3.pdp.io.GeoXacmlJsonRequestPreprocessor$StrictVariantFactory
+
+de.securedimensions.geoxacml3.pdp.io.GeoXacmlJsonResultPostProcessor$DefaultFactory

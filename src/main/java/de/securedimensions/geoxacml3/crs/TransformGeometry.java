@@ -28,7 +28,7 @@ import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 import javax.xml.namespace.QName;
 import java.util.*;
 
-import static de.securedimensions.geoxacml3.identifiers.Definitions.CRS_ERROR;
+import static de.securedimensions.geoxacml3.identifiers.Definitions.*;
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 import static org.ow2.authzforce.xacml.identifiers.XacmlStatusCode.SYNTAX_ERROR;
@@ -138,11 +138,11 @@ public class TransformGeometry {
                 // geometry 1 is contained in the ADR
                 // to indicate the CRS to be used, geometry 1 gets the CRS from geometry 2
                 if (otherXmlAttributesG1.containsKey(Definitions.xmlSRID)) {
-                    otherXmlAttributesG1.replace(Definitions.xmlSRID, otherXmlAttributesG2.get(Definitions.xmlSRID));
+                    otherXmlAttributesG1.replace(Definitions.xmlSRID, otherXmlAttributesG2.getOrDefault(Definitions.xmlSRID, String.valueOf(DEFAULT_SRID)));
                     otherXmlAttributesG1.remove(Definitions.xmlCRS);
                 }
                 else if (otherXmlAttributesG1.containsKey(Definitions.xmlCRS)) {
-                    otherXmlAttributesG1.replace(Definitions.xmlCRS, otherXmlAttributesG2.get(Definitions.xmlCRS));
+                    otherXmlAttributesG1.replace(Definitions.xmlCRS, otherXmlAttributesG2.getOrDefault(Definitions.xmlCRS, DEFAULT_CRS));
                     otherXmlAttributesG1.remove(Definitions.xmlSRID);
                 }
                 else {
@@ -162,11 +162,11 @@ public class TransformGeometry {
                 // geometry 2 is contained in the ADR
                 // to indicate the CRS to be used, geometry 2 gets the CRS from geometry 1
                 if (otherXmlAttributesG2.containsKey(Definitions.xmlSRID)) {
-                    otherXmlAttributesG2.replace(Definitions.xmlSRID, otherXmlAttributesG1.get(Definitions.xmlSRID));
+                    otherXmlAttributesG2.replace(Definitions.xmlSRID, otherXmlAttributesG1.getOrDefault(Definitions.xmlSRID, String.valueOf(DEFAULT_SRID)));
                     otherXmlAttributesG2.remove(Definitions.xmlCRS);
                 }
                 else if (otherXmlAttributesG2.containsKey(Definitions.xmlCRS)) {
-                    otherXmlAttributesG2.replace(Definitions.xmlCRS, otherXmlAttributesG1.get(Definitions.xmlCRS));
+                    otherXmlAttributesG2.replace(Definitions.xmlCRS, otherXmlAttributesG1.getOrDefault(Definitions.xmlCRS, DEFAULT_CRS));
                     otherXmlAttributesG2.remove(Definitions.xmlSRID);
                 }
                 else {

@@ -25,4 +25,8 @@ public class Definitions {
     public static final String ATTR_SOURCE_DESIGNATOR = "AttributeSourceDesignator";
     public static final String ATTR_SOURCE_POLICY = "AttributeSourcePolicy";
 
+    public static final String DEFAULT_CRS = "urn:ogc:def:crs:OGC::CRS84";
+
+    public static final int DEFAULT_SRID = -4326;
+
 }
