@@ -18,6 +18,7 @@
 package de.securedimensions.geoxacml3.test.datatype;
 
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.XPathCompiler;
 import org.json.JSONArray;
@@ -68,13 +69,13 @@ public class GeometryValueTest {
     public static GeometryCollection gHomogeneousCollection, gHeterogeneousCollection;
 
     static {
-        xmlAttributeSRS4326.put(GeometryValue.xmlSRS, "EPSG:4326");
-        xmlAttributeWGS84.put(GeometryValue.xmlSRS, "WGS84");
-        xmlAttributeCRS84.put(GeometryValue.xmlSRS, "urn:ogc:def:crs:OGC::CRS84");
-        xmlAttributeSRID4326.put(GeometryValue.xmlSRID, "4326");
+        xmlAttributeSRS4326.put(Definitions.xmlCRS, "EPSG:4326");
+        xmlAttributeWGS84.put(Definitions.xmlCRS, "WGS84");
+        xmlAttributeCRS84.put(Definitions.xmlCRS, "urn:ogc:def:crs:OGC::CRS84");
+        xmlAttributeSRID4326.put(Definitions.xmlSRID, "4326");
 
-        xmlAttributePrecision1.put(GeometryValue.xmlPrecision, "1.0");
-        xmlAttributePrecision9.put(GeometryValue.xmlPrecision, "9.0");
+        xmlAttributePrecision1.put(Definitions.xmlPrecision, "1.0");
+        xmlAttributePrecision9.put(Definitions.xmlPrecision, "9.0");
 
         // Washington Monument in CRS84 (lon/lat)
         gWMCRS84 = GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-77.035278, 38.889444));

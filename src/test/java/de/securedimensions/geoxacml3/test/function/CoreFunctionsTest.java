@@ -18,6 +18,7 @@
 package de.securedimensions.geoxacml3.test.function;
 
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import de.securedimensions.geoxacml3.function.AnalysisFunctions;
 import de.securedimensions.geoxacml3.function.CoreFunctions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -45,6 +46,9 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> params() {
+
+        GeometryCollection homogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(new Geometry[]{gWMCRS84, gMCRS84});
+        GeometryCollection heterogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(new Geometry[]{gMCRS84, pMunichCRS84});
 
         return Arrays.asList(
 
@@ -130,7 +134,16 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
                 new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84), StringValue.parse("FF0FFF102")), BooleanValue.FALSE},
                 new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(lEquator), StringValue.parse("FF0FFF102")), BooleanValue.TRUE},
                 new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(lEquator), new GeometryValue(gWMCRS84), StringValue.parse("FF0FFF102")), BooleanValue.FALSE},
-                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(lEquator), new GeometryValue(gWMCRS84), StringValue.parse("FF1FF00F2")), BooleanValue.TRUE}
+                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(lEquator), new GeometryValue(gWMCRS84), StringValue.parse("FF1FF00F2")), BooleanValue.TRUE},
+
+                // urn:ogc:def:function:geoxacml:3.0:geometry-bag-from-collection
+                new Object[]{CoreFunctions.GeometryBagFromCollection.ID, Arrays.asList(new GeometryValue(homogeneousCollection)), Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))},
+                new Object[]{CoreFunctions.GeometryBagFromCollection.ID, Arrays.asList(new GeometryValue(heterogeneousCollection)), Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gMCRS84), new GeometryValue(pMunichCRS84)))},
+
+                // urn:ogc:def:function:geoxacml:3.0:geometry-bag-to-collection
+                new Object[]{CoreFunctions.GeometryBagToHomogeneousCollection.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))), new GeometryValue(homogeneousCollection)},
+                new Object[]{CoreFunctions.GeometryBagToHomogeneousCollection.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gMCRS84), new GeometryValue(pMunichCRS84)))), null}
+
         );
     }
 

@@ -17,9 +17,7 @@
  */
 package de.securedimensions.geoxacml3.datatype;
 
-import de.securedimensions.geoxacml3.crs.TransformGeometry;
-import de.securedimensions.geoxacml3.function.TopologicalFunctions;
-import de.securedimensions.geoxacml3.function.UtilityFunctions;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import de.securedimensions.io.geojson.GeoJsonReader;
 import net.sf.saxon.s9api.ItemType;
 import net.sf.saxon.s9api.XdmAtomicValue;
@@ -33,8 +31,6 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
-import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
-import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 import org.ow2.authzforce.core.pdp.api.expression.XPathCompilerProxy;
 import org.ow2.authzforce.core.pdp.api.value.AttributeDatatype;
 import org.ow2.authzforce.core.pdp.api.value.SimpleValue;
@@ -63,36 +59,12 @@ import java.util.*;
 public final class GeometryValue extends SimpleValue<Geometry> {
 
     public static final String ID = "urn:ogc:def:dataType:geoxacml:3.0:geometry";
-    public static final String FUNCTION_PREFIX = "urn:ogc:def:function:geoxacml:3.0:geometry";
-    public static final String ERROR_PREFIX = "urn:ogc:def:function:geoxacml:3.0:";
 
-    public static final QName xmlSRID = new QName("http://www.opengis.net/spec/geoxacml/3.0", "srid");
-    public static final QName xmlSRS = new QName("http://www.opengis.net/spec/geoxacml/3.0", "srs");
-
-    public static final QName xmlAllowTransformation = new QName("http://www.opengis.net/spec/geoxacml/3.0", "allowTransformation");
-
-    public static final QName xmlPrecision = new QName("http://www.opengis.net/spec/geoxacml/3.0", "precision");
-    public static final QName jsonSRID = new QName("http://www.opengis.net/spec/geoxacml/3.0", "SRID");
-    public static final QName jsonSRS = new QName("http://www.opengis.net/spec/geoxacml/3.0", "SRS");
-
-    public static final QName jsonAllowTransformation = new QName("http://www.opengis.net/spec/geoxacml/3.0", "AllowTransformation");
-
-    public static final QName jsonPrecision = new QName("http://www.opengis.net/spec/geoxacml/3.0", "Precision");
-    public static final QName SOURCE = new QName("http://www.opengis.net/spec/geoxacml/3.0", "source");
-    public static final String SOURCE_ATTR_DESIGNATOR = "AttributeDesignator";
-    public static final String SOURCE_POLICY = "Policy";
-    public static final QName xmlAttributeId = new QName("http://www.opengis.net/spec/geoxacml/3.0", "attributeId");
-    public static final QName xmlCategoryId = new QName("http://www.opengis.net/spec/geoxacml/3.0", "categoryId");
-
-    public static final String SRS_ERROR = ERROR_PREFIX + "srs-error";
-    public static final String GEOMETRY_ERROR = ERROR_PREFIX + "geometry-error";
-    public static final String GEOMETRYCOLLECTION_ERROR = ERROR_PREFIX + "geometrycollection-error";
-    public static final String PRECISION_ERROR = ERROR_PREFIX + "precision-error";
     public static final AttributeDatatype<GeometryValue> DATATYPE =
             new AttributeDatatype<GeometryValue>(
                     GeometryValue.class,
                     ID,
-                    FUNCTION_PREFIX,
+                    Definitions.FUNCTION_PREFIX,
                     ItemType.STRING);
     public static final Factory FACTORY = new Factory();
 
@@ -194,10 +166,10 @@ public final class GeometryValue extends SimpleValue<Geometry> {
             try {
                 int srid = -4326;
                 if (otherXmlAttributes != null && !otherXmlAttributes.isEmpty()) {
-                    if (otherXmlAttributes.containsKey(xmlSRID))
-                        srid = Integer.parseInt(otherXmlAttributes.get(xmlSRID));
-                    else if (otherXmlAttributes.containsKey(xmlSRS)) {
-                        String srs = otherXmlAttributes.get(xmlSRS);
+                    if (otherXmlAttributes.containsKey(Definitions.xmlSRID))
+                        srid = Integer.parseInt(otherXmlAttributes.get(Definitions.xmlSRID));
+                    else if (otherXmlAttributes.containsKey(Definitions.xmlCRS)) {
+                        String srs = otherXmlAttributes.get(Definitions.xmlCRS);
                         if (srs.toUpperCase().contains("WGS84") || srs.toUpperCase().contains("CRS84"))
                             srid = -4326;
                         else {
@@ -310,7 +282,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                 g.setUserData(otherXmlAttributes);
                 return new GeometryValue(g);
             } catch (ParseException e) {
-                throw new IllegalArgumentException(GEOMETRY_ERROR,e);
+                throw new IllegalArgumentException(Definitions.GEOMETRY_ERROR,e);
             }
 
 

@@ -19,85 +19,93 @@ package de.securedimensions.geoxacml3.pdp.io;
 
 import com.google.common.collect.ImmutableList;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
-import net.sf.saxon.s9api.XdmNode;
+
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.Attribute;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.Attributes;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.Request;
 import org.ow2.authzforce.core.pdp.api.*;
 import org.ow2.authzforce.core.pdp.api.expression.XPathCompilerProxy;
-import org.ow2.authzforce.core.pdp.api.io.BaseXacmlJaxbRequestPreprocessor;
-import org.ow2.authzforce.core.pdp.api.io.IndividualXacmlJaxbRequest;
-import org.ow2.authzforce.core.pdp.api.io.SingleCategoryAttributes;
-import org.ow2.authzforce.core.pdp.api.io.SingleCategoryXacmlAttributesParser;
+import org.ow2.authzforce.core.pdp.api.io.*;
 import org.ow2.authzforce.core.pdp.api.value.AttributeBag;
+import org.ow2.authzforce.core.pdp.api.value.AttributeValue;
+import org.ow2.authzforce.core.pdp.api.value.AttributeValueFactory;
 import org.ow2.authzforce.core.pdp.api.value.AttributeValueFactoryRegistry;
+import org.ow2.authzforce.core.pdp.impl.io.SingleDecisionXacmlJaxbRequestPreprocessor;
+import org.ow2.authzforce.xacml.identifiers.XacmlNodeName;
 import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
+import org.ow2.authzforce.xacml.identifiers.XacmlVersion;
 
+import javax.xml.namespace.QName;
 import java.util.*;
 
-public final class GeoXACMLRequestPreprocessor extends BaseXacmlJaxbRequestPreprocessor {
+public final class GeoXACMLRequestPreprocessor {
     private static final DecisionRequestFactory<ImmutableDecisionRequest> DEFAULT_REQUEST_FACTORY = ImmutableDecisionRequest::getInstance;
-    private final DecisionRequestFactory<ImmutableDecisionRequest> reqFactory;
 
-    public GeoXACMLRequestPreprocessor(AttributeValueFactoryRegistry datatypeFactoryRegistry, DecisionRequestFactory<ImmutableDecisionRequest> requestFactory, boolean strictAttributeIssuerMatch, boolean allowAttributeDuplicates, boolean requireContentForXPath, Set<String> extraPdpFeatures) {
-        super(datatypeFactoryRegistry, strictAttributeIssuerMatch, allowAttributeDuplicates, requireContentForXPath, extraPdpFeatures);
+    public static QName XACML_ATTRIBUTE_ID_QNAME = new QName(XacmlVersion.V3_0.getNamespace(), "AttributeId");
+    public static QName XACML_CATEGORY_ID_QNAME = new QName(XacmlVersion.V3_0.getNamespace(), XacmlNodeName.ATTRIBUTES_CATEGORY.value());
+    private static final class CustomNamedXacmlJaxbAttributeParser extends NamedXacmlAttributeParser<Attribute>
+    {
+        private static final IllegalArgumentException NULL_ATTRIBUTE_CATEGORY_ARGUMENT_EXCEPTION = new IllegalArgumentException("Undefined XACML attribute category");
+        private static final IllegalArgumentException NULL_INPUT_ATTRIBUTE_ARGUMENT_EXCEPTION = new IllegalArgumentException("Undefined input XACML attribute arg (inputXacmlAttribute)");
+        private static final IllegalArgumentException NO_JAXB_ATTRIBUTE_VALUE_LIST_ARGUMENT_EXCEPTION = new IllegalArgumentException(
+                "Input XACML attribute values null/empty (nonEmptyJaxbAttributeValues)");
 
-        assert requestFactory != null;
+        private CustomNamedXacmlJaxbAttributeParser(AttributeValueFactoryRegistry attributeValueFactoryRegistry) throws IllegalArgumentException
+        {
+            super(attributeValueFactoryRegistry);
+        }
 
-        this.reqFactory = requestFactory;
-    }
+        private static <AV extends AttributeValue> NamedXacmlAttributeParsingResult<AV> parseNamedAttribute(final AttributeFqn attName, final List<AttributeValueType> nonEmptyInputXacmlAttValues,
+                                                                                                            final AttributeValueFactory<AV> attValFactory, final Optional<XPathCompilerProxy> xPathCompiler)
+        {
+            assert attName != null && nonEmptyInputXacmlAttValues != null && !nonEmptyInputXacmlAttValues.isEmpty() && attValFactory != null;
 
-    @Override
-    public List<IndividualXacmlJaxbRequest> process(List<Attributes> attributesList, SingleCategoryXacmlAttributesParser<Attributes> xacmlAttrsParser, boolean isApplicablePolicyIdListReturned, boolean combinedDecision, Optional<XPathCompilerProxy> xPathCompiler, Map<String, String> namespaceURIsByPrefix) throws IndeterminateEvaluationException {
-        Map<AttributeFqn, AttributeBag<?>> namedAttributes = HashCollections.newUpdatableMap(attributesList.size());
-        Map<String, XdmNode> extraContentsByCategory = HashCollections.newUpdatableMap(attributesList.size());
-        List<Attributes> attributesToIncludeInResult = new ArrayList(attributesList.size());
-        Iterator ali = attributesList.iterator();
-
-        while (true) {
-            SingleCategoryAttributes categorySpecificAttributes;
-            do {
-                if (!ali.hasNext()) {
-                    return Collections.singletonList(new IndividualXacmlJaxbRequest(this.reqFactory.getInstance(namedAttributes, extraContentsByCategory, isApplicablePolicyIdListReturned), ImmutableList.copyOf(attributesToIncludeInResult)));
-                }
-
-                Attributes jaxbAttributes = (Attributes) ali.next();
-                // Add AttributeId and SubjectId to otherXMLAttribute
-                Iterator<Attribute> ia = jaxbAttributes.getAttributes().listIterator();
-                while (ia.hasNext()) {
-                    Attribute attribute = ia.next();
-                    ListIterator<AttributeValueType> iav = attribute.getAttributeValues().listIterator();
-                    while (iav.hasNext()) {
-                        AttributeValueType av = iav.next();
-                        av.getOtherAttributes().put(GeometryValue.xmlAttributeId, attribute.getAttributeId());
-                        av.getOtherAttributes().put(GeometryValue.xmlCategoryId, jaxbAttributes.getCategory());
-                        av.getOtherAttributes().put(GeometryValue.SOURCE, GeometryValue.SOURCE_ATTR_DESIGNATOR);
-                    }
-                }
-                categorySpecificAttributes = xacmlAttrsParser.parseAttributes(jaxbAttributes, xPathCompiler);
-            } while (categorySpecificAttributes == null);
-
-            String categoryId = categorySpecificAttributes.getCategoryId();
-            XdmNode newContentNode = categorySpecificAttributes.getExtraContent();
-            if (newContentNode != null) {
-                XdmNode duplicate = extraContentsByCategory.putIfAbsent(categoryId, newContentNode);
-                if (duplicate != null) {
-                    throw new IndeterminateEvaluationException("Unsupported repetition of Attributes[@Category='" + categoryId + "'] (feature 'urn:oasis:names:tc:xacml:3.0:profile:multiple:repeated-attribute-categories' is not supported)", XacmlStatusCode.SYNTAX_ERROR.value());
-                }
+            final Collection<AV> attValues = new ArrayDeque<>(nonEmptyInputXacmlAttValues.size());
+            for (final AttributeValueType inputXacmlAttValue : nonEmptyInputXacmlAttValues)
+            {
+                // Here is the actual custom transformation: adding AttributeId, Category to AttributeValues
+                final Map<QName, String> modifiedXmlAttributes = new HashMap<>(inputXacmlAttValue.getOtherAttributes());
+                modifiedXmlAttributes.put(XACML_CATEGORY_ID_QNAME, attName.getCategory());
+                modifiedXmlAttributes.put(XACML_ATTRIBUTE_ID_QNAME, attName.getId());
+                modifiedXmlAttributes.put(Definitions.ATTR_SOURCE, Definitions.ATTR_SOURCE_DESIGNATOR);
+                final AV resultValue = attValFactory.getInstance(inputXacmlAttValue.getContent(), modifiedXmlAttributes, xPathCompiler);
+                attValues.add(resultValue);
             }
 
-            Iterator csai = categorySpecificAttributes.iterator();
+            return new ImmutableNamedXacmlAttributeParsingResult<>(attName, attValFactory.getDatatype(), ImmutableList.copyOf(attValues));
+        }
 
-            while (csai.hasNext()) {
-                Map.Entry<AttributeFqn, AttributeBag<?>> attrEntry = (Map.Entry) csai.next();
-                namedAttributes.put(attrEntry.getKey(), attrEntry.getValue());
+        @Override
+        protected NamedXacmlAttributeParsingResult<?> parseNamedAttribute(String attributeCategoryId, Attribute inputXacmlAttribute, Optional<XPathCompilerProxy> xPathCompiler) throws IllegalArgumentException
+        {
+            if (attributeCategoryId == null)
+            {
+                throw NULL_ATTRIBUTE_CATEGORY_ARGUMENT_EXCEPTION;
             }
 
-            Attributes catSpecificAttrsToIncludeInResult = (Attributes) categorySpecificAttributes.getAttributesToIncludeInResult();
-            if (catSpecificAttrsToIncludeInResult != null) {
-                attributesToIncludeInResult.add(catSpecificAttrsToIncludeInResult);
+            if (inputXacmlAttribute == null)
+            {
+                throw NULL_INPUT_ATTRIBUTE_ARGUMENT_EXCEPTION;
             }
+
+            final List<AttributeValueType> inputXacmlAttValues = inputXacmlAttribute.getAttributeValues();
+            if (inputXacmlAttValues == null || inputXacmlAttValues.isEmpty())
+            {
+                throw NO_JAXB_ATTRIBUTE_VALUE_LIST_ARGUMENT_EXCEPTION;
+            }
+
+            final AttributeFqn attName = AttributeFqns.newInstance(attributeCategoryId, Optional.ofNullable(inputXacmlAttribute.getIssuer()), inputXacmlAttribute.getAttributeId());
+
+            /*
+             * Determine the attribute datatype to make sure it is supported and all values are of the same datatype. Indeed, XACML spec says for Attribute Bags (7.3.2): "There SHALL be no notion of a
+             * bag containing bags, or a bag containing values of differing types; i.e., a bag in XACML SHALL contain only values that are of the same data-type."
+             * <p>
+             * So we can obtain the datatypeURI/datatype class from the first value.
+             */
+            final AttributeValueFactory<?> attValFactory = getAttributeValueFactory(inputXacmlAttValues.get(0).getDataType(), attName);
+            return parseNamedAttribute(attName, inputXacmlAttValues, attValFactory, xPathCompiler);
         }
     }
 
@@ -105,14 +113,17 @@ public final class GeoXACMLRequestPreprocessor extends BaseXacmlJaxbRequestPrepr
         public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-strict";
         public static final DecisionRequestPreprocessor.Factory<Request, IndividualXacmlJaxbRequest> INSTANCE = new StrictVariantFactory();
 
+
         public StrictVariantFactory() {
             super(ID);
         }
 
         @Override
         public DecisionRequestPreprocessor<Request, IndividualXacmlJaxbRequest> getInstance(AttributeValueFactoryRegistry datatypeFactoryRegistry, boolean strictAttributeIssuerMatch, boolean requireContentForXPath, Set<String> extraPdpFeatures) {
-            return new GeoXACMLRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, false, requireContentForXPath, extraPdpFeatures);
+            return new SingleDecisionXacmlJaxbRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, true, requireContentForXPath, extraPdpFeatures, Optional.of(new CustomNamedXacmlJaxbAttributeParser(datatypeFactoryRegistry)));
         }
+
+
     }
 
     public static final class LaxVariantFactory extends BaseXacmlJaxbRequestPreprocessor.Factory {
@@ -125,7 +136,8 @@ public final class GeoXACMLRequestPreprocessor extends BaseXacmlJaxbRequestPrepr
 
         @Override
         public DecisionRequestPreprocessor<Request, IndividualXacmlJaxbRequest> getInstance(AttributeValueFactoryRegistry datatypeFactoryRegistry, boolean strictAttributeIssuerMatch, boolean requireContentForXPath, Set<String> extraPdpFeatures) {
-            return new GeoXACMLRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, true, requireContentForXPath, extraPdpFeatures);
+            return new SingleDecisionXacmlJaxbRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, true, requireContentForXPath, extraPdpFeatures, Optional.of(new CustomNamedXacmlJaxbAttributeParser(datatypeFactoryRegistry)));
         }
+
     }
 }

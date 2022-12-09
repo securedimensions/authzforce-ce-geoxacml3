@@ -40,7 +40,9 @@
 					"type": "string",
 					"format": "uri-reference"
 				},
-				"SRS": {"type": "string"},
+				"CRS": {"type": "string"},
+				"AllowTransformation": {"type": "boolean"},
+				"Precision": {"type": "number"},
 				"Issuer": {"type": "string"},
 				"IncludeInResult": {"type": "boolean"},
 				"DataType": {

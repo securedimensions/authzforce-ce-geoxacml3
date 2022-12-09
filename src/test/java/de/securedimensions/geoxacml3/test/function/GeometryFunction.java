@@ -18,8 +18,8 @@
 package de.securedimensions.geoxacml3.test.function;
 
 import com.google.common.collect.Maps;
-import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.function.*;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import org.ow2.authzforce.core.pdp.api.HashCollections;
 import org.ow2.authzforce.core.pdp.api.PdpExtensionRegistry;
 import org.ow2.authzforce.core.pdp.api.func.Function;
@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 public enum GeometryFunction {
-    FUNCTION_PREFIX(GeometryValue.FUNCTION_PREFIX);
+    FUNCTION_PREFIX(Definitions.FUNCTION_PREFIX);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeometryFunction.class);
     private static final PdpExtensionRegistry.PdpExtensionComparator<Function<?>> FUNCTION_COMPARATOR = new PdpExtensionRegistry.PdpExtensionComparator();
@@ -86,6 +86,9 @@ public enum GeometryFunction {
         geometryFunctions.add(new CoreFunctions.IsEmpty());
         geometryFunctions.add(new CoreFunctions.SRIDEquals());
         geometryFunctions.add(new CoreFunctions.SRSEquals());
+        // Constructive Functions supporting GeometryCollection
+        geometryFunctions.add(new CoreFunctions.GeometryBagFromCollection());
+        geometryFunctions.add(new CoreFunctions.GeometryBagToHomogeneousCollection());
 
         /* Conformance Class Core */
         // Bag Set Functions
@@ -111,11 +114,6 @@ public enum GeometryFunction {
         geometryFunctions.add(new AnalysisFunctions.GeometryDifference());
         geometryFunctions.add(new AnalysisFunctions.GeometrySymDifference());
         geometryFunctions.add(new AnalysisFunctions.EnsureSRS());
-
-        /* Conformance Class Analysis */
-        // Constructive Functions supporting GeometryCollection
-        geometryFunctions.add(new AnalysisFunctions.GeometryBagFromCollection());
-        geometryFunctions.add(new AnalysisFunctions.GeometryBagToHomogeneousCollection());
 
         return new ImmutableFunctionRegistry(geometryFunctions, null);
 

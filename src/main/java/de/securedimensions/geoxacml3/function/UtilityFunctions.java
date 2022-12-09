@@ -2,6 +2,7 @@ package de.securedimensions.geoxacml3.function;
 
 import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.MissingAttributeDetail;
 import org.locationtech.jts.geom.Geometry;
@@ -15,6 +16,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import static de.securedimensions.geoxacml3.datatype.GeometryValue.*;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
+import static org.ow2.authzforce.xacml.identifiers.XacmlStatusCode.SYNTAX_ERROR;
 
 public class UtilityFunctions {
 
@@ -52,53 +56,53 @@ public class UtilityFunctions {
     {
 
         Map<QName, String> otherXmlAttributesG1 = (g1.getUserData() == null) ? new HashMap<QName, String>() : (Map<QName, String>) g1.getUserData();
-        final double precisionG1 = otherXmlAttributesG1.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(xmlPrecision)) : Double.MAX_VALUE;
-        final String sourceG1 = otherXmlAttributesG1.containsKey(SOURCE) ? otherXmlAttributesG1.get(SOURCE) : SOURCE_POLICY;
+        final double precisionG1 = otherXmlAttributesG1.containsKey(Definitions.xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(Definitions.xmlPrecision)) : Double.MAX_VALUE;
+        final String sourceG1 = otherXmlAttributesG1.containsKey(Definitions.ATTR_SOURCE) ? otherXmlAttributesG1.get(Definitions.ATTR_SOURCE) : Definitions.ATTR_SOURCE_POLICY;
 
         Map<QName, String> otherXmlAttributesG2 = (g2.getUserData() == null) ? new HashMap<QName, String>() : (Map<QName, String>) g2.getUserData();
-        final double precisionG2 = otherXmlAttributesG2.containsKey(xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(xmlPrecision)) : Double.MAX_VALUE;
-        final String sourceG2 = otherXmlAttributesG2.containsKey(SOURCE) ? otherXmlAttributesG2.get(SOURCE) : SOURCE_POLICY;
+        final double precisionG2 = otherXmlAttributesG2.containsKey(Definitions.xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(Definitions.xmlPrecision)) : Double.MAX_VALUE;
+        final String sourceG2 = otherXmlAttributesG2.containsKey(Definitions.ATTR_SOURCE) ? otherXmlAttributesG2.get(Definitions.ATTR_SOURCE) : Definitions.ATTR_SOURCE_POLICY;
 
-        if ((sourceG1.equalsIgnoreCase(SOURCE_ATTR_DESIGNATOR)) &&
-                (sourceG2.equalsIgnoreCase(SOURCE_POLICY)) &&
+        if ((sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_DESIGNATOR)) &&
+                (sourceG2.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY)) &&
                 (precisionG1 > precisionG2)) {
             // Report g1 in MissingAttributeDetail with precision from g2
-            otherXmlAttributesG1.replace(xmlPrecision, otherXmlAttributesG2.get(xmlPrecision));
+            otherXmlAttributesG1.replace(Definitions.xmlPrecision, otherXmlAttributesG2.get(Definitions.xmlPrecision));
             final AttributeValueType av = new AttributeValueType(List.of(""), GeometryValue.DATATYPE.getId(), otherXmlAttributesG1);
             final MissingAttributeDetail missingAttributeDetail = new MissingAttributeDetail(List.of(av),
-                    otherXmlAttributesG1.get(GeometryValue.xmlCategoryId),
-                    otherXmlAttributesG1.get(GeometryValue.xmlAttributeId),
+                    otherXmlAttributesG1.get(XACML_CATEGORY_ID_QNAME),
+                    otherXmlAttributesG1.get(XACML_ATTRIBUTE_ID_QNAME),
                     GeometryValue.DATATYPE.getId(),
                     null);
-            throw new IndeterminateEvaluationException(PRECISION_ERROR, missingAttributeDetail, Optional.of("PEP requesting higher geometry precision than supported by the policy"));
+            throw new IndeterminateEvaluationException("PEP requesting higher geometry precision than supported by the policy", missingAttributeDetail, Optional.of(Definitions.PRECISION_ERROR));
         }
 
-        if ((sourceG2.equalsIgnoreCase(SOURCE_ATTR_DESIGNATOR)) &&
-                (sourceG1.equalsIgnoreCase(SOURCE_POLICY)) &&
+        if ((sourceG2.equalsIgnoreCase(Definitions.ATTR_SOURCE_DESIGNATOR)) &&
+                (sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY)) &&
                 (precisionG2 > precisionG1)) {
             // Report g2 in MissingAttributeDetail with precision from g1
-            otherXmlAttributesG2.replace(xmlPrecision, otherXmlAttributesG1.get(xmlPrecision));
+            otherXmlAttributesG2.replace(Definitions.xmlPrecision, otherXmlAttributesG1.get(Definitions.xmlPrecision));
             final AttributeValueType av = new AttributeValueType(List.of(""), GeometryValue.DATATYPE.getId(), otherXmlAttributesG2);
             final MissingAttributeDetail missingAttributeDetail = new MissingAttributeDetail(List.of(av),
-                    otherXmlAttributesG2.get(GeometryValue.xmlCategoryId),
-                    otherXmlAttributesG2.get(GeometryValue.xmlAttributeId),
+                    otherXmlAttributesG2.get(XACML_CATEGORY_ID_QNAME),
+                    otherXmlAttributesG2.get(XACML_ATTRIBUTE_ID_QNAME),
                     GeometryValue.DATATYPE.getId(),
                     null);
-            throw new IndeterminateEvaluationException(PRECISION_ERROR, missingAttributeDetail, Optional.of("PEP requesting higher geometry precision than supported by the policy"));
+            throw new IndeterminateEvaluationException("PEP requesting higher geometry precision than supported by the policy", missingAttributeDetail, Optional.of(Definitions.PRECISION_ERROR));
         }
 
-        if ((sourceG2.equalsIgnoreCase(SOURCE_ATTR_DESIGNATOR)) &&
-                (sourceG1.equalsIgnoreCase(SOURCE_ATTR_DESIGNATOR) )&&
+        if ((sourceG2.equalsIgnoreCase(Definitions.ATTR_SOURCE_DESIGNATOR)) &&
+                (sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_DESIGNATOR) )&&
                 (precisionG2 != precisionG1)) {
             throw new IndeterminateEvaluationException(
-                    new ImmutableXacmlStatus(PRECISION_ERROR, Optional.of("Processing ADR geometries with different precision")));
+                    new ImmutableXacmlStatus("Processing ADR geometries with different precision", Optional.of(Definitions.PRECISION_ERROR)));
         }
 
-        if ((sourceG2.equalsIgnoreCase(SOURCE_POLICY)) &&
-                (sourceG1.equalsIgnoreCase(SOURCE_POLICY) )&&
+        if ((sourceG2.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY)) &&
+                (sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY) )&&
                 (precisionG2 != precisionG1)) {
             throw new IndeterminateEvaluationException(
-                    new ImmutableXacmlStatus("urn:oasis:names:tc:xacml:1.0:status:syntax-error", Optional.of("Processing Policy geometries with different precision")));
+                    new ImmutableXacmlStatus("Processing Policy geometries with different precision", Optional.of(SYNTAX_ERROR.name())));
         }
 
     }

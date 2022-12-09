@@ -18,7 +18,7 @@
 package de.securedimensions.geoxacml3.pdp.io;
 
 import com.google.common.collect.ImmutableList;
-import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import net.sf.saxon.s9api.XdmNode;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.Attribute;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
@@ -36,12 +36,14 @@ import org.ow2.authzforce.core.pdp.io.xacml.json.BaseXacmlJsonRequestPreprocesso
 import org.ow2.authzforce.core.pdp.io.xacml.json.IndividualXacmlJsonRequest;
 import org.ow2.authzforce.xacml.identifiers.XPathVersion;
 import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
-import org.ow2.authzforce.xacml.json.model.XacmlJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.Map.Entry;
+
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 
 /**
  * Default XACML/JSON - according to XACML JSON Profile - Request preprocessor for Individual Decision Requests only (no support of Multiple Decision Profile in particular)
@@ -114,7 +116,7 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
 
         @Override
         public DecisionRequestPreprocessor<JSONObject, IndividualXacmlJsonRequest> getInstance(final AttributeValueFactoryRegistry datatypeFactoryRegistry, final boolean strictAttributeIssuerMatch,
-                                                                                                   final boolean requireContentForXPath, final Set<String> extraPdpFeatures)
+                                                                                               final boolean requireContentForXPath, final Set<String> extraPdpFeatures)
         {
             return new GeoXacmlJsonRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, true, requireContentForXPath/* , xmlProcessor */,
                     extraPdpFeatures);
@@ -306,9 +308,9 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
                     ListIterator<AttributeValueType> iav = attribute.getAttributeValues().listIterator();
                     while (iav.hasNext()) {
                         AttributeValueType av = iav.next();
-                        av.getOtherAttributes().put(GeometryValue.xmlAttributeId, attribute.getAttributeId());
-                        av.getOtherAttributes().put(GeometryValue.xmlCategoryId, jaxbAttributes.getCategory());
-                        av.getOtherAttributes().put(GeometryValue.SOURCE, GeometryValue.SOURCE_ATTR_DESIGNATOR);
+                        av.getOtherAttributes().put(XACML_ATTRIBUTE_ID_QNAME, attribute.getAttributeId());
+                        av.getOtherAttributes().put(XACML_CATEGORY_ID_QNAME, jaxbAttributes.getCategory());
+                        av.getOtherAttributes().put(Definitions.ATTR_SOURCE, Definitions.ATTR_SOURCE_DESIGNATOR);
                     }
                 }
                 categorySpecificAttributes = xacmlAttrsParser.parseAttributes(jaxbAttributes, xPathCompiler);

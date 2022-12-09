@@ -72,9 +72,7 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
         Geometry pb00 = p00.buffer(10.);
         pb00.setSRID(-4326);
 
-        Bag<GeometryValue> bag = Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(p00), new GeometryValue(p100)));
 
-        GeometryCollection gc = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(new Geometry[]{p00, p100});
 
         return Arrays
                 .asList(
@@ -112,13 +110,8 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
                         new Object[]{AnalysisFunctions.GeometryDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50))", null, Optional.empty())},
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-geometry-sym-difference
-                        new Object[]{AnalysisFunctions.GeometrySymDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("MULTIPOLYGON (((0 50, 0 0, 50 0, 50 -50, -50 -50, -50 50, 0 50)), ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50)))", null, Optional.empty())},
+                        new Object[]{AnalysisFunctions.GeometrySymDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("MULTIPOLYGON (((0 50, 0 0, 50 0, 50 -50, -50 -50, -50 50, 0 50)), ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50)))", null, Optional.empty())}
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-bag-from-geometry-collection
-                        new Object[]{AnalysisFunctions.GeometryBagFromCollection.ID, Arrays.asList(new GeometryValue(gc)), bag},
-
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-collection-from-geometry-bag
-                        new Object[]{AnalysisFunctions.GeometryBagToHomogeneousCollection.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(p00), new GeometryValue(p100)))), new GeometryValue(gc)}
 
                 );
     }

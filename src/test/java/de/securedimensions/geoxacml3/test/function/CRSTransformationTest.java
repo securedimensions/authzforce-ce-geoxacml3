@@ -19,6 +19,7 @@ package de.securedimensions.geoxacml3.test.function;
 
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.function.TopologicalFunctions;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.locationtech.jts.geom.Geometry;
@@ -44,7 +45,7 @@ public class CRSTransformationTest extends GeometryFunctionTest {
     public static Collection<Object[]> params() {
 
         Map<QName, String> xmlAllowTransformation = new HashMap<QName, String>();
-        xmlAllowTransformation.put(GeometryValue.xmlAllowTransformation, "true");
+        xmlAllowTransformation.put(Definitions.ATTR_ALLOW_TRANSFORMATION, "true");
 
         Geometry gWMCRS84AllowTransformation = gWMCRS84.copy();
         gWMCRS84AllowTransformation.setUserData(xmlAllowTransformation);

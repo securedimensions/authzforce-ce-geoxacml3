@@ -24,7 +24,8 @@ de.securedimensions.geoxacml3.function.CoreFunctions$Area
 de.securedimensions.geoxacml3.function.CoreFunctions$Distance
 de.securedimensions.geoxacml3.function.CoreFunctions$SRIDEquals
 de.securedimensions.geoxacml3.function.CoreFunctions$SRSEquals
-
+de.securedimensions.geoxacml3.function.CoreFunctions$GeometryBagToHomogeneousCollection
+de.securedimensions.geoxacml3.function.CoreFunctions$GeometryBagFromCollection
 
 de.securedimensions.geoxacml3.function.BagSetFunctions$SingletonBagToPrimitive
 de.securedimensions.geoxacml3.function.BagSetFunctions$BagSize
@@ -46,8 +47,6 @@ de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryIntersection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryUnion
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryDifference
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometrySymDifference
-de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagToHomogeneousCollection
-de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryBagFromCollection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$EnsureSRS
 
 de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$StrictVariantFactory

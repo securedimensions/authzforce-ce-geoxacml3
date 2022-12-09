@@ -18,7 +18,7 @@
 package de.securedimensions.geoxacml3.pdp.io;
 
 import com.google.common.collect.ImmutableList;
-import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import net.sf.saxon.s9api.XdmNode;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,6 +36,9 @@ import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.*;
+
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 
 /**
  * XACML/JSON (Profile) processing utilities
@@ -79,9 +82,9 @@ public final class GeoXacmlJsonParsingUtils
                 }
 
                 // Add GeoXACML specific attributes
-                otherGeoXacmlAttributes.put(GeometryValue.xmlAttributeId, attName.getId());
-                otherGeoXacmlAttributes.put(GeometryValue.xmlCategoryId, attName.getCategory());
-                otherGeoXacmlAttributes.put(GeometryValue.SOURCE, GeometryValue.SOURCE_ATTR_DESIGNATOR);
+                otherGeoXacmlAttributes.put(XACML_ATTRIBUTE_ID_QNAME, attName.getId());
+                otherGeoXacmlAttributes.put(XACML_CATEGORY_ID_QNAME, attName.getCategory());
+                otherGeoXacmlAttributes.put(Definitions.ATTR_SOURCE, Definitions.ATTR_SOURCE_DESIGNATOR);
                 final AV resultValue = attValFactory.getInstance(Collections.singletonList(serializableVal), otherGeoXacmlAttributes, xPathCompiler);
                 attValues.add(resultValue);
             }
@@ -180,10 +183,10 @@ public final class GeoXacmlJsonParsingUtils
              */
             final AttributeValueFactory<?> attValFactory = getAttributeValueFactory(actualDatatypeId, attrName);
             Map <QName, String> otherGeoXacmlAttributes = new HashMap<>();
-            if (inputXacmlAttribute.has(GeometryValue.jsonSRS.getLocalPart())) otherGeoXacmlAttributes.put(GeometryValue.xmlSRS, inputXacmlAttribute.optString(GeometryValue.jsonSRS.getLocalPart()));
-            if (inputXacmlAttribute.has(GeometryValue.jsonSRID.getLocalPart()))  otherGeoXacmlAttributes.put(GeometryValue.xmlSRID, inputXacmlAttribute.optString(GeometryValue.jsonSRID.getLocalPart()));
-            if (inputXacmlAttribute.has(GeometryValue.jsonAllowTransformation.getLocalPart())) otherGeoXacmlAttributes.put(GeometryValue.xmlAllowTransformation, inputXacmlAttribute.optString(GeometryValue.jsonAllowTransformation.getLocalPart()));
-            if (inputXacmlAttribute.has(GeometryValue.jsonPrecision.getLocalPart())) otherGeoXacmlAttributes.put(GeometryValue.xmlPrecision, inputXacmlAttribute.optString(GeometryValue.jsonPrecision.getLocalPart()));
+            if (inputXacmlAttribute.has(Definitions.jsonCRS.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.xmlCRS, inputXacmlAttribute.optString(Definitions.jsonCRS.getLocalPart()));
+            if (inputXacmlAttribute.has(Definitions.jsonSRID.getLocalPart()))  otherGeoXacmlAttributes.put(Definitions.xmlSRID, inputXacmlAttribute.optString(Definitions.jsonSRID.getLocalPart()));
+            if (inputXacmlAttribute.has(Definitions.jsonAllowTransformation.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.ATTR_ALLOW_TRANSFORMATION, inputXacmlAttribute.optString(Definitions.jsonAllowTransformation.getLocalPart()));
+            if (inputXacmlAttribute.has(Definitions.jsonPrecision.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.xmlPrecision, inputXacmlAttribute.optString(Definitions.jsonPrecision.getLocalPart()));
             return parseNamedAttribute(attrName, jsonAttVals, numOfVals, attValFactory, xPathCompiler, otherGeoXacmlAttributes);
         }
 

@@ -21,13 +21,10 @@ import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.function.AnalysisFunctions;
 import de.securedimensions.geoxacml3.function.BagSetFunctions;
 import de.securedimensions.geoxacml3.function.TopologicalFunctions;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.ow2.authzforce.core.pdp.api.value.Bags;
 import org.ow2.authzforce.core.pdp.api.value.BooleanValue;
 import org.ow2.authzforce.core.pdp.api.value.Value;
@@ -37,10 +34,10 @@ import org.slf4j.LoggerFactory;
 import javax.xml.namespace.QName;
 import java.util.*;
 
-import static de.securedimensions.geoxacml3.datatype.GeometryValue.SOURCE_ATTR_DESIGNATOR;
-import static de.securedimensions.geoxacml3.datatype.GeometryValue.SOURCE_POLICY;
+import static de.securedimensions.geoxacml3.identifiers.Definitions.ATTR_SOURCE_DESIGNATOR;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.*;
-import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.gWMSRID3857;
 
 @RunWith(Parameterized.class)
 public class PrecisionTest extends GeometryFunctionTest {
@@ -54,24 +51,22 @@ public class PrecisionTest extends GeometryFunctionTest {
     public static Collection<Object[]> params() {
 
         Map<QName, String> xmlPrecision1 = new HashMap<QName, String>();
-        xmlPrecision1.put(GeometryValue.xmlPrecision, "1.0");
-        xmlPrecision1.put(GeometryValue.SOURCE, SOURCE_POLICY);
+        xmlPrecision1.put(Definitions.xmlPrecision, "1.0");
 
         Map<QName, String> xmlPrecision9 = new HashMap<QName, String>();
-        xmlPrecision9.put(GeometryValue.xmlPrecision, "9.0");
-        xmlPrecision9.put(GeometryValue.SOURCE, SOURCE_POLICY);
+        xmlPrecision9.put(Definitions.xmlPrecision, "9.0");
 
         Map<QName, String> xmlPrecision1ADR = new HashMap<QName, String>();
-        xmlPrecision1ADR.put(GeometryValue.xmlPrecision, "1.0");
-        xmlPrecision1ADR.put(GeometryValue.SOURCE, SOURCE_ATTR_DESIGNATOR);
-        xmlPrecision1ADR.put(GeometryValue.xmlAttributeId, "Washington Monument at precision 1.0");
-        xmlPrecision1ADR.put(GeometryValue.xmlCategoryId, "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject");
+        xmlPrecision1ADR.put(Definitions.xmlPrecision, "1.0");
+        xmlPrecision1ADR.put(Definitions.ATTR_SOURCE, ATTR_SOURCE_DESIGNATOR);
+        xmlPrecision1ADR.put(XACML_ATTRIBUTE_ID_QNAME, "Washington Monument at precision 1.0");
+        xmlPrecision1ADR.put(XACML_CATEGORY_ID_QNAME, "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject");
 
         Map<QName, String> xmlPrecision9ADR = new HashMap<QName, String>();
-        xmlPrecision9ADR.put(GeometryValue.xmlPrecision, "9.0");
-        xmlPrecision9ADR.put(GeometryValue.SOURCE, SOURCE_ATTR_DESIGNATOR);
-        xmlPrecision9ADR.put(GeometryValue.xmlAttributeId, "Washington Monument at precision 9.0");
-        xmlPrecision9ADR.put(GeometryValue.xmlCategoryId, "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject");
+        xmlPrecision9ADR.put(Definitions.xmlPrecision, "9.0");
+        xmlPrecision9ADR.put(Definitions.ATTR_SOURCE, ATTR_SOURCE_DESIGNATOR);
+        xmlPrecision9ADR.put(XACML_ATTRIBUTE_ID_QNAME, "Washington Monument at precision 9.0");
+        xmlPrecision9ADR.put(XACML_CATEGORY_ID_QNAME, "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject");
 
         Geometry gWMCRS84Precision1Policy = gWMCRS84.copy();
         gWMCRS84Precision1Policy.setUserData(xmlPrecision1);

@@ -19,10 +19,10 @@ package de.securedimensions.geoxacml3.function;
 
 import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import de.securedimensions.geoxacml3.identifiers.Definitions;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.MissingAttributeDetail;
 import org.locationtech.jts.geom.Geometry;
-import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 import org.ow2.authzforce.core.pdp.api.expression.Expression;
 import org.ow2.authzforce.core.pdp.api.func.*;
@@ -33,7 +33,8 @@ import org.slf4j.LoggerFactory;
 import javax.xml.namespace.QName;
 import java.util.*;
 
-import static de.securedimensions.geoxacml3.datatype.GeometryValue.*;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.AtLeastOneMemberOf.NAME_SUFFIX_AT_LEAST_ONE_MEMBER_OF;
 import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.BagContains.NAME_SUFFIX_IS_IN;
 import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Intersection.NAME_SUFFIX_INTERSECTION;
@@ -168,41 +169,7 @@ public class BagSetFunctions {
                 Geometry gi = i.next().getGeometry();
                 uf.ensurePrecision(g, gi);
                 if (gi.getSRID() != g.getSRID()) {
-                    TransformGeometry tg = new TransformGeometry();
-                    // first, we try to transform g as it is only one geometry
-                    if (!tg.transformCRS(g, gi.getSRID())) {
-                        // we are not allowed to transform g due to 'allowTransformation=false', so let's try gi
-                        if (!tg.transformCRS(gi, g.getSRID())) {
-                            // we are also not allowed to transform gi -> throw exception
-                            // preparing StatusDetail
-                            List<AttributeValueType> attributeValues = new ArrayList<>();
-                            Map<QName, String> userDataG = (Map<QName, String>) g.getUserData();
-                            if ((userDataG != null)&& (!userDataG.isEmpty()))
-                            {
-                                String categoryId = userDataG.get(GeometryValue.xmlCategoryId);
-                                String attributeId = userDataG.get(GeometryValue.xmlAttributeId);
-                                Map<QName, String> otherAttributes = new HashMap<>();
-                                otherAttributes.put(GeometryValue.xmlAttributeId, userDataG.get(GeometryValue.xmlAttributeId));
-                                AttributeValueType av = new AttributeValueType(List.of(), GeometryValue.DATATYPE.getId(), otherAttributes);
-                                attributeValues.add(av);
-                                MissingAttributeDetail mad = new MissingAttributeDetail(attributeValues, categoryId, attributeId, GeometryValue.DATATYPE.getId(), null);
-                                throw new IndeterminateEvaluationException(GeometryValue.SRS_ERROR, mad, Optional.of("Function " + ID + " please resend request and use specified SRS"));
-                            }
-                            Map<QName, String> userDataGi = (Map<QName, String>) gi.getUserData();
-                            if ((userDataGi != null)&& (!userDataGi.isEmpty()))
-                            {
-                                String categoryId = userDataGi.get(GeometryValue.xmlCategoryId);
-                                String attributeId = userDataGi.get(GeometryValue.xmlAttributeId);
-                                Map<QName, String> otherAttributes = new HashMap<>();
-                                otherAttributes.put(GeometryValue.xmlAttributeId, userDataGi.get(GeometryValue.xmlAttributeId));
-                                AttributeValueType av = new AttributeValueType(List.of(), GeometryValue.DATATYPE.getId(), otherAttributes);
-                                attributeValues.add(av);
-                                MissingAttributeDetail mad = new MissingAttributeDetail(attributeValues, categoryId, attributeId, GeometryValue.DATATYPE.getId(), null);
-                                throw new IndeterminateEvaluationException(GeometryValue.SRS_ERROR, mad, Optional.of("Function " + ID + " please resend request and use specified SRS"));
-                            }
-
-                        }
-                    }
+                    uf.ensureCRS(g, gi);
                 }
                 if (g.equals(gi))
                     return true;
@@ -260,8 +227,7 @@ public class BagSetFunctions {
                     Geometry g1 = gv1.getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        tg.transformCRS(g0, g1);
+                        uf.ensureCRS(g0, g1);
                     }
                     if (g0.equals(g1))
                         return true;
@@ -323,8 +289,7 @@ public class BagSetFunctions {
                     Geometry g1 = gv1.getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        tg.transformCRS(g0, g1);
+                       uf.ensureCRS(g0, g1);
                     }
                     if (g0.equals(g1))
                         intersection.add(gv1);
@@ -391,8 +356,7 @@ public class BagSetFunctions {
                     Geometry g0 = g0i.next().getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        tg.transformCRS(g0, g1.getSRID(), true);
+                        uf.ensureCRS(g1, g0);
                     }
                     if (g0.equals(g1))
                     {
@@ -459,8 +423,7 @@ public class BagSetFunctions {
                     Geometry g1 = gv1.getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        tg.transformCRS(g0, g1);
+                        uf.ensureCRS(g0, g1);
                     }
                     if (g0.equals(g1)) {
                         status = true;
@@ -528,8 +491,7 @@ public class BagSetFunctions {
                     Geometry g1 = gv1.getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        tg.transformCRS(g0, g1);
+                        uf.ensureCRS(g0, g1);
                     }
                     if (g0.equals(g1)) {
                         status = true;
@@ -551,8 +513,7 @@ public class BagSetFunctions {
                     Geometry g0 = gv0.getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g1.getSRID() != g0.getSRID()) {
-                        TransformGeometry tg = new TransformGeometry();
-                        tg.transformCRS(g1, g0);
+                        uf.ensureCRS(g1, g0);
                     }
                     if (g1.equals(g0)) {
                         status = true;

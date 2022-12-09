@@ -74,6 +74,16 @@
             <version>21.3.0</version>
         </dependency>
         <dependency>
+            <groupId>org.ow2.authzforce</groupId>
+            <artifactId>authzforce-ce-core-pdp-engine</artifactId>
+            <version>20.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.authzforce</groupId>
+            <artifactId>authzforce-ce-core-pdp-testutils</artifactId>
+            <version>20.2.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <version>1.19.0</version>
@@ -83,11 +93,7 @@
             <artifactId>proj4j</artifactId>
             <version>1.1.5</version>
         </dependency>
-        <dependency>
-            <groupId>org.ow2.authzforce</groupId>
-            <artifactId>authzforce-ce-core-pdp-testutils</artifactId>
-            <version>20.1.1</version>
-        </dependency>
+
         <dependency>
             <groupId>org.locationtech.jts.io</groupId>
             <artifactId>jts-io-common</artifactId>
