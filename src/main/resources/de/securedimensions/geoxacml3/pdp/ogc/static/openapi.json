@@ -19,9 +19,6 @@
   "servers": [
     {
       "url": "https://ogc.demo.secure-dimensions.de/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp"
-    },
-    {
-      "url": "http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp"
     }
   ],
   "tags": [
@@ -31,7 +28,95 @@
     }
   ],
   "paths": {
-    "/": {
+    "/api": {
+      "get": {
+      "tags": [
+        "geoPDP"
+      ],
+      "summary": "OpenAPI",
+      "description": "The OpenAPI description",
+      "operationId": "getAPI",
+      "parameters": [
+        {
+          "name": "f",
+          "in": "query",
+          "description": "Format of the page",
+          "required": false,
+          "explode": true,
+          "schema": {
+            "type": "string",
+            "default": "html",
+            "enum": [
+              "html",
+              "json"
+            ]
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "OpenAPI representation",
+          "content": {
+            "text/html": {
+              "schema": {
+                "type": "object"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    }
+    },
+    "/conformance": {
+      "get": {
+        "tags": [
+          "geoPDP"
+        ],
+        "summary": "OGC Conformance",
+        "description": "The conformance page",
+        "operationId": "getConformance",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "description": "Format of the page",
+            "required": false,
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "default": "json",
+              "enum": [
+                "html",
+                "json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenAPI representation",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/decision": {
       "post": {
         "tags": [
           "geoPDP"
@@ -42,7 +127,17 @@
         "requestBody": {
           "description": "GeoXACML 3.0 ADR",
           "content": {
+            "application/geoxacml+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            },
             "application/xacml+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            },
+            "application/geoxacml+xml": {
               "schema": {
                 "$ref": "#/components/schemas/Request"
               }
@@ -59,12 +154,12 @@
           "200": {
             "description": "Decision",
             "content": {
-              "application/xacml+json": {
+              "application/geoxacml+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Response"
                 }
               },
-              "application/xacml+xml": {
+              "application/geoxacml+xml": {
                 "schema": {
                   "$ref": "#/components/schemas/Response"
                 }
@@ -81,8 +176,8 @@
   "components": {
     "schemas": {
       "Request": {
-        "title": "GeoXCML ADR",
-        "description": "GeoXACML structure compliant Authorizatio Decision Request",
+        "title": "GeoXACML ADR",
+        "description": "GeoXACML structure compliant Authorization Decision Request",
         "type": "object"
       },
       "Response": {
