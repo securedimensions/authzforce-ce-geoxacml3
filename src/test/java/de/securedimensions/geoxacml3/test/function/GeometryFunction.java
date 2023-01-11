@@ -77,7 +77,7 @@ public enum GeometryFunction {
         geometryFunctions.add(new CoreFunctions.Area());
         geometryFunctions.add(new CoreFunctions.Distance());
         geometryFunctions.add(new CoreFunctions.IsWithinDistance());
-        geometryFunctions.add(new CoreFunctions.EqualsDistance());
+        geometryFunctions.add(new CoreFunctions.DistanceEquals());
         geometryFunctions.add(new CoreFunctions.Relate());
         geometryFunctions.add(new CoreFunctions.Dimension());
         geometryFunctions.add(new CoreFunctions.GeometryType());
@@ -85,7 +85,10 @@ public enum GeometryFunction {
         geometryFunctions.add(new CoreFunctions.IsSimple());
         geometryFunctions.add(new CoreFunctions.IsEmpty());
         geometryFunctions.add(new CoreFunctions.SRIDEquals());
-        geometryFunctions.add(new CoreFunctions.SRSEquals());
+        geometryFunctions.add(new CoreFunctions.EnsureSRID());
+        geometryFunctions.add(new CoreFunctions.EnsurePrecision());
+        geometryFunctions.add(new CoreFunctions.HasPrecision());
+        geometryFunctions.add(new CoreFunctions.Precision());
         // Constructive Functions supporting GeometryCollection
         geometryFunctions.add(new CoreFunctions.GeometryBagFromCollection());
         geometryFunctions.add(new CoreFunctions.GeometryBagToHomogeneousCollection());
@@ -113,7 +116,6 @@ public enum GeometryFunction {
         geometryFunctions.add(new AnalysisFunctions.GeometryUnion());
         geometryFunctions.add(new AnalysisFunctions.GeometryDifference());
         geometryFunctions.add(new AnalysisFunctions.GeometrySymDifference());
-        geometryFunctions.add(new AnalysisFunctions.EnsureSRS());
 
         return new ImmutableFunctionRegistry(geometryFunctions, null);
 

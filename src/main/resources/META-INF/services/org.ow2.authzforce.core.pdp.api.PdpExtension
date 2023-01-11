@@ -17,13 +17,17 @@ de.securedimensions.geoxacml3.function.CoreFunctions$IsSimple
 de.securedimensions.geoxacml3.function.CoreFunctions$IsEmpty
 
 de.securedimensions.geoxacml3.function.CoreFunctions$IsWithinDistance
-de.securedimensions.geoxacml3.function.CoreFunctions$EqualsDistance
+de.securedimensions.geoxacml3.function.CoreFunctions$DistanceEquals
 de.securedimensions.geoxacml3.function.CoreFunctions$Relate
 de.securedimensions.geoxacml3.function.CoreFunctions$Length
 de.securedimensions.geoxacml3.function.CoreFunctions$Area
 de.securedimensions.geoxacml3.function.CoreFunctions$Distance
 de.securedimensions.geoxacml3.function.CoreFunctions$SRIDEquals
-de.securedimensions.geoxacml3.function.CoreFunctions$SRSEquals
+de.securedimensions.geoxacml3.function.CoreFunctions$EnsureSRID
+de.securedimensions.geoxacml3.function.CoreFunctions$EnsurePrecision
+de.securedimensions.geoxacml3.function.CoreFunctions$HasPrecision
+de.securedimensions.geoxacml3.function.CoreFunctions$Precision
+
 de.securedimensions.geoxacml3.function.CoreFunctions$GeometryBagToHomogeneousCollection
 de.securedimensions.geoxacml3.function.CoreFunctions$GeometryBagFromCollection
 
@@ -47,7 +51,6 @@ de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryIntersection
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryUnion
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometryDifference
 de.securedimensions.geoxacml3.function.AnalysisFunctions$GeometrySymDifference
-de.securedimensions.geoxacml3.function.AnalysisFunctions$EnsureSRS
 
 de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$StrictVariantFactory
 de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor$LaxVariantFactory

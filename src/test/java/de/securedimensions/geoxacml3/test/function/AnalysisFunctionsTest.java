@@ -74,12 +74,7 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
 
 
 
-        return Arrays
-                .asList(
-
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-ensure-srs
-                        new Object[]{AnalysisFunctions.EnsureSRS.ID, Arrays.asList(new GeometryValue(gWMCRS84), new StringValue("EPSG:4326")), new GeometryValue(gWMSRS4326)},
-                        new Object[]{AnalysisFunctions.EnsureSRS.ID, Arrays.asList(new GeometryValue(gWMSRS4326), new StringValue("EPSG:4326")), new GeometryValue(gWMSRS4326)},
+        return Arrays.asList(
 
                         // urn:ogc:def:function:geoxacml:3.0:geometry-envelope
                         new Object[]{AnalysisFunctions.Envelope.ID, Arrays.asList(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("POLYGON ((0 0, 0 100, 100 100, 100 0, 0 0))", null, Optional.empty())},

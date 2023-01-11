@@ -20,9 +20,14 @@ package de.securedimensions.geoxacml3.function;
 import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.identifiers.Definitions;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.MissingAttributeDetail;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
-import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 import org.ow2.authzforce.core.pdp.api.expression.Expression;
 import org.ow2.authzforce.core.pdp.api.func.BaseFirstOrderFunctionCall;
@@ -32,7 +37,12 @@ import org.ow2.authzforce.core.pdp.api.func.SingleParameterTypedFirstOrderFuncti
 import org.ow2.authzforce.core.pdp.api.value.*;
 import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
 
+import javax.xml.namespace.QName;
 import java.util.*;
+
+import static de.securedimensions.geoxacml3.identifiers.Definitions.*;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 
 public class CoreFunctions {
 
@@ -187,7 +197,7 @@ public class CoreFunctions {
         public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-srid-equals";
 
         public SRIDEquals() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE, StandardDatatypes.INTEGER));
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.INTEGER, GeometryValue.DATATYPE));
         }
 
         @Override
@@ -196,42 +206,9 @@ public class CoreFunctions {
 
                 @Override
                 protected BooleanValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
-                    final Geometry g = ((GeometryValue)args.poll()).getGeometry();
                     final int srid = (((IntegerValue) args.poll()).getUnderlyingValue()).intValue();
+                    final Geometry g = ((GeometryValue) args.poll()).getGeometry();
                     return new BooleanValue(srid == g.getSRID());
-                }
-            };
-        }
-    }
-
-    public final static class SRSEquals extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-srs-equals";
-
-        public SRSEquals() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE, StandardDatatypes.STRING));
-        }
-
-        @Override
-        public FirstOrderFunctionCall<BooleanValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
-            return new BaseFirstOrderFunctionCall.EagerMultiPrimitiveTypeEval<BooleanValue>(functionSignature, argExpressions, remainingArgTypes) {
-
-                @Override
-                protected BooleanValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
-                    final Geometry g = ((GeometryValue)args.poll()).getGeometry();
-                    final String srs = ((StringValue) args.poll()).getUnderlyingValue();
-                    int srid = 0;
-                    if (srs.toUpperCase().contains("WGS84") || srs.toUpperCase().contains("CRS84"))
-                        srid = -4326;
-                    else {
-                        String []tokens = srs.split(":");
-                        if (tokens.length != 2)
-                            throw new IllegalArgumentException("SRS pattern is EPSG:<srid>");
-                        else if (!tokens[0].equalsIgnoreCase("EPSG"))
-                            throw new IllegalArgumentException("SRS must start with authority string 'EPSG'");
-                        else
-                            srid = Integer.parseInt(tokens[1]);
-                    }
-                    return new BooleanValue(g.getSRID() == srid);
                 }
             };
         }
@@ -271,7 +248,7 @@ public class CoreFunctions {
         public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-is-within-distance";
 
         public IsWithinDistance() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE, GeometryValue.DATATYPE, StandardDatatypes.DOUBLE));
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.DOUBLE, GeometryValue.DATATYPE, GeometryValue.DATATYPE));
         }
 
         @Override
@@ -283,9 +260,9 @@ public class CoreFunctions {
                     if (args.size() != 3)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly three arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    GeometryValue gv1 = (GeometryValue)args.poll();
-                    GeometryValue gv2 = (GeometryValue)args.poll();
                     final Double d = ((DoubleValue) args.poll()).getUnderlyingValue();
+                    GeometryValue gv1 = (GeometryValue) args.poll();
+                    GeometryValue gv2 = (GeometryValue) args.poll();
                     Geometry g1 = gv1.getGeometry();
                     Geometry g2 = gv2.getGeometry();
                     UtilityFunctions uf = new UtilityFunctions();
@@ -298,11 +275,11 @@ public class CoreFunctions {
         }
     }
 
-    public final static class EqualsDistance extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-equals-distance";
+    public final static class DistanceEquals extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
+        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-distance-equals";
 
-        public EqualsDistance() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE, GeometryValue.DATATYPE, StandardDatatypes.DOUBLE));
+        public DistanceEquals() {
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.DOUBLE, GeometryValue.DATATYPE, GeometryValue.DATATYPE));
         }
 
         @Override
@@ -314,10 +291,11 @@ public class CoreFunctions {
                     if (args.size() != 3)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly three arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    GeometryValue gv1 = (GeometryValue)args.poll();
-                    GeometryValue gv2 = (GeometryValue)args.poll();
-
                     final Double d = ((DoubleValue) args.poll()).getUnderlyingValue();
+
+                    GeometryValue gv1 = (GeometryValue) args.poll();
+                    GeometryValue gv2 = (GeometryValue) args.poll();
+
                     Geometry g1 = gv1.getGeometry();
                     Geometry g2 = gv2.getGeometry();
                     UtilityFunctions uf = new UtilityFunctions();
@@ -334,7 +312,7 @@ public class CoreFunctions {
         public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-relate";
 
         public Relate() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE, GeometryValue.DATATYPE, StandardDatatypes.STRING));
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.STRING, GeometryValue.DATATYPE, GeometryValue.DATATYPE));
         }
 
         @Override
@@ -346,10 +324,11 @@ public class CoreFunctions {
                     if (args.size() != 3)
                         throw new IndeterminateEvaluationException("Function " + ID + " requires exactly three arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
 
-                    GeometryValue gv1 = (GeometryValue)args.poll();
-                    GeometryValue gv2 = (GeometryValue)args.poll();
-
                     final String r = ((StringValue) args.poll()).getUnderlyingValue();
+
+                    GeometryValue gv1 = (GeometryValue) args.poll();
+                    GeometryValue gv2 = (GeometryValue) args.poll();
+
                     Geometry g1 = gv1.getGeometry();
                     Geometry g2 = gv2.getGeometry();
                     UtilityFunctions uf = new UtilityFunctions();
@@ -447,6 +426,135 @@ public class CoreFunctions {
             };
         }
 
+    }
+
+    public final static class EnsureSRID extends MultiParameterTypedFirstOrderFunction<GeometryValue> {
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-ensure-srid";
+
+        public EnsureSRID() {
+            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(StandardDatatypes.INTEGER, GeometryValue.DATATYPE));
+        }
+
+        @Override
+        public FirstOrderFunctionCall<GeometryValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerMultiPrimitiveTypeEval<GeometryValue>(functionSignature, argExpressions, remainingArgTypes) {
+
+                @Override
+                protected GeometryValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
+                    final int srid = ((IntegerValue) args.poll()).getUnderlyingValue().intValue();
+                    final GeometryValue gv = ((GeometryValue) args.poll());
+                    Geometry g = gv.getGeometry();
+
+                    if (g.getSRID() == srid) {
+                        return gv;
+                    } else {
+                        TransformGeometry tg = new TransformGeometry();
+                        tg.transformCRS(g, srid, true);
+                    }
+
+                    return new GeometryValue(g);
+                }
+            };
+        }
+    }
+
+    public final static class EnsurePrecision extends MultiParameterTypedFirstOrderFunction<GeometryValue> {
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-ensure-precision";
+
+        public EnsurePrecision() {
+            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(StandardDatatypes.INTEGER, GeometryValue.DATATYPE));
+        }
+
+        @Override
+        public FirstOrderFunctionCall<GeometryValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerMultiPrimitiveTypeEval<GeometryValue>(functionSignature, argExpressions, remainingArgTypes) {
+
+                @Override
+                protected GeometryValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
+                    final int precision = ((IntegerValue) args.poll()).getUnderlyingValue().intValue();
+                    final GeometryValue gv = ((GeometryValue) args.poll());
+                    Geometry g = gv.getGeometry();
+
+                    Map<QName, String> otherAttributes = (g.getUserData() != null) ? (Map<QName, String>) g.getUserData() : new HashMap<>();
+                    final int precisionG = Integer.parseInt(otherAttributes.getOrDefault(Definitions.xmlPrecision, String.valueOf(Integer.MAX_VALUE)));
+                    if (precision == precisionG) {
+                        return gv;
+                    } else if (precision > precisionG) {
+                        // the requested precision is higher than possible
+                        final AttributeValueType av = new AttributeValueType(List.of(""), GeometryValue.DATATYPE.getId(), otherAttributes);
+                        final MissingAttributeDetail missingAttributeDetail = new MissingAttributeDetail(List.of(av),
+                                otherAttributes.get(XACML_CATEGORY_ID_QNAME),
+                                otherAttributes.get(XACML_ATTRIBUTE_ID_QNAME),
+                                GeometryValue.DATATYPE.getId(),
+                                null);
+                        throw new IndeterminateEvaluationException("Requested precision cannot be achieved", missingAttributeDetail, Optional.of(PRECISION_ERROR));
+                    } else {
+                        // we can reduce precision as required
+                        try {
+                            double scale = Math.pow(10.0, precision);
+                            GeometryFactory gf = new GeometryFactory(new PrecisionModel(scale));
+                            WKTReader wktReader = new WKTReader(gf);
+                            return new GeometryValue(wktReader.read(g.toText()));
+                        } catch (ParseException e) {
+                            final AttributeValueType av = new AttributeValueType(List.of(""), GeometryValue.DATATYPE.getId(), otherAttributes);
+                            final MissingAttributeDetail missingAttributeDetail = new MissingAttributeDetail(List.of(av),
+                                    otherAttributes.get(XACML_CATEGORY_ID_QNAME),
+                                    otherAttributes.get(XACML_ATTRIBUTE_ID_QNAME),
+                                    GeometryValue.DATATYPE.getId(),
+                                    null);
+                            throw new IndeterminateEvaluationException(e.getMessage(), missingAttributeDetail, Optional.of(GEOMETRY_ERROR));
+                        }
+                    }
+                }
+            };
+        }
+    }
+
+    public final static class HasPrecision extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
+        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-has-precision";
+
+        public HasPrecision() {
+            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.INTEGER, GeometryValue.DATATYPE));
+        }
+
+        @Override
+        public FirstOrderFunctionCall<BooleanValue> newCall(List<Expression<?>> argExpressions, Datatype<?>... remainingArgTypes) throws IllegalArgumentException {
+            return new BaseFirstOrderFunctionCall.EagerMultiPrimitiveTypeEval<BooleanValue>(functionSignature, argExpressions, remainingArgTypes) {
+
+                @Override
+                protected BooleanValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
+                    final int precision = (((IntegerValue) args.poll()).getUnderlyingValue()).intValue();
+                    final Geometry g = ((GeometryValue) args.poll()).getGeometry();
+                    final Map <QName, String> otherAttributes = (g.getUserData() != null) ? (Map<QName, String>) g.getUserData() : new HashMap<>();
+                    final int precisionG = Integer.parseInt(otherAttributes.getOrDefault(xmlPrecision, String.valueOf(Integer.MAX_VALUE)));
+                    return new BooleanValue(precision <= precisionG);
+                }
+            };
+        }
+    }
+
+    public final static class Precision extends SingleParameterTypedFirstOrderFunction<IntegerValue, GeometryValue> {
+        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-precision";
+
+        public Precision() {
+            super(ID, StandardDatatypes.INTEGER, true, Arrays.asList(GeometryValue.DATATYPE));
+        }
+
+        @Override
+        public FirstOrderFunctionCall<IntegerValue> newCall(final List<Expression<?>> argExpressions, final Datatype<?>... remainingArgTypes) {
+
+            return new BaseFirstOrderFunctionCall.EagerSinglePrimitiveTypeEval<IntegerValue, GeometryValue>(functionSignature, argExpressions, remainingArgTypes) {
+
+                @Override
+                protected IntegerValue evaluate(final Deque<GeometryValue> args) throws IndeterminateEvaluationException {
+                    Geometry g = args.poll().getGeometry();
+                    Map<QName, String> otherAttributes = (g.getUserData() != null) ? (Map<QName, String>) g.getUserData() : new HashMap<>();
+                    int precision = Integer.parseInt(otherAttributes.getOrDefault(xmlPrecision, String.valueOf(Integer.MAX_VALUE)));
+                    return IntegerValue.valueOf(precision);
+                }
+
+            };
+        }
     }
 
 }

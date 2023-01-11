@@ -18,14 +18,11 @@
 package de.securedimensions.geoxacml3.test.function;
 
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
-import de.securedimensions.geoxacml3.function.AnalysisFunctions;
 import de.securedimensions.geoxacml3.function.CoreFunctions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.locationtech.jts.geom.*;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.locationtech.jts.io.WKBWriter;
-import org.locationtech.jts.io.WKTWriter;
+import org.locationtech.jts.io.WKTReader;
 import org.ow2.authzforce.core.pdp.api.value.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +47,12 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
         GeometryCollection homogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(new Geometry[]{gWMCRS84, gMCRS84});
         GeometryCollection heterogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(new Geometry[]{gMCRS84, pMunichCRS84});
 
+        WKTReader wktReader = new WKTReader(new GeometryFactory(new PrecisionModel(4)));
+        Geometry gWMSRS4326Precision4 = null;
+        try {
+            gWMSRS4326Precision4 = wktReader.read(gWMSRS4326.toText());
+        }
+        catch (Exception e) {}
         return Arrays.asList(
 
                 // urn:ogc:def:function:geoxacml:3.0:geometry-dimension
@@ -68,17 +71,10 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
                 new Object[]{CoreFunctions.SRID.ID, Arrays.asList(new GeometryValue(gWMSRS4326)), IntegerValue.valueOf(4326)},
 
                 // urn:ogc:def:function:geoxacml:3.0:geometry-srid-equals
-                new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(new GeometryValue(gWMCRS84), IntegerValue.valueOf(-4326)), BooleanValue.TRUE},
-                new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(new GeometryValue(gWMSRS4326), IntegerValue.valueOf(-4326)), BooleanValue.FALSE},
-                new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(new GeometryValue(gWMSRS4326), IntegerValue.valueOf(4326)), BooleanValue.TRUE},
-                new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(new GeometryValue(gWMSRID3857), IntegerValue.valueOf(3857)), BooleanValue.TRUE},
-
-                // urn:ogc:def:function:geoxacml:3.0:geometry-srs-equals
-                new Object[]{CoreFunctions.SRSEquals.ID, Arrays.asList(new GeometryValue(gWMCRS84), new StringValue("WGS84")), BooleanValue.TRUE},
-                new Object[]{CoreFunctions.SRSEquals.ID, Arrays.asList(new GeometryValue(gWMCRS84), new StringValue("CRS84")), BooleanValue.TRUE},
-                new Object[]{CoreFunctions.SRSEquals.ID, Arrays.asList(new GeometryValue(gWMCRS84), new StringValue("urn:ogc:def:crs:OGC::CRS84")), BooleanValue.TRUE},
-                new Object[]{CoreFunctions.SRSEquals.ID, Arrays.asList(new GeometryValue(gWMSRS4326), new StringValue("EPSG:4326")), BooleanValue.TRUE},
-                new Object[]{CoreFunctions.SRSEquals.ID, Arrays.asList(new GeometryValue(gWMSRID3857), new StringValue("EPSG:4326")), BooleanValue.FALSE},
+                new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(IntegerValue.valueOf(-4326), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
+                new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(IntegerValue.valueOf(-4326), new GeometryValue(gWMSRS4326)), BooleanValue.FALSE},
+                new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(IntegerValue.valueOf(4326), new GeometryValue(gWMSRS4326)), BooleanValue.TRUE},
+                new Object[]{CoreFunctions.SRIDEquals.ID, Arrays.asList(IntegerValue.valueOf(3857), new GeometryValue(gWMSRID3857)), BooleanValue.TRUE},
 
                 // urn:ogc:def:function:geoxacml:3.0:geometry-is-simple
                 new Object[]{CoreFunctions.IsSimple.ID, Arrays.asList(new GeometryValue(lEquator)), BooleanValue.TRUE},
@@ -107,34 +103,34 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
 
                 // urn:ogc:def:function:geoxacml:3.0:geometry-is-within-distance
                 new Object[]{CoreFunctions.IsWithinDistance.ID, Arrays.asList(
+                        new DoubleValue(180.),
                         new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0))),
-                        new DoubleValue(180.)),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0)))),
                         BooleanValue.TRUE},
                 new Object[]{CoreFunctions.IsWithinDistance.ID, Arrays.asList(
+                        new DoubleValue(90.),
                         new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0))),
-                        new DoubleValue(90.)),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0)))),
                         BooleanValue.FALSE},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-distance-equals
-                new Object[]{CoreFunctions.EqualsDistance.ID, Arrays.asList(
+                // urn:ogc:def:function:geoxacml:3.0:geometry-has-distance
+                new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(
+                        new DoubleValue(180.),
                         new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0))),
-                        new DoubleValue(180.)),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0)))),
                         BooleanValue.TRUE},
-                new Object[]{CoreFunctions.EqualsDistance.ID, Arrays.asList(
+                new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(
+                        new DoubleValue(90.),
                         new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0))),
-                        new DoubleValue(90.)),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0)))),
                         BooleanValue.FALSE},
 
                 // urn:ogc:def:function:geoxacml:3.0:geometry-relate
-                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84), StringValue.parse("FF0FFF0F2")), BooleanValue.TRUE},
-                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84), StringValue.parse("FF0FFF102")), BooleanValue.FALSE},
-                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(lEquator), StringValue.parse("FF0FFF102")), BooleanValue.TRUE},
-                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(lEquator), new GeometryValue(gWMCRS84), StringValue.parse("FF0FFF102")), BooleanValue.FALSE},
-                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(new GeometryValue(lEquator), new GeometryValue(gWMCRS84), StringValue.parse("FF1FF00F2")), BooleanValue.TRUE},
+                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(StringValue.parse("FF0FFF0F2"), new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)), BooleanValue.TRUE},
+                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(StringValue.parse("FF0FFF102"), new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)), BooleanValue.FALSE},
+                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(StringValue.parse("FF0FFF102"), new GeometryValue(gWMCRS84), new GeometryValue(lEquator)), BooleanValue.TRUE},
+                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(StringValue.parse("FF0FFF102"), new GeometryValue(lEquator), new GeometryValue(gWMCRS84)), BooleanValue.FALSE},
+                new Object[]{CoreFunctions.Relate.ID, Arrays.asList(StringValue.parse("FF1FF00F2"), new GeometryValue(lEquator), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
 
                 // urn:ogc:def:function:geoxacml:3.0:geometry-bag-from-collection
                 new Object[]{CoreFunctions.GeometryBagFromCollection.ID, Arrays.asList(new GeometryValue(homogeneousCollection)), Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))},

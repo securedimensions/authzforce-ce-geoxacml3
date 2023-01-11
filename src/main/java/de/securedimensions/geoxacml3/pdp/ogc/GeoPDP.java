@@ -51,28 +51,52 @@ public class GeoPDP implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        if (!"GET".equalsIgnoreCase(httpRequest.getMethod())) {
-            chain.doFilter(request, response);
-        } else if (!httpRequest.getPathInfo().matches("/domains/.*/pdp(.*)")) {
-            chain.doFilter(request, response);
-        } else {
-            String path = httpRequest.getPathInfo().replaceAll("/domains/.*/pdp", "");
-            if (path.equalsIgnoreCase("") || path.equalsIgnoreCase("/")) {
-                doLandingPage(httpRequest, httpResponse);
-            } else if (path.startsWith("/api")) {
-                doApi(httpRequest, httpResponse);
-            } else if (path.startsWith("/conformance")) {
-                doConformance(httpRequest, httpResponse);
+        
+        String path = httpRequest.getPathInfo();
+        
+        // The OGC GeoXACML 3.0 API conformance class requires to support the path .../decision
+        if ("POST".equalsIgnoreCase(httpRequest.getMethod())) {
+        	if (path.endsWith("/decision"))
+        	{
+        		request.getRequestDispatcher(path.replace("/decision", "")).forward(request, response);
+        	}
+        	else if (path.endsWith("/decision/"))
+        	{
+        		request.getRequestDispatcher(path.replace("/decision/", "")).forward(request, response);
+        	}
+            else {
+                chain.doFilter(request, response);
+            }
+        }
+        else if ("GET".equalsIgnoreCase(httpRequest.getMethod())){
+        	// The OGC GeoXACML 3.0 API conformance class requires to support the path for /api and /conformance
+        	if (!path.matches("/domains/.*/pdp(.*)")) {
+                chain.doFilter(request, response);
             } else {
-                InputStream resource = GeoPDP.class.getResourceAsStream("." + path);
-                if (resource != null) {
-                    resource.transferTo(response.getOutputStream());
-                    resource.close();
+                String xpath = path.replaceAll("/domains/.*/pdp", "");
+                if (xpath.equalsIgnoreCase("") || xpath.equalsIgnoreCase("/")) {
+                    doLandingPage(httpRequest, httpResponse);
+                } else if (xpath.startsWith("/api")) {
+                    doApi(httpRequest, httpResponse);
+                } else if (xpath.startsWith("/conformance")) {
+                    doConformance(httpRequest, httpResponse);
                 } else {
-                    chain.doFilter(request, response);
+                    InputStream resource = GeoPDP.class.getResourceAsStream("." + xpath);
+                    if (resource != null) {
+                        resource.transferTo(response.getOutputStream());
+                        resource.close();
+                    } else {
+                        chain.doFilter(request, response);
+                    }
                 }
             }
         }
+        else
+        {
+        	// Forward any non OGC specific request to Authzforce
+        	chain.doFilter(request, response);
+        }
+
     }
 
     void doLandingPage(HttpServletRequest request, HttpServletResponse response) throws IOException {

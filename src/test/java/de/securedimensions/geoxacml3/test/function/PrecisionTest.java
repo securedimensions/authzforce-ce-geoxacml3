@@ -20,13 +20,18 @@ package de.securedimensions.geoxacml3.test.function;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.function.AnalysisFunctions;
 import de.securedimensions.geoxacml3.function.BagSetFunctions;
+import de.securedimensions.geoxacml3.function.CoreFunctions;
 import de.securedimensions.geoxacml3.function.TopologicalFunctions;
 import de.securedimensions.geoxacml3.identifiers.Definitions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.io.WKTReader;
 import org.ow2.authzforce.core.pdp.api.value.Bags;
 import org.ow2.authzforce.core.pdp.api.value.BooleanValue;
+import org.ow2.authzforce.core.pdp.api.value.IntegerValue;
 import org.ow2.authzforce.core.pdp.api.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,21 +56,24 @@ public class PrecisionTest extends GeometryFunctionTest {
     public static Collection<Object[]> params() {
 
         Map<QName, String> xmlPrecision1 = new HashMap<QName, String>();
-        xmlPrecision1.put(Definitions.xmlPrecision, "1.0");
+        xmlPrecision1.put(Definitions.xmlPrecision, "1");
+
+        Map<QName, String> xmlPrecision4 = new HashMap<QName, String>();
+        xmlPrecision4.put(Definitions.xmlPrecision, "4");
 
         Map<QName, String> xmlPrecision9 = new HashMap<QName, String>();
-        xmlPrecision9.put(Definitions.xmlPrecision, "9.0");
+        xmlPrecision9.put(Definitions.xmlPrecision, "9");
 
         Map<QName, String> xmlPrecision1ADR = new HashMap<QName, String>();
-        xmlPrecision1ADR.put(Definitions.xmlPrecision, "1.0");
+        xmlPrecision1ADR.put(Definitions.xmlPrecision, "1");
         xmlPrecision1ADR.put(Definitions.ATTR_SOURCE, ATTR_SOURCE_DESIGNATOR);
-        xmlPrecision1ADR.put(XACML_ATTRIBUTE_ID_QNAME, "Washington Monument at precision 1.0");
+        xmlPrecision1ADR.put(XACML_ATTRIBUTE_ID_QNAME, "Washington Monument at precision 1");
         xmlPrecision1ADR.put(XACML_CATEGORY_ID_QNAME, "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject");
 
         Map<QName, String> xmlPrecision9ADR = new HashMap<QName, String>();
-        xmlPrecision9ADR.put(Definitions.xmlPrecision, "9.0");
+        xmlPrecision9ADR.put(Definitions.xmlPrecision, "9");
         xmlPrecision9ADR.put(Definitions.ATTR_SOURCE, ATTR_SOURCE_DESIGNATOR);
-        xmlPrecision9ADR.put(XACML_ATTRIBUTE_ID_QNAME, "Washington Monument at precision 9.0");
+        xmlPrecision9ADR.put(XACML_ATTRIBUTE_ID_QNAME, "Washington Monument at precision 9");
         xmlPrecision9ADR.put(XACML_CATEGORY_ID_QNAME, "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject");
 
         Geometry gWMCRS84Precision1Policy = gWMCRS84.copy();
@@ -79,6 +87,13 @@ public class PrecisionTest extends GeometryFunctionTest {
 
         Geometry gWMCRS84Precision9ADR = gWMCRS84.copy();
         gWMCRS84Precision9ADR.setUserData(xmlPrecision9ADR);
+
+        Geometry gWMCRS84Precision4 = null;
+        try {
+            gWMCRS84Precision4 = new WKTReader(new GeometryFactory(new PrecisionModel(10 * 1000))).read(gWMCRS84.toText());
+            gWMCRS84Precision4.setUserData(xmlPrecision4);
+        }
+        catch (Exception e) {}
 
         return Arrays.asList(
                 // precision 1.0 in policy - precision 1.0 in policy -> Exception
@@ -215,9 +230,21 @@ public class PrecisionTest extends GeometryFunctionTest {
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision9ADR))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
-                        null}
+                        null},
 
-        );
+                // urn:ogc:def:function:geoxacml:3.0:geometry-ensure-precision
+                new Object[]{CoreFunctions.EnsurePrecision.ID, Arrays.asList(IntegerValue.valueOf(4), new GeometryValue(gWMCRS84)), new GeometryValue(gWMCRS84Precision4)},
+                new Object[]{CoreFunctions.EnsurePrecision.ID, Arrays.asList(IntegerValue.valueOf(9), new GeometryValue(gWMCRS84Precision1ADR)), null},
+
+
+                // urn:ogc:def:function:geoxacml:3.0:geometry-has-precision
+                new Object[]{CoreFunctions.HasPrecision.ID, Arrays.asList(IntegerValue.valueOf(4), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
+                new Object[]{CoreFunctions.HasPrecision.ID, Arrays.asList(IntegerValue.valueOf(9), new GeometryValue(gWMCRS84Precision4)), BooleanValue.FALSE},
+
+                // urn:ogc:def:function:geoxacml:3.0:geometry-precision
+                new Object[]{CoreFunctions.Precision.ID, Arrays.asList(new GeometryValue(gWMCRS84)), IntegerValue.valueOf(Integer.MAX_VALUE)},
+                new Object[]{CoreFunctions.Precision.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision4)), IntegerValue.valueOf(4)}
+                );
     }
 
 }

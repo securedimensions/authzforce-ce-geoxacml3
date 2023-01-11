@@ -18,12 +18,14 @@
 package de.securedimensions.geoxacml3.test.function;
 
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
+import de.securedimensions.geoxacml3.function.CoreFunctions;
 import de.securedimensions.geoxacml3.function.TopologicalFunctions;
 import de.securedimensions.geoxacml3.identifiers.Definitions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.locationtech.jts.geom.Geometry;
 import org.ow2.authzforce.core.pdp.api.value.BooleanValue;
+import org.ow2.authzforce.core.pdp.api.value.IntegerValue;
 import org.ow2.authzforce.core.pdp.api.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import javax.xml.namespace.QName;
 import java.util.*;
 
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
+import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.*;
 
 @RunWith(Parameterized.class)
@@ -46,6 +50,13 @@ public class CRSTransformationTest extends GeometryFunctionTest {
 
         Map<QName, String> xmlAllowTransformation = new HashMap<QName, String>();
         xmlAllowTransformation.put(Definitions.ATTR_ALLOW_TRANSFORMATION, "true");
+
+        Map<QName, String> xmlAttributes = new HashMap<QName, String>();
+        xmlAttributes.put(XACML_ATTRIBUTE_ID_QNAME, "subject-location");
+        xmlAttributes.put(XACML_CATEGORY_ID_QNAME, "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject");
+
+        Geometry gWMCRS84DisallowTransformation = gWMCRS84.copy();
+        gWMCRS84DisallowTransformation.setUserData(xmlAttributes);
 
         Geometry gWMCRS84AllowTransformation = gWMCRS84.copy();
         gWMCRS84AllowTransformation.setUserData(xmlAllowTransformation);
@@ -77,7 +88,14 @@ public class CRSTransformationTest extends GeometryFunctionTest {
 
             // CRS transformation not allowed per 'allowTransformation' attribute in AttributeValue -> throw Indeterminate
             new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMSRID3857)), null},
-            new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMSRS4326), new GeometryValue(gWMSRID3857)), null}
+            new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMSRS4326), new GeometryValue(gWMSRID3857)), null},
+
+            // urn:ogc:def:function:geoxacml:3.0:geometry-ensure-srid
+            new Object[]{CoreFunctions.EnsureSRID.ID, Arrays.asList(IntegerValue.valueOf(-4326), new GeometryValue(gWMCRS84)), new GeometryValue(gWMCRS84)},
+            new Object[]{CoreFunctions.EnsureSRID.ID, Arrays.asList(IntegerValue.valueOf(4326), new GeometryValue(gWMCRS84)), new GeometryValue(gWMSRS4326)},
+            new Object[]{CoreFunctions.EnsureSRID.ID, Arrays.asList(IntegerValue.valueOf(3857), new GeometryValue(gWMSRS4326AllowTransformation)), new GeometryValue(gWMSRID3857)},
+            new Object[]{CoreFunctions.EnsureSRID.ID, Arrays.asList(IntegerValue.valueOf(3857), new GeometryValue(gWMCRS84DisallowTransformation)), null}
+
         );
     }
 

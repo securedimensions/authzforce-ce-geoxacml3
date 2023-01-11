@@ -56,11 +56,11 @@ public class UtilityFunctions {
     {
 
         Map<QName, String> otherXmlAttributesG1 = (g1.getUserData() == null) ? new HashMap<QName, String>() : (Map<QName, String>) g1.getUserData();
-        final double precisionG1 = otherXmlAttributesG1.containsKey(Definitions.xmlPrecision) ? Double.parseDouble(otherXmlAttributesG1.get(Definitions.xmlPrecision)) : Double.MAX_VALUE;
+        final int precisionG1 = otherXmlAttributesG1.containsKey(Definitions.xmlPrecision) ? Integer.parseInt(otherXmlAttributesG1.get(Definitions.xmlPrecision)) : Integer.MAX_VALUE;
         final String sourceG1 = otherXmlAttributesG1.containsKey(Definitions.ATTR_SOURCE) ? otherXmlAttributesG1.get(Definitions.ATTR_SOURCE) : Definitions.ATTR_SOURCE_POLICY;
 
         Map<QName, String> otherXmlAttributesG2 = (g2.getUserData() == null) ? new HashMap<QName, String>() : (Map<QName, String>) g2.getUserData();
-        final double precisionG2 = otherXmlAttributesG2.containsKey(Definitions.xmlPrecision) ? Double.parseDouble(otherXmlAttributesG2.get(Definitions.xmlPrecision)) : Double.MAX_VALUE;
+        final int precisionG2 = otherXmlAttributesG2.containsKey(Definitions.xmlPrecision) ? Integer.parseInt(otherXmlAttributesG2.get(Definitions.xmlPrecision)) : Integer.MAX_VALUE;
         final String sourceG2 = otherXmlAttributesG2.containsKey(Definitions.ATTR_SOURCE) ? otherXmlAttributesG2.get(Definitions.ATTR_SOURCE) : Definitions.ATTR_SOURCE_POLICY;
 
         if ((sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_DESIGNATOR)) &&
