@@ -46,10 +46,10 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + EQUAL_SUFFIX;
 
         public Equal() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
-        protected boolean testCRS() {return true;}
+        private boolean testCRS() {return true;}
         @Override
         public FirstOrderFunctionCall<BooleanValue> newCall(final List<Expression<?>> argExpressions, final Datatype<?>... remainingArgTypes) {
 
@@ -73,7 +73,7 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + EQUALS_SUFFIX;
 
         public Equals() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -100,7 +100,7 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + DISJOINT_SUFFIX;
 
         public Disjoint() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -126,7 +126,7 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + TOUCHES_SUFFIX;
 
         public Touches() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -152,7 +152,7 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + CROSSES_SUFFIX;
 
         public Crosses() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -178,7 +178,7 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + WITHIN_SUFFIX;
 
         public Within() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -204,7 +204,7 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + CONTAINS_SUFFIX;
 
         public Contains() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -230,7 +230,7 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + OVERLAPS_SUFFIX;
 
         public Overlaps() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -256,7 +256,7 @@ public final class TopologicalFunctions {
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + INTERSECTS_SUFFIX;
 
         public Intersects() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override

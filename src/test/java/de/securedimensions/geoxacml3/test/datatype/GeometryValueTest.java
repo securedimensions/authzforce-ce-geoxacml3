@@ -69,9 +69,6 @@ public class GeometryValueTest {
     public static GeometryCollection gHomogeneousCollection, gHeterogeneousCollection;
 
     static {
-        xmlAttributeSRS4326.put(Definitions.xmlCRS, "EPSG:4326");
-        xmlAttributeWGS84.put(Definitions.xmlCRS, "WGS84");
-        xmlAttributeCRS84.put(Definitions.xmlCRS, "urn:ogc:def:crs:OGC::CRS84");
         xmlAttributeSRID4326.put(Definitions.xmlSRID, "4326");
 
         xmlAttributePrecision1.put(Definitions.xmlPrecision, "1.0");
@@ -133,7 +130,7 @@ public class GeometryValueTest {
         Point []pHomogeneous = {(Point) gWMCRS84, (Point) gMCRS84};
         gHomogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(pHomogeneous);
 
-        Geometry []pHeterogeneous = {(Point) gWMCRS84, (LineString)lDefault};
+        Geometry []pHeterogeneous = {gWMCRS84, lDefault};
         gHeterogeneousCollection = GeometryValue.Factory.GEOMETRY_FACTORY.createGeometryCollection(pHeterogeneous);
 
     }
@@ -161,11 +158,6 @@ public class GeometryValueTest {
 
             // WKT encoding with default SRS (WGS84)
             new Object[]{gWMCRS84.toString(), null, xPathCompiler, "WKT with using default SRS", gWMCRS84, true},
-
-            // WKT encoding with SRS in otherXMLAttributes: SRS
-            new Object[]{gWMSRS4326.toString(), xmlAttributeSRS4326, xPathCompiler, "WKT using EPSG:4326 as attribute 'srs' in AttributeValue", gWMSRS4326, true},
-            new Object[]{gWMCRS84.toString(), xmlAttributeWGS84, xPathCompiler, "WKT using WGS84 as attribute 'srs' in AttributeValue", gWMSRS4326, true},
-            new Object[]{gWMCRS84.toString(), xmlAttributeCRS84, xPathCompiler, "WKT using CRS84 as attribute 'srs' in AttributeValue", gWMSRS4326, true},
 
             // WKT encoding with SRS in otherXMLAttributes: SRID
             new Object[]{gWMSRID4326.toString(), xmlAttributeSRID4326, xPathCompiler, "WKT using SRID as attribute 'srid' in AttributeValue", gWMSRID4326, true},
@@ -210,8 +202,6 @@ public class GeometryValueTest {
                 LOGGER.info("Test Success\n");
 
             LOGGER.error(e.getLocalizedMessage() + '\n');
-        } finally {
-
         }
     }
 

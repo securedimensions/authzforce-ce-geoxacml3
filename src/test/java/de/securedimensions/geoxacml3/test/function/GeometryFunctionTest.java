@@ -266,13 +266,13 @@ public abstract class GeometryFunctionTest {
                         int actualN = actualGC.getNumGeometries();
                         int expextedN = expectedGC.getNumGeometries();
                         if (actualN != expextedN)
-                            Assert.assertTrue(toString, false);
+                            Assert.fail(toString);
 
                         for (int ix = 0; ix < actualN; ix++) {
                             cond = (
                                     ((expectedGC.getGeometryN(ix).equals(actualGC.getGeometryN(ix))) &&
                                             (expectedGC.getGeometryN(ix).getSRID() == actualGC.getGeometryN(ix).getSRID())));
-                            if (cond == false)
+                            if (!cond)
                                 break;
                         }
                     } else if (expectedG.isEmpty() && actualG.isEmpty())
@@ -292,13 +292,13 @@ public abstract class GeometryFunctionTest {
                         Geometry ge = ie.next().getGeometry();
                         Geometry ga = ia.next().getGeometry();
                         cond = ((ge.equals(ga)) && (ge.getSRID() == ga.getSRID()));
-                        if (cond == false)
+                        if (!cond)
                             break;
                     }
                     Assert.assertTrue(toString, cond);
                 }
                 else
-                    Assert.assertTrue(toString, false);
+                    Assert.fail(toString);
             }
         } catch (final IndeterminateEvaluationException e) {
             if (expectedResult != null) {

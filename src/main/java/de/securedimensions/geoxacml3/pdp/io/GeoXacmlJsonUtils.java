@@ -138,7 +138,7 @@ public final class GeoXacmlJsonUtils
     public static JSONObject canonicalizeResponse(final JSONObject xacmlJsonResponse, boolean floatWithTrailingZeroToInt)
     {
         /*
-         * We iterate over all results, because for each results, we don't compare everything. In particular, we choose to ignore the StatusMessage, StatusDetail and any nested StatusCode. Indeed, a
+         * We iterate over all results, because for each result, we don't compare everything. In particular, we choose to ignore the StatusMessage, StatusDetail and any nested StatusCode. Indeed, a
          * PDP implementation might return a perfectly XACML-compliant response but with extra StatusCode/Message/Detail that we would not expect.
          */
         for (final Object resultObj : xacmlJsonResponse.getJSONArray("Response"))

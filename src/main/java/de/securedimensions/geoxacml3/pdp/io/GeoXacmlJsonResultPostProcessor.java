@@ -144,13 +144,11 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
             while (i.hasNext())
             {
                 AttributeValueType avt = i.next();
-                if (avt.getOtherAttributes().containsKey(Definitions.xmlCRS))
-                    jsonPropertiesMap.put(Definitions.jsonCRS.getLocalPart(), avt.getOtherAttributes().get(Definitions.xmlCRS));
                 if (avt.getOtherAttributes().containsKey(Definitions.xmlSRID))
                     jsonPropertiesMap.put(Definitions.jsonSRID.getLocalPart(), avt.getOtherAttributes().get(Definitions.xmlSRID));
-                if (avt.getOtherAttributes().containsKey(Definitions.xmlPrecision))
+                else if (avt.getOtherAttributes().containsKey(Definitions.xmlPrecision))
                     jsonPropertiesMap.put(Definitions.jsonPrecision.getLocalPart(), avt.getOtherAttributes().get(Definitions.xmlPrecision));
-                if (avt.getOtherAttributes().containsKey(Definitions.ATTR_ALLOW_TRANSFORMATION))
+                else if (avt.getOtherAttributes().containsKey(Definitions.ATTR_ALLOW_TRANSFORMATION))
                     jsonPropertiesMap.put(Definitions.jsonAllowTransformation.getLocalPart(), avt.getOtherAttributes().get(Definitions.ATTR_ALLOW_TRANSFORMATION));
             }
             JSONObject missingAttDetailJson = new JSONObject(jsonPropertiesMap);

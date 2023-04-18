@@ -47,28 +47,28 @@ public class BagSetFunctionsTest extends GeometryFunctionTest {
     public static Collection<Object[]> params() {
 
         return Arrays.asList(
-                // urn:ogc:def:function:geoxacml:3.0:geometry-bag
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-bag
                 new Object[]{BagSetFunctions.GeometryBag.ID, Arrays.asList(new GeometryValue(pWashingtonDCCRS84), new GeometryValue(pMunichCRS84)), Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(pWashingtonDCCRS84), new GeometryValue(pMunichCRS84)))},
-                new Object[]{BagSetFunctions.GeometryBag.ID, Arrays.asList(), Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())},
+                new Object[]{BagSetFunctions.GeometryBag.ID, List.of(), Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-one-and-only
-                new Object[]{BagSetFunctions.SingletonBagToPrimitive.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))), new GeometryValue(gWMCRS84)},
-                new Object[]{BagSetFunctions.SingletonBagToPrimitive.ID, Arrays.asList(), null},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-one-and-only
+                new Object[]{BagSetFunctions.SingletonBagToPrimitive.ID, List.of(Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))), new GeometryValue(gWMCRS84)},
+                new Object[]{BagSetFunctions.SingletonBagToPrimitive.ID, List.of(), null},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-bag-size
-                new Object[]{BagSetFunctions.BagSize.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())), IntegerValue.valueOf(0)},
-                new Object[]{BagSetFunctions.BagSize.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))), IntegerValue.valueOf(1)},
-                new Object[]{BagSetFunctions.BagSize.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))), IntegerValue.valueOf(2)},
-                new Object[]{BagSetFunctions.BagSize.ID, Arrays.asList(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84), new GeometryValue(pUSACRS84)))), IntegerValue.valueOf(3)},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-bag-size
+                new Object[]{BagSetFunctions.BagSize.ID, List.of(Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())), IntegerValue.valueOf(0)},
+                new Object[]{BagSetFunctions.BagSize.ID, List.of(Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))), IntegerValue.valueOf(1)},
+                new Object[]{BagSetFunctions.BagSize.ID, List.of(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))), IntegerValue.valueOf(2)},
+                new Object[]{BagSetFunctions.BagSize.ID, List.of(Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84), new GeometryValue(pUSACRS84)))), IntegerValue.valueOf(3)},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-is-in
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-is-in
                 new Object[]{BagSetFunctions.BagContains.ID, Arrays.asList(
                         new GeometryValue(gEmpty),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.BagContains.ID, Arrays.asList(
                         new GeometryValue(pWashingtonDCCRS84),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.BagContains.ID, Arrays.asList(
                         new GeometryValue(pWashingtonDCCRS84),
@@ -79,17 +79,17 @@ public class BagSetFunctionsTest extends GeometryFunctionTest {
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(pWashingtonDCCRS84), new GeometryValue(pMunichCRS84)))),
                         BooleanValue.FALSE},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-at-least-one-member-of
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-at-least-one-member-of
                 new Object[]{BagSetFunctions.AtLeastOneMemberOf.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.AtLeastOneMemberOf.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.AtLeastOneMemberOf.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.AtLeastOneMemberOf.ID, Arrays.asList(
@@ -99,27 +99,27 @@ public class BagSetFunctionsTest extends GeometryFunctionTest {
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(pUSACRS84), new GeometryValue(pMunichCRS84)))), BooleanValue.FALSE},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-intersection
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-intersection
                 new Object[]{BagSetFunctions.Intersection.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())},
                 new Object[]{BagSetFunctions.Intersection.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())},
                 new Object[]{BagSetFunctions.Intersection.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())},
                 new Object[]{BagSetFunctions.Intersection.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))},
                 new Object[]{BagSetFunctions.Intersection.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))},
                 new Object[]{BagSetFunctions.Intersection.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84), new GeometryValue(pUSACRS84), new GeometryValue(pMunichCRS84)))),
@@ -129,26 +129,26 @@ public class BagSetFunctionsTest extends GeometryFunctionTest {
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-union
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-union
                 new Object[]{BagSetFunctions.Union.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())},
                 new Object[]{BagSetFunctions.Union.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))},
                 new Object[]{BagSetFunctions.Union.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))},
                 new Object[]{BagSetFunctions.Union.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))},
                 new Object[]{BagSetFunctions.Union.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))},
                 new Object[]{BagSetFunctions.Union.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
@@ -159,56 +159,56 @@ public class BagSetFunctionsTest extends GeometryFunctionTest {
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84), new GeometryValue(pUSACRS84), new GeometryValue(pMunichCRS84)))},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-subset
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-subset
                 new Object[]{BagSetFunctions.Subset.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.Subset.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.Subset.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.Subset.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.Subset.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
                         BooleanValue.FALSE},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-set-equals
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-set-equals
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList()),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of()),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList())),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of())),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)))),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84)))),
                         BooleanValue.FALSE},
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84))),

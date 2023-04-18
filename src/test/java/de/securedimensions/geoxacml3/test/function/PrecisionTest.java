@@ -180,70 +180,70 @@ public class PrecisionTest extends GeometryFunctionTest {
 
                 new Object[]{BagSetFunctions.BagContains.ID, Arrays.asList(
                         new GeometryValue(gWMCRS84Precision1ADR),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1Policy)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.BagContains.ID, Arrays.asList(
                         new GeometryValue(gWMCRS84Precision9ADR),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1Policy)))),
                         null},
 
                 new Object[]{BagSetFunctions.AtLeastOneMemberOf.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1ADR))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision9Policy)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.AtLeastOneMemberOf.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision9ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision9ADR))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision9Policy)))),
                         null},
 
                 new Object[]{BagSetFunctions.Intersection.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1ADR))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision9Policy)))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR)))},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1ADR)))},
                 new Object[]{BagSetFunctions.Intersection.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision9ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision9ADR))),
                         Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision9Policy)))),
                         null},
 
                 new Object[]{BagSetFunctions.Union.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR)))},
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1Policy)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1ADR)))},
                 new Object[]{BagSetFunctions.Union.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision9ADR))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision9ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1Policy)))),
                         null},
 
                 new Object[]{BagSetFunctions.Subset.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1Policy)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.Subset.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision9ADR))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision9ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1Policy)))),
                         null},
 
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1Policy)))),
                         BooleanValue.TRUE},
                 new Object[]{BagSetFunctions.SetEquals.ID, Arrays.asList(
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision9ADR))),
-                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy)))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision9ADR))),
+                        Bags.newBag(GeometryValue.FACTORY.getDatatype(), List.of(new GeometryValue(gWMCRS84Precision1Policy)))),
                         null},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-ensure-precision
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-ensure-precision
                 new Object[]{CoreFunctions.EnsurePrecision.ID, Arrays.asList(IntegerValue.valueOf(4), new GeometryValue(gWMCRS84)), new GeometryValue(gWMCRS84Precision4)},
                 new Object[]{CoreFunctions.EnsurePrecision.ID, Arrays.asList(IntegerValue.valueOf(9), new GeometryValue(gWMCRS84Precision1ADR)), null},
 
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-has-precision
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-has-precision
                 new Object[]{CoreFunctions.HasPrecision.ID, Arrays.asList(IntegerValue.valueOf(4), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
                 new Object[]{CoreFunctions.HasPrecision.ID, Arrays.asList(IntegerValue.valueOf(9), new GeometryValue(gWMCRS84Precision4)), BooleanValue.FALSE},
 
-                // urn:ogc:def:function:geoxacml:3.0:geometry-precision
-                new Object[]{CoreFunctions.Precision.ID, Arrays.asList(new GeometryValue(gWMCRS84)), IntegerValue.valueOf(Integer.MAX_VALUE)},
-                new Object[]{CoreFunctions.Precision.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision4)), IntegerValue.valueOf(4)}
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-precision
+                new Object[]{CoreFunctions.Precision.ID, List.of(new GeometryValue(gWMCRS84)), IntegerValue.valueOf(Integer.MAX_VALUE)},
+                new Object[]{CoreFunctions.Precision.ID, List.of(new GeometryValue(gWMCRS84Precision4)), IntegerValue.valueOf(4)}
                 );
     }
 

@@ -44,7 +44,7 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
 
         return Arrays
                 .asList(
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-equal
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-equal
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)), BooleanValue.FALSE},
 
@@ -52,7 +52,7 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMSRS4326)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMSRID4326), new GeometryValue(gWMSRS4326)), BooleanValue.TRUE},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-equals
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-equals
                         new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)), BooleanValue.FALSE},
 
@@ -60,32 +60,32 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
                         new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMSRS4326)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMSRID4326), new GeometryValue(gWMSRS4326)), BooleanValue.TRUE},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-disjoint
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-disjoint
                         new Object[]{TopologicalFunctions.Disjoint.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(pMunichCRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Disjoint.ID, Arrays.asList(new GeometryValue(gMCRS84), new GeometryValue(pMunichCRS84)), BooleanValue.FALSE},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-touches
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-touches
                         new Object[]{TopologicalFunctions.Touches.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(lDefault)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Touches.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(pMunichCRS84)), BooleanValue.FALSE},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-crosses
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-crosses
                         new Object[]{TopologicalFunctions.Crosses.ID, Arrays.asList(new GeometryValue(lDefault), new GeometryValue(pUSACRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Crosses.ID, Arrays.asList(new GeometryValue(lEquator), new GeometryValue(pUSACRS84)), BooleanValue.FALSE},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-within
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-within
                         new Object[]{TopologicalFunctions.Within.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(pUSACRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Within.ID, Arrays.asList(new GeometryValue(pWashingtonDCCRS84), new GeometryValue(pUSACRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Within.ID, Arrays.asList(new GeometryValue(pMunichCRS84), new GeometryValue(pUSACRS84)), BooleanValue.FALSE},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-contains
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-contains
                         new Object[]{TopologicalFunctions.Contains.ID, Arrays.asList(new GeometryValue(pUSACRS84), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Contains.ID, Arrays.asList(new GeometryValue(pUSACRS84), new GeometryValue(pMunichCRS84)), BooleanValue.FALSE},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-overlaps
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-overlaps
                         new Object[]{TopologicalFunctions.Overlaps.ID, Arrays.asList(new GeometryValue(pNevadaCRS84), new GeometryValue(pCaliforniaCRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Overlaps.ID, Arrays.asList(new GeometryValue(pUSACRS84), new GeometryValue(pMunichCRS84)), BooleanValue.FALSE},
 
-                        // urn:ogc:def:function:geoxacml:3.0:geometry-intersects
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-intersects
                         new Object[]{TopologicalFunctions.Intersects.ID, Arrays.asList(new GeometryValue(lEquator), new GeometryValue(lMeridian)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Intersects.ID, Arrays.asList(new GeometryValue(lEquator), new GeometryValue(lDefault)), BooleanValue.FALSE}
 

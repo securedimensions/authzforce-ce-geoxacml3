@@ -47,10 +47,10 @@ import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.X
 public class CoreFunctions {
 
     public final static class Length extends SingleParameterTypedFirstOrderFunction<DoubleValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-length";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-length";
 
         public Length() {
-            super(ID, StandardDatatypes.DOUBLE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.DOUBLE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -68,10 +68,10 @@ public class CoreFunctions {
     }
 
     public final static class Area extends SingleParameterTypedFirstOrderFunction<DoubleValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-area";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-area";
 
         public Area() {
-            super(ID, StandardDatatypes.DOUBLE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.DOUBLE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -89,10 +89,10 @@ public class CoreFunctions {
     }
 
     public final static class Dimension extends SingleParameterTypedFirstOrderFunction<IntegerValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-dimension";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-dimension";
 
         public Dimension() {
-            super(ID, StandardDatatypes.INTEGER, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.INTEGER, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -110,10 +110,10 @@ public class CoreFunctions {
     }
 
     public final static class GeometryType extends SingleParameterTypedFirstOrderFunction<StringValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-type";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-type";
 
         public GeometryType() {
-            super(ID, StandardDatatypes.STRING, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.STRING, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -131,10 +131,10 @@ public class CoreFunctions {
     }
 
     public final static class SRID extends SingleParameterTypedFirstOrderFunction<IntegerValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-srid";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-srid";
 
         public SRID() {
-            super(ID, StandardDatatypes.INTEGER, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.INTEGER, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -152,10 +152,10 @@ public class CoreFunctions {
     }
 
     public final static class IsSimple extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-is-simple";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-is-simple";
 
         public IsSimple() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -173,10 +173,10 @@ public class CoreFunctions {
     }
 
     public final static class IsEmpty extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-is-empty";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-is-empty";
 
         public IsEmpty() {
-            super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -194,7 +194,7 @@ public class CoreFunctions {
     }
 
     public final static class SRIDEquals extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-srid-equals";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-srid-equals";
 
         public SRIDEquals() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.INTEGER, GeometryValue.DATATYPE));
@@ -215,10 +215,10 @@ public class CoreFunctions {
     }
 
     public final static class Distance extends SingleParameterTypedFirstOrderFunction<DoubleValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-distance";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-distance";
 
         public Distance() {
-            super(ID, StandardDatatypes.DOUBLE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.DOUBLE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -245,7 +245,7 @@ public class CoreFunctions {
     }
 
     public final static class IsWithinDistance extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-is-within-distance";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-is-within-distance";
 
         public IsWithinDistance() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.DOUBLE, GeometryValue.DATATYPE, GeometryValue.DATATYPE));
@@ -276,7 +276,7 @@ public class CoreFunctions {
     }
 
     public final static class DistanceEquals extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-distance-equals";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-distance-equals";
 
         public DistanceEquals() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.DOUBLE, GeometryValue.DATATYPE, GeometryValue.DATATYPE));
@@ -309,7 +309,7 @@ public class CoreFunctions {
     }
 
     public final static class Relate extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-relate";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-relate";
 
         public Relate() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.STRING, GeometryValue.DATATYPE, GeometryValue.DATATYPE));
@@ -511,7 +511,7 @@ public class CoreFunctions {
     }
 
     public final static class HasPrecision extends MultiParameterTypedFirstOrderFunction<BooleanValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-has-precision";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-has-precision";
 
         public HasPrecision() {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(StandardDatatypes.INTEGER, GeometryValue.DATATYPE));
@@ -534,10 +534,10 @@ public class CoreFunctions {
     }
 
     public final static class Precision extends SingleParameterTypedFirstOrderFunction<IntegerValue, GeometryValue> {
-        public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-precision";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-precision";
 
         public Precision() {
-            super(ID, StandardDatatypes.INTEGER, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, StandardDatatypes.INTEGER, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override

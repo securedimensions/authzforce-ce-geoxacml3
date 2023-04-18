@@ -38,93 +38,91 @@ PATCH <authzforce-server>/domains/<id>/pap/pdp.properties
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:core" enabled="false"
     >urn:ow2:authzforce:feature:pdp:core:xpath-eval</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:data-type" enabled="true"
-    >urn:ogc:def:dataType:geoxacml:3.0:geometry</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:data-type:geometry</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-equals</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-equals</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-is-in</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-is-in</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-at-least-one-member-of</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-at-least-one-member-of</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-touches</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-touches</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-srid-equals</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-subset</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-subset</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-set-equals</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-set-equals</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-disjoint</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-disjoint</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-is-empty</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-is-empty</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-bag-from-collection</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-bag-from-collection</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-crosses</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-crosses</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-geometry-intersection</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-geometry-intersection</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-geometry-sym-difference</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-geometry-sym-difference</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-equals-distance</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-equals-distance</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-bag</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-bag</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-relate</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-relate</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-srid-equals</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-srs-equals</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-is-within-distance</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-is-within-distance</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-geometry-difference</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-geometry-difference</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-intersects</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-intersects</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-contains</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-contains</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-length</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-length</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-one-and-only</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-one-and-only</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-boundary</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-boundary</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-bag-to-collection</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-bag-to-collection</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-within</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-within</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-union</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-union</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-equal</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-equal</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-distance</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-distance</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-bag-size</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-bag-size</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-buffer</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-buffer</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-overlaps</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-overlaps</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-geometry-union</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-geometry-union</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-centroid</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-centroid</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-dimension</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-dimension</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-type</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-type</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-srid</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-srid</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-is-simple</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-is-simple</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-area</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-area</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-ensure-crs</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-ensure-srs</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-intersection</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-intersection</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-envelope</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-envelope</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:function:geoxacml:3.0:geometry-convex-hull</ns3:feature>
+    >urn:ogc:def:geoxacml:3.0:function:geometry-convex-hull</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="true"
     >urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-lax</ns3:feature>
     <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"

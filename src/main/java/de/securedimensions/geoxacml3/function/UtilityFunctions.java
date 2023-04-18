@@ -49,7 +49,7 @@ public class UtilityFunctions {
             case TopologicalFunctions.Intersects.INTERSECTS_SUFFIX:
                 return g1.intersects(g2);
         }
-        throw new IllegalArgumentException("Function: " + ID + " unknown");
+        throw new IllegalArgumentException("Function: " + id + " unknown");
     }
 
     public void ensurePrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException

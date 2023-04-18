@@ -39,7 +39,7 @@ public class AnalysisFunctions {
         public static final String ID = Definitions.FUNCTION_PREFIX + "-envelope";
 
         public Envelope() {
-            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -63,7 +63,7 @@ public class AnalysisFunctions {
         public static final String ID = Definitions.FUNCTION_PREFIX + "-boundary";
 
         public Boundary() {
-            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -111,7 +111,7 @@ public class AnalysisFunctions {
         public static final String ID = Definitions.FUNCTION_PREFIX + "-convex-hull";
 
         public ConvexHull() {
-            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -145,7 +145,7 @@ public class AnalysisFunctions {
         public static final String ID = Definitions.FUNCTION_PREFIX + "-centroid";
 
         public Centroid() {
-            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -169,7 +169,7 @@ public class AnalysisFunctions {
         public static final String ID = Definitions.FUNCTION_PREFIX + "-geometry-intersection";
 
         public GeometryIntersection() {
-            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -201,7 +201,7 @@ public class AnalysisFunctions {
         public static final String ID = Definitions.FUNCTION_PREFIX + "-geometry-union";
 
         public GeometryUnion() {
-            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -233,7 +233,7 @@ public class AnalysisFunctions {
         public static final String ID = Definitions.FUNCTION_PREFIX + "-geometry-difference";
 
         public GeometryDifference() {
-            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override
@@ -265,7 +265,7 @@ public class AnalysisFunctions {
         public static final String ID = Definitions.FUNCTION_PREFIX + "-geometry-sym-difference";
 
         public GeometrySymDifference() {
-            super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE));
+            super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
         }
 
         @Override

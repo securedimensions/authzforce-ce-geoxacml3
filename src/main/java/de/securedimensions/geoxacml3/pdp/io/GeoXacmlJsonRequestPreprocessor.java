@@ -36,6 +36,7 @@ import org.ow2.authzforce.core.pdp.io.xacml.json.BaseXacmlJsonRequestPreprocesso
 import org.ow2.authzforce.core.pdp.io.xacml.json.IndividualXacmlJsonRequest;
 import org.ow2.authzforce.xacml.identifiers.XPathVersion;
 import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
+import org.ow2.authzforce.xacml.json.model.XacmlJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.X
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 
 /**
- * Default XACML/JSON - according to XACML JSON Profile - Request preprocessor for Individual Decision Requests only (no support of Multiple Decision Profile in particular)
+ * Default GeoXACML/JSON - according to XACML JSON Profile - Request preprocessor for Individual Decision Requests only (no support of Multiple Decision Profile in particular)
  *
  * @version $Id: $
  */
@@ -56,7 +57,7 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
 
     private static final IndeterminateEvaluationException MISSING_REQUEST_OBJECT_EXCEPTION = new IndeterminateEvaluationException("Missing Request object", XacmlStatusCode.SYNTAX_ERROR.value());
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseXacmlJsonRequestPreprocessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoXacmlJsonRequestPreprocessor.class);
 
     private static final IllegalArgumentException NULL_REQUEST_ARGUMENT_EXCEPTION = new IllegalArgumentException("Null request arg");
     private static final UnsupportedOperationException UNSUPPORTED_MODE_EXCEPTION = new UnsupportedOperationException(
@@ -74,7 +75,7 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
     /**
      * Indeterminate exception to be thrown iff MultiRequests element not supported by the request preprocessor
      */
-    protected static final IndeterminateEvaluationException UNSUPPORTED_MULTI_REQUESTS_EXCEPTION = new IndeterminateEvaluationException("Unsupported element in Request: <MultiRequests>",
+    private static final IndeterminateEvaluationException UNSUPPORTED_MULTI_REQUESTS_EXCEPTION = new IndeterminateEvaluationException("Unsupported element in Request: <MultiRequests>",
             XacmlStatusCode.SYNTAX_ERROR.value());
 
     private final SingleCategoryXacmlAttributesParser.Factory<JSONObject> xacmlAttrsParserFactory;
@@ -340,7 +341,7 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
     }
 
     @Override
-    public final List<IndividualXacmlJsonRequest> process(final JSONObject request, final Map<String, String> namespaceURIsByPrefix) throws IndeterminateEvaluationException
+    public List<IndividualXacmlJsonRequest> process(final JSONObject request, final Map<String, String> namespaceURIsByPrefix) throws IndeterminateEvaluationException
     {
         if (request == null)
         {
@@ -350,6 +351,7 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
         try
         {
             GeoXacmlJsonUtils.REQUEST_SCHEMA.validate(request);
+            //XacmlJsonUtils.REQUEST_SCHEMA.validate(request);
         }
         catch (final ValidationException e)
         {

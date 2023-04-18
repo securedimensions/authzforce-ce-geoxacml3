@@ -58,12 +58,10 @@ import java.util.*;
  */
 public final class GeometryValue extends SimpleValue<Geometry> {
 
-    public static final String ID = "urn:ogc:def:dataType:geoxacml:3.0:geometry";
-
     public static final AttributeDatatype<GeometryValue> DATATYPE =
             new AttributeDatatype<GeometryValue>(
                     GeometryValue.class,
-                    ID,
+                    Definitions.GEOMETRY,
                     Definitions.FUNCTION_PREFIX,
                     ItemType.STRING);
     public static final Factory FACTORY = new Factory();
@@ -162,100 +160,80 @@ public final class GeometryValue extends SimpleValue<Geometry> {
         }
 
         @Override
-        public final GeometryValue getInstance(final Serializable content, final Map<QName, String> otherXmlAttributes, final Optional<XPathCompilerProxy> xPathCompiler) throws IllegalArgumentException {
-            try {
-                int srid = -4326;
-                if (otherXmlAttributes != null && !otherXmlAttributes.isEmpty()) {
-                    if (otherXmlAttributes.containsKey(Definitions.xmlSRID))
-                        srid = Integer.parseInt(otherXmlAttributes.get(Definitions.xmlSRID));
-                    else if (otherXmlAttributes.containsKey(Definitions.xmlCRS)) {
-                        String srs = otherXmlAttributes.get(Definitions.xmlCRS);
-                        if (srs.toUpperCase().contains("WGS84") || srs.toUpperCase().contains("CRS84"))
-                            srid = -4326;
-                        else {
-                            String []tokens = srs.split(":");
-                            if (tokens.length != 2)
-                                throw new IllegalArgumentException("SRS pattern is EPSG:<srid>");
-                            else if (!tokens[0].equalsIgnoreCase("EPSG"))
-                                throw new IllegalArgumentException("SRS must start with authority string 'EPSG'");
-                            else
-                                srid = Integer.parseInt(tokens[1]);
-                        }
-                    }
+        public GeometryValue getInstance(final Serializable content, final Map<QName, String> otherXmlAttributes, final Optional<XPathCompilerProxy> xPathCompiler) throws IllegalArgumentException {
+            // XML encoded as AttributeValue with String value
+                /*
+                // WKT in default SRID
+                <Attribute IncludeInResult="false" AttributeId="subject-location">
+                  <AttributeValue DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry">POINT(1 0)</AttributeValue>
+                </Attribute>
+                // WKT with 'srid'
+                <Attribute IncludeInResult="false" AttributeId="subject-location">
+                  <AttributeValue DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry" xmlns:geoxacml="urn:ogc:def:dataType:geoxacml:3.0" geoxacml:srid="4711">POINT(1 0)</AttributeValue>
+                </Attribute>
+                // WKB in default SRID
+                <Attribute IncludeInResult="false" AttributeId="subject-location">
+                  <AttributeValue DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry">010100000000000000000000400000000000001040</AttributeValue>
+                </Attribute>
+                 */
+            // Or JSON
+                /*
+                // in default SRS
+                {
+                    "AttributeId": "subject-location",
+                    "DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry",
+                    "Value": "POINT(1 0)"
                 }
-                Geometry g = null;
-                if (content instanceof String) {
-                    // XML encoded as AttributeValue with String value
-                    /*
-                    // WKT with 'srid'
-                    <Attribute IncludeInResult="false" AttributeId="subject-location">
-                      <AttributeValue DataType="urn:ogc:def:dataType:geoxacml:3.0:geometry" xmlns:geoxacml="urn:ogc:def:dataType:geoxacml:3.0" geoxacml:srid="1234">POINT(1 0)</AttributeValue>
-                    </Attribute>
-                    // WKT with 'srs'
-                    <Attribute IncludeInResult="false" AttributeId="subject-location">
-                      <AttributeValue DataType="urn:ogc:def:dataType:geoxacml:3.0:geometry" xmlns:geoxacml="urn:ogc:def:dataType:geoxacml:3.0" geoxacml:srs="EPSG:4711">POINT(1 0)</AttributeValue>
-                    </Attribute>
-                    // WKB in default SRS
-                    <Attribute IncludeInResult="false" AttributeId="subject-location">
-                      <AttributeValue DataType="urn:ogc:def:dataType:geoxacml:3.0:geometry">010100000000000000000000400000000000001040</AttributeValue>
-                    </Attribute>
-                     */
-                    // Or JSON encoded as WKT
-                    /*
-                    // in default SRS
-                    {
-						"AttributeId": "subject-location",
-                        "DataType": "urn:ogc:def:dataType:geoxacml:3.0:geometry",
-						"Value": "POINT(1 0)"
-					}
-					// with 'srid'
-                    {
-						"AttributeId": "subject-location",
-                        "DataType": "urn:ogc:def:dataType:geoxacml:3.0:geometry",
-                        "SRID": 4326,
-						"Value": "POINT(1 0)"
-					}
-					// Or GeoJSON
-					{
-                        "AttributeId": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
-                        "DataType": "urn:ogc:def:dataType:geoxacml:3.0:geometry",
-                        "Value": [
-                            {
-                                "type": "Point",
-                                "coordinates": [
-                                    125.6,
-                                    10.1
-                                ]
-                            }
-                        ]
-                    }
-                     */
-                    String val = (String) content;
-                    if (Character.isDigit(val.charAt(0))) {
-                        WKBReader wkbReader = new WKBReader(GEOMETRY_FACTORY);
-                        g = wkbReader.read(WKBReader.hexToBytes(val));
-                    } else {
-                        WKTReader wktReader = new WKTReader(GEOMETRY_FACTORY);
-                        g = wktReader.read(val);
-                    }
-
-                    g.setSRID(srid);
-
-                } else if (content instanceof SerializableJSONObject) {
-                    // JSON Profile for XACML
-                    /*
-                    {
-                        "AttributeId": "subject-location",
-                        "DataType": "urn:ogc:def:dataType:geoxacml:3.0:geometry",
-                        "Value": {
+                // with 'srid'
+                {
+                    "AttributeId": "subject-location",
+                    "DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry",
+                    "SRID": 4326,
+                    "Value": "POINT(1 0)"
+                }
+                */
+            // Or GeoJSON
+                /*
+                {
+                    "AttributeId": "subject-location",
+                    "DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry",
+                    "Value": [
+                        {
                             "type": "Point",
                             "coordinates": [
                                 125.6,
                                 10.1
                             ]
                         }
+                    ]
+                }
+                */
+
+            try {
+                int srid = -4326;
+                String encoding = Definitions.DEFAULT_ENCODING;
+                if (otherXmlAttributes != null && !otherXmlAttributes.isEmpty()) {
+                    if (otherXmlAttributes.containsKey(Definitions.xmlSRID)) {
+                        srid = Integer.parseInt(otherXmlAttributes.get(Definitions.xmlSRID));
                     }
-                     */
+                    else if (otherXmlAttributes.containsKey(Definitions.xmlENCODING)) {
+                        encoding = otherXmlAttributes.get(Definitions.xmlENCODING);
+                    }
+                }
+                Geometry g = null;
+                if (content instanceof String) {
+                    String val = (String) content;
+                    if (encoding == Definitions.DEFAULT_ENCODING) {
+                        WKTReader wktReader = new WKTReader(GEOMETRY_FACTORY);
+                        g = wktReader.read(val);
+                    } else {
+                        WKBReader wkbReader = new WKBReader(GEOMETRY_FACTORY);
+                        g = wkbReader.read(WKBReader.hexToBytes(val));
+                    }
+                    // store SRID with the geometry -- WKTReader and WKBReader don't do that
+                    g.setSRID(srid);
+
+                } else if (content instanceof SerializableJSONObject) {
                     JSONObject geojson = ((SerializableJSONObject) content).get();
                     GeoJsonReader geojsonReader = new GeoJsonReader();
                     g = geojsonReader.create(geojson.toMap(), GEOMETRY_FACTORY);
@@ -265,7 +243,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                 else {
                     throw new IllegalArgumentException("Geometry encoding not supported");
                 }
-                // No heterogeneous GeometryCollection
+                // Ensure heterogeneous GeometryCollection
                 if (g.getGeometryType().equalsIgnoreCase("GEOMETRYCOLLECTION")) {
                     String geometryType = null;
                     GeometryCollection gc = (GeometryCollection) g;

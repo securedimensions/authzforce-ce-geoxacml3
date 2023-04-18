@@ -90,7 +90,7 @@ public class CRSTransformationTest extends GeometryFunctionTest {
             new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMSRID3857)), null},
             new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMSRS4326), new GeometryValue(gWMSRID3857)), null},
 
-            // urn:ogc:def:function:geoxacml:3.0:geometry-ensure-srid
+            // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-ensure-srid
             new Object[]{CoreFunctions.EnsureSRID.ID, Arrays.asList(IntegerValue.valueOf(-4326), new GeometryValue(gWMCRS84)), new GeometryValue(gWMCRS84)},
             new Object[]{CoreFunctions.EnsureSRID.ID, Arrays.asList(IntegerValue.valueOf(4326), new GeometryValue(gWMCRS84)), new GeometryValue(gWMSRS4326)},
             new Object[]{CoreFunctions.EnsureSRID.ID, Arrays.asList(IntegerValue.valueOf(3857), new GeometryValue(gWMSRS4326AllowTransformation)), new GeometryValue(gWMSRID3857)},

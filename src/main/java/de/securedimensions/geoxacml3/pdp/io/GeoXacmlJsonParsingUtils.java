@@ -41,7 +41,7 @@ import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.X
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 
 /**
- * XACML/JSON (Profile) processing utilities
+ * GeoXACML/JSON (Profile) processing utilities
  *
  */
 public final class GeoXacmlJsonParsingUtils
@@ -92,7 +92,7 @@ public final class GeoXacmlJsonParsingUtils
             return new ImmutableNamedXacmlAttributeParsingResult<>(attName, attValFactory.getDatatype(), ImmutableList.copyOf(attValues));
         }
 
-        protected NamedXacmlJsonAttributeParser(final AttributeValueFactoryRegistry attributeValueFactoryRegistry) throws IllegalArgumentException
+        NamedXacmlJsonAttributeParser(final AttributeValueFactoryRegistry attributeValueFactoryRegistry) throws IllegalArgumentException
         {
             super(attributeValueFactoryRegistry);
         }
@@ -183,7 +183,6 @@ public final class GeoXacmlJsonParsingUtils
              */
             final AttributeValueFactory<?> attValFactory = getAttributeValueFactory(actualDatatypeId, attrName);
             Map <QName, String> otherGeoXacmlAttributes = new HashMap<>();
-            if (inputXacmlAttribute.has(Definitions.jsonCRS.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.xmlCRS, inputXacmlAttribute.optString(Definitions.jsonCRS.getLocalPart()));
             if (inputXacmlAttribute.has(Definitions.jsonSRID.getLocalPart()))  otherGeoXacmlAttributes.put(Definitions.xmlSRID, inputXacmlAttribute.optString(Definitions.jsonSRID.getLocalPart()));
             if (inputXacmlAttribute.has(Definitions.jsonAllowTransformation.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.ATTR_ALLOW_TRANSFORMATION, inputXacmlAttribute.optString(Definitions.jsonAllowTransformation.getLocalPart()));
             if (inputXacmlAttribute.has(Definitions.jsonPrecision.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.xmlPrecision, inputXacmlAttribute.optString(Definitions.jsonPrecision.getLocalPart()));

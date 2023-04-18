@@ -100,7 +100,7 @@ public class BagSetFunctions {
 
         /**
          * Function identifier
-         * public static final String ID = "urn:ogc:def:function:geoxacml:3.0:geometry-bag-size";
+         * public static final String ID = "urn:ogc:def:geoxacml:3.0:function:geometry:geometry-bag-size";
          * <li>{@code -bag-size}: gives the size of a given bag</li>
          */
 
@@ -430,7 +430,7 @@ public class BagSetFunctions {
                         break;
                     }
                 }
-                if (status == false)
+                if (!status)
                     return false;
             }
 
@@ -498,7 +498,7 @@ public class BagSetFunctions {
                         break;
                     }
                 }
-                if (status == false)
+                if (!status)
                     return false;
             }
 
@@ -520,7 +520,7 @@ public class BagSetFunctions {
                         break;
                     }
                 }
-                if (status == false)
+                if (!status)
                     return false;
             }
 
