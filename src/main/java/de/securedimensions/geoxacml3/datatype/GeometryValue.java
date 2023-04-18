@@ -216,7 +216,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                     if (otherXmlAttributes.containsKey(Definitions.xmlSRID)) {
                         srid = Integer.parseInt(otherXmlAttributes.get(Definitions.xmlSRID));
                     }
-                    else if (otherXmlAttributes.containsKey(Definitions.xmlENCODING)) {
+                    if (otherXmlAttributes.containsKey(Definitions.xmlENCODING)) {
                         encoding = otherXmlAttributes.get(Definitions.xmlENCODING);
                     }
                 }
@@ -234,9 +234,8 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                     g.setSRID(srid);
 
                 } else if (content instanceof SerializableJSONObject) {
-                    JSONObject geojson = ((SerializableJSONObject) content).get();
                     GeoJsonReader geojsonReader = new GeoJsonReader();
-                    g = geojsonReader.create(geojson.toMap(), GEOMETRY_FACTORY);
+                    g = geojsonReader.create(((SerializableJSONObject) content).get().toMap(), GEOMETRY_FACTORY);
                     g.setSRID(srid);
 
                 }
