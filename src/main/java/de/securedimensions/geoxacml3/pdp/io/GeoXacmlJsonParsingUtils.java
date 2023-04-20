@@ -81,10 +81,12 @@ public final class GeoXacmlJsonParsingUtils
                     throw new UnsupportedOperationException("Unsupported type of item in Value array of attribute '" + attName + "': " + inputXacmlAttValue.getClass().getSimpleName());
                 }
 
-                // Add GeoXACML specific attributes
-                otherGeoXacmlAttributes.put(XACML_ATTRIBUTE_ID_QNAME, attName.getId());
-                otherGeoXacmlAttributes.put(XACML_CATEGORY_ID_QNAME, attName.getCategory());
-                otherGeoXacmlAttributes.put(Definitions.ATTR_SOURCE, Definitions.ATTR_SOURCE_DESIGNATOR);
+                if (attValFactory.getDatatype().getId().equalsIgnoreCase(Definitions.GEOMETRY)) {
+                    // Add GeoXACML specific attributes
+                    otherGeoXacmlAttributes.put(XACML_ATTRIBUTE_ID_QNAME, attName.getId());
+                    otherGeoXacmlAttributes.put(XACML_CATEGORY_ID_QNAME, attName.getCategory());
+                    otherGeoXacmlAttributes.put(Definitions.ATTR_SOURCE, Definitions.ATTR_SOURCE_DESIGNATOR);
+                }
                 final AV resultValue = attValFactory.getInstance(Collections.singletonList(serializableVal), otherGeoXacmlAttributes, xPathCompiler);
                 attValues.add(resultValue);
             }
@@ -183,9 +185,11 @@ public final class GeoXacmlJsonParsingUtils
              */
             final AttributeValueFactory<?> attValFactory = getAttributeValueFactory(actualDatatypeId, attrName);
             Map <QName, String> otherGeoXacmlAttributes = new HashMap<>();
-            if (inputXacmlAttribute.has(Definitions.jsonSRID.getLocalPart()))  otherGeoXacmlAttributes.put(Definitions.xmlSRID, inputXacmlAttribute.optString(Definitions.jsonSRID.getLocalPart()));
-            if (inputXacmlAttribute.has(Definitions.jsonAllowTransformation.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.ATTR_ALLOW_TRANSFORMATION, inputXacmlAttribute.optString(Definitions.jsonAllowTransformation.getLocalPart()));
-            if (inputXacmlAttribute.has(Definitions.jsonPrecision.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.xmlPrecision, inputXacmlAttribute.optString(Definitions.jsonPrecision.getLocalPart()));
+            if (attValFactory.getDatatype().getId().equalsIgnoreCase(Definitions.GEOMETRY)) {
+                if (inputXacmlAttribute.has(Definitions.jsonSRID.getLocalPart()))  otherGeoXacmlAttributes.put(Definitions.xmlSRID, inputXacmlAttribute.optString(Definitions.jsonSRID.getLocalPart()));
+                if (inputXacmlAttribute.has(Definitions.jsonAllowTransformation.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.ATTR_ALLOW_TRANSFORMATION, inputXacmlAttribute.optString(Definitions.jsonAllowTransformation.getLocalPart()));
+                if (inputXacmlAttribute.has(Definitions.jsonPrecision.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.xmlPrecision, inputXacmlAttribute.optString(Definitions.jsonPrecision.getLocalPart()));
+            }
             return parseNamedAttribute(attrName, jsonAttVals, numOfVals, attValFactory, xPathCompiler, otherGeoXacmlAttributes);
         }
 

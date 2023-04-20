@@ -223,7 +223,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                 Geometry g = null;
                 if (content instanceof String) {
                     String val = (String) content;
-                    if (encoding == Definitions.DEFAULT_ENCODING) {
+                    if (encoding.equalsIgnoreCase(Definitions.DEFAULT_ENCODING)) {
                         WKTReader wktReader = new WKTReader(GEOMETRY_FACTORY);
                         g = wktReader.read(val);
                     } else {
