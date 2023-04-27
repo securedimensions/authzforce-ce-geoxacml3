@@ -63,17 +63,17 @@ public final class GeoXACMLRequestPreprocessor {
             assert attName != null && nonEmptyInputXacmlAttValues != null && !nonEmptyInputXacmlAttValues.isEmpty() && attValFactory != null;
 
             final Collection<AV> attValues = new ArrayDeque<>(nonEmptyInputXacmlAttValues.size());
-            for (final AttributeValueType inputXacmlAttValue : nonEmptyInputXacmlAttValues)
-            {
-                // Here is the actual custom transformation: adding AttributeId, Category to AttributeValues
-                final Map<QName, String> modifiedXmlAttributes = new HashMap<>(inputXacmlAttValue.getOtherAttributes());
-                modifiedXmlAttributes.put(XACML_CATEGORY_ID_QNAME, attName.getCategory());
-                modifiedXmlAttributes.put(XACML_ATTRIBUTE_ID_QNAME, attName.getId());
-                modifiedXmlAttributes.put(Definitions.ATTR_SOURCE, Definitions.ATTR_SOURCE_DESIGNATOR);
-                final AV resultValue = attValFactory.getInstance(inputXacmlAttValue.getContent(), modifiedXmlAttributes, xPathCompiler);
-                attValues.add(resultValue);
+            if (attValFactory.getDatatype().getId().equalsIgnoreCase(Definitions.GEOMETRY)) {
+                for (final AttributeValueType inputXacmlAttValue : nonEmptyInputXacmlAttValues) {
+                    // Here is the actual custom transformation: adding AttributeId, Category to AttributeValues
+                    final Map<QName, String> modifiedXmlAttributes = new HashMap<>(inputXacmlAttValue.getOtherAttributes());
+                    modifiedXmlAttributes.put(XACML_CATEGORY_ID_QNAME, attName.getCategory());
+                    modifiedXmlAttributes.put(XACML_ATTRIBUTE_ID_QNAME, attName.getId());
+                    modifiedXmlAttributes.put(Definitions.ATTR_SOURCE, Definitions.ATTR_SOURCE_DESIGNATOR);
+                    final AV resultValue = attValFactory.getInstance(inputXacmlAttValue.getContent(), modifiedXmlAttributes, xPathCompiler);
+                    attValues.add(resultValue);
+                }
             }
-
             return new ImmutableNamedXacmlAttributeParsingResult<>(attName, attValFactory.getDatatype(), ImmutableList.copyOf(attValues));
         }
 
