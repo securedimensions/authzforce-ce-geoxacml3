@@ -17,7 +17,6 @@
  */
 package de.securedimensions.geoxacml3.function;
 
-import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.identifiers.Definitions;
 import org.locationtech.jts.geom.Geometry;
@@ -28,10 +27,16 @@ import org.ow2.authzforce.core.pdp.api.func.BaseFirstOrderFunctionCall;
 import org.ow2.authzforce.core.pdp.api.func.FirstOrderFunctionCall;
 import org.ow2.authzforce.core.pdp.api.func.MultiParameterTypedFirstOrderFunction;
 import org.ow2.authzforce.core.pdp.api.func.SingleParameterTypedFirstOrderFunction;
-import org.ow2.authzforce.core.pdp.api.value.*;
+import org.ow2.authzforce.core.pdp.api.value.AttributeValue;
+import org.ow2.authzforce.core.pdp.api.value.Datatype;
+import org.ow2.authzforce.core.pdp.api.value.DoubleValue;
+import org.ow2.authzforce.core.pdp.api.value.StandardDatatypes;
 import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.List;
 
 public class AnalysisFunctions {
 
@@ -84,7 +89,7 @@ public class AnalysisFunctions {
     }
 
     public final static class Buffer extends MultiParameterTypedFirstOrderFunction<GeometryValue> {
-        public static final String ID = Definitions.FUNCTION_PREFIX +  "-buffer";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-buffer";
 
         public Buffer() {
             super(ID, GeometryValue.DATATYPE, true, Arrays.asList(GeometryValue.DATATYPE, StandardDatatypes.DOUBLE));
@@ -124,12 +129,10 @@ public class AnalysisFunctions {
                     final Geometry g0 = args.poll().getGeometry();
                     final Geometry g = g0.convexHull();
                     g.setSRID(g0.getSRID());
-                    if (g instanceof GeometryCollection)
-                    {
+                    if (g instanceof GeometryCollection) {
                         int n = g.getNumGeometries();
                         List<GeometryValue> gvu = new ArrayList<GeometryValue>();
-                        for (int ix = 0; ix < n; ix++)
-                        {
+                        for (int ix = 0; ix < n; ix++) {
                             // test for homogeneous
                             // throw IllegalArgumentException if not homogeneous
                         }

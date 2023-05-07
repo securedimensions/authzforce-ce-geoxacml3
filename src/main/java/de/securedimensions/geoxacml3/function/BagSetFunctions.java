@@ -17,24 +17,15 @@
  */
 package de.securedimensions.geoxacml3.function;
 
-import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
-import de.securedimensions.geoxacml3.identifiers.Definitions;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.MissingAttributeDetail;
 import org.locationtech.jts.geom.Geometry;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 import org.ow2.authzforce.core.pdp.api.expression.Expression;
 import org.ow2.authzforce.core.pdp.api.func.*;
 import org.ow2.authzforce.core.pdp.api.value.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.xml.namespace.QName;
 import java.util.*;
 
-import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
-import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.AtLeastOneMemberOf.NAME_SUFFIX_AT_LEAST_ONE_MEMBER_OF;
 import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.BagContains.NAME_SUFFIX_IS_IN;
 import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Intersection.NAME_SUFFIX_INTERSECTION;
@@ -45,17 +36,13 @@ import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Subset
 import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Union.NAME_SUFFIX_UNION;
 
 /**
- *
  * @author Andreas Matheus, Secure Dimensions GmbH.
- *
  */
 
 public class BagSetFunctions {
 
     final static AttributeDatatype<GeometryValue> paramType = GeometryValue.FACTORY.getDatatype();
     final static BagDatatype<GeometryValue> paramBagType = paramType.getBagDatatype();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BagSetFunctions.class);
 
     public static class SingletonBagToPrimitive<AV extends AttributeValue> extends SingleParameterTypedFirstOrderFunction<GeometryValue, Bag<GeometryValue>> {
         /**
@@ -70,10 +57,8 @@ public class BagSetFunctions {
         /**
          * Constructor
          *
-         * @param paramType
-         *            bag's primitive datatype
-         * @param paramBagType
-         *            bag datatype
+         * @param paramType    bag's primitive datatype
+         * @param paramBagType bag datatype
          */
         public SingletonBagToPrimitive(final Datatype<GeometryValue> paramType, final BagDatatype<GeometryValue> paramBagType) {
             super(ID, paramType, false, Collections.singletonList(paramBagType));
@@ -127,12 +112,9 @@ public class BagSetFunctions {
         /**
          * Constructor
          *
-         * @param paramType
-         *            bag's primitive datatype
-         * @param paramBagType
-         *            bag datatype
-         * @param paramArrayClass
-         *            primitive value array class
+         * @param paramType       bag's primitive datatype
+         * @param paramBagType    bag datatype
+         * @param paramArrayClass primitive value array class
          */
         public BagContains(final Datatype<GeometryValue> paramType, final BagDatatype<GeometryValue> paramBagType, final Class<GeometryValue[]> paramArrayClass) {
             super(ID, StandardDatatypes.BOOLEAN, true, Arrays.asList(paramType, paramBagType));
@@ -155,10 +137,8 @@ public class BagSetFunctions {
         /**
          * Tests whether a bag contains a given primitive value
          *
-         * @param arg0
-         *            primitive value
-         * @param bag
-         *            bag
+         * @param arg0 primitive value
+         * @param bag  bag
          * @return true iff {@code arg0} is in {@code bag}
          */
         private <V extends AttributeValue> boolean eval(final V arg0, final Bag<V> bag) throws IndeterminateEvaluationException {
@@ -179,14 +159,14 @@ public class BagSetFunctions {
 
     }
 
-    public static class AtLeastOneMemberOf extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>>{
+    public static class AtLeastOneMemberOf extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>> {
 
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_AT_LEAST_ONE_MEMBER_OF;
 
-        public AtLeastOneMemberOf()
-        {
+        public AtLeastOneMemberOf() {
             super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
         }
+
         /**
          * Constructor that creates a function from its signature definition
          *
@@ -239,14 +219,14 @@ public class BagSetFunctions {
 
     }
 
-    public static class Intersection extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, Bag<GeometryValue>>{
+    public static class Intersection extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, Bag<GeometryValue>> {
 
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_INTERSECTION;
 
-        public Intersection()
-        {
+        public Intersection() {
             super(ID, GeometryValue.DATATYPE.getBagDatatype(), true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
         }
+
         /**
          * Constructor that creates a function from its signature definition
          *
@@ -289,7 +269,7 @@ public class BagSetFunctions {
                     Geometry g1 = gv1.getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
-                       uf.ensureCRS(g0, g1);
+                        uf.ensureCRS(g0, g1);
                     }
                     if (g0.equals(g1))
                         intersection.add(gv1);
@@ -301,14 +281,14 @@ public class BagSetFunctions {
 
     }
 
-    public static class Union extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, Bag<GeometryValue>>{
+    public static class Union extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, Bag<GeometryValue>> {
 
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_UNION;
 
-        public Union()
-        {
+        public Union() {
             super(ID, GeometryValue.DATATYPE.getBagDatatype(), true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
         }
+
         /**
          * Constructor that creates a function from its signature definition
          *
@@ -345,21 +325,18 @@ public class BagSetFunctions {
             UtilityFunctions uf = new UtilityFunctions();
 
             final Iterator<GeometryValue> g1i = (Iterator<GeometryValue>) bag1.iterator();
-            while (g1i.hasNext())
-            {
+            while (g1i.hasNext()) {
                 final GeometryValue gv1 = g1i.next();
                 Geometry g1 = gv1.getGeometry();
                 final Iterator<GeometryValue> g0i = (Iterator<GeometryValue>) bag0.iterator();
                 boolean duplicate = true;
-                while (g0i.hasNext())
-                {
+                while (g0i.hasNext()) {
                     Geometry g0 = g0i.next().getGeometry();
                     uf.ensurePrecision(g0, g1);
                     if (g0.getSRID() != g1.getSRID()) {
                         uf.ensureCRS(g1, g0);
                     }
-                    if (g0.equals(g1))
-                    {
+                    if (g0.equals(g1)) {
                         duplicate = true;
                         break;
                     }
@@ -373,14 +350,14 @@ public class BagSetFunctions {
 
     }
 
-    public static class Subset extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>>{
+    public static class Subset extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>> {
 
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_SUBSET;
 
-        public Subset()
-        {
+        public Subset() {
             super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
         }
+
         /**
          * Constructor that creates a function from its signature definition
          *
@@ -439,14 +416,14 @@ public class BagSetFunctions {
 
     }
 
-    public static class SetEquals extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>>{
+    public static class SetEquals extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>> {
 
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_SET_EQUALS;
 
-        public SetEquals()
-        {
+        public SetEquals() {
             super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
         }
+
         /**
          * Constructor that creates a function from its signature definition
          *
@@ -555,7 +532,7 @@ public class BagSetFunctions {
             return new BaseFirstOrderFunctionCall.EagerSinglePrimitiveTypeEval<>(functionSignature, argExpressions, remainingArgTypes) {
 
                 @Override
-                protected Bag<GeometryValue> evaluate(final Deque<GeometryValue> args)  throws IllegalArgumentException {
+                protected Bag<GeometryValue> evaluate(final Deque<GeometryValue> args) throws IllegalArgumentException {
                     int srid = 0;
                     List<GeometryValue> gvu = new ArrayList<GeometryValue>();
                     final Iterator<GeometryValue> i = args.iterator();

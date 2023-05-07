@@ -11,6 +11,12 @@
  */
 package de.securedimensions.io.geojson;
 
+import org.json.simple.parser.JSONParser;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.geojson.GeoJsonConstants;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -18,18 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.json.simple.parser.JSONParser;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.geom.PrecisionModel;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.geojson.GeoJsonConstants;
 
 
 /**
@@ -51,7 +45,6 @@ import org.locationtech.jts.io.geojson.GeoJsonConstants;
  *
  * @author Martin Davis
  * @author Paul Howells, Vivid Solutions.
- *
  */
 
 /**
@@ -119,11 +112,11 @@ public class GeoJsonReader {
         Map<String, Object> geometryMap = null;
         JSONParser parser = new JSONParser();
         try {
-            Object obj =  parser.parse(reader);
+            Object obj = parser.parse(reader);
             geometryMap = (Map<String, Object>) obj;
         } catch (ClassCastException e) {
             throw new ParseException("Could not parse Geometry from Json string.");
-        }catch (org.json.simple.parser.ParseException e) {
+        } catch (org.json.simple.parser.ParseException e) {
             throw new ParseException(e);
         } catch (IOException e) {
             throw new ParseException(e);
@@ -143,7 +136,7 @@ public class GeoJsonReader {
 
     //private Geometry create(Map<String, Object> geometryMap,
     public Geometry create(Map<String, Object> geometryMap,
-                            GeometryFactory geometryFactory) throws ParseException {
+                           GeometryFactory geometryFactory) throws ParseException {
 
         Geometry result = null;
 

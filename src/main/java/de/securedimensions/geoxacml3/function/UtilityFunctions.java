@@ -15,22 +15,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static de.securedimensions.geoxacml3.datatype.GeometryValue.*;
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
 import static org.ow2.authzforce.xacml.identifiers.XacmlStatusCode.SYNTAX_ERROR;
 
 public class UtilityFunctions {
 
-    public boolean compare(GeometryValue gv1, GeometryValue gv2, String id) throws IndeterminateEvaluationException
-    {
+    public boolean compare(GeometryValue gv1, GeometryValue gv2, String id) throws IndeterminateEvaluationException {
         Geometry g1 = gv1.getGeometry();
         Geometry g2 = gv2.getGeometry();
         ensurePrecision(g1, g2);
         ensureCRS(g1, g2);
 
-        switch (id)
-        {
+        switch (id) {
             case TopologicalFunctions.Equal.EQUAL_SUFFIX:
             case TopologicalFunctions.Equals.EQUALS_SUFFIX:
                 return g1.equals(g2);
@@ -52,8 +49,7 @@ public class UtilityFunctions {
         throw new IllegalArgumentException("Function: " + id + " unknown");
     }
 
-    public void ensurePrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
-    {
+    public void ensurePrecision(Geometry g1, Geometry g2) throws IndeterminateEvaluationException {
 
         Map<QName, String> otherXmlAttributesG1 = (g1.getUserData() == null) ? new HashMap<QName, String>() : (Map<QName, String>) g1.getUserData();
         final int precisionG1 = otherXmlAttributesG1.containsKey(Definitions.xmlPrecision) ? Integer.parseInt(otherXmlAttributesG1.get(Definitions.xmlPrecision)) : Integer.MAX_VALUE;
@@ -92,14 +88,14 @@ public class UtilityFunctions {
         }
 
         if ((sourceG2.equalsIgnoreCase(Definitions.ATTR_SOURCE_DESIGNATOR)) &&
-                (sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_DESIGNATOR) )&&
+                (sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_DESIGNATOR)) &&
                 (precisionG2 != precisionG1)) {
             throw new IndeterminateEvaluationException(
                     new ImmutableXacmlStatus("Processing ADR geometries with different precision", Optional.of(Definitions.PRECISION_ERROR)));
         }
 
         if ((sourceG2.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY)) &&
-                (sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY) )&&
+                (sourceG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY)) &&
                 (precisionG2 != precisionG1)) {
             throw new IndeterminateEvaluationException(
                     new ImmutableXacmlStatus("Processing Policy geometries with different precision", Optional.of(SYNTAX_ERROR.name())));
@@ -107,8 +103,7 @@ public class UtilityFunctions {
 
     }
 
-    public void ensureCRS(Geometry g1, Geometry g2) throws IndeterminateEvaluationException
-    {
+    public void ensureCRS(Geometry g1, Geometry g2) throws IndeterminateEvaluationException {
         if (g1.getSRID() != g2.getSRID()) {
             TransformGeometry tg = new TransformGeometry();
             tg.transformCRS(g1, g2);

@@ -36,7 +36,6 @@ import org.ow2.authzforce.core.pdp.io.xacml.json.BaseXacmlJsonRequestPreprocesso
 import org.ow2.authzforce.core.pdp.io.xacml.json.IndividualXacmlJsonRequest;
 import org.ow2.authzforce.xacml.identifiers.XPathVersion;
 import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
-import org.ow2.authzforce.xacml.json.model.XacmlJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +50,7 @@ import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.X
  *
  * @version $Id: $
  */
-public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPreprocessor<JSONObject, IndividualXacmlJsonRequest>
-{
+public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPreprocessor<JSONObject, IndividualXacmlJsonRequest> {
     private static final DecisionRequestFactory<ImmutableDecisionRequest> DEFAULT_REQUEST_FACTORY = ImmutableDecisionRequest::getInstance;
 
     private static final IndeterminateEvaluationException MISSING_REQUEST_OBJECT_EXCEPTION = new IndeterminateEvaluationException("Missing Request object", XacmlStatusCode.SYNTAX_ERROR.value());
@@ -81,132 +79,41 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
     private final SingleCategoryXacmlAttributesParser.Factory<JSONObject> xacmlAttrsParserFactory;
 
     private final boolean isCombinedDecisionSupported;
-
-    @Override
-    public Class<JSONObject> getInputRequestType() {
-        return JSONObject.class;
-    }
-
-    @Override
-    public Class<IndividualXacmlJsonRequest> getOutputRequestType() {
-        return IndividualXacmlJsonRequest.class;
-    }
-
-
-
-    /**
-     *
-     * Factory for this type of request preprocessor that allows duplicate &lt;Attribute&gt; with same meta-data in the same &lt;Attributes&gt; element of a Request (complying with XACML 3.0 core
-     * spec, §7.3.3) but using JSON-Profile-defined format.
-     *
-     */
-    public static final class LaxVariantFactory extends BaseXacmlJsonRequestPreprocessor.Factory
-    {
-        /**
-         * Request preprocessor ID, as returned by {@link #getId()}
-         */
-        public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-lax";
-
-        /**
-         * Constructor
-         */
-        public LaxVariantFactory()
-        {
-            super(ID);
-        }
-
-        @Override
-        public DecisionRequestPreprocessor<JSONObject, IndividualXacmlJsonRequest> getInstance(final AttributeValueFactoryRegistry datatypeFactoryRegistry, final boolean strictAttributeIssuerMatch,
-                                                                                               final boolean requireContentForXPath, final Set<String> extraPdpFeatures)
-        {
-            return new GeoXacmlJsonRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, true, requireContentForXPath/* , xmlProcessor */,
-                    extraPdpFeatures);
-        }
-
-        /**
-         * Singleton instance of this factory
-         *
-         */
-        public static final DecisionRequestPreprocessor.Factory<JSONObject, IndividualXacmlJsonRequest> INSTANCE = new LaxVariantFactory();
-    }
-
-    /**
-     *
-     * Factory for this type of request preprocessor that does NOT allow duplicate &lt;Attribute&gt; with same meta-data in the same &lt;Attributes&gt; element of a Request (NOT complying fully with
-     * XACML 3.0 core spec, §7.3.3) but using JSON-Profile-defined format.
-     *
-     */
-    public static final class StrictVariantFactory extends BaseXacmlJsonRequestPreprocessor.Factory
-    {
-        /**
-         * Request preprocessor ID, as returned by {@link #getId()}
-         */
-        public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-strict";
-
-        /**
-         * Constructor
-         */
-        public StrictVariantFactory()
-        {
-            super(ID);
-        }
-
-        @Override
-        public DecisionRequestPreprocessor<JSONObject, IndividualXacmlJsonRequest> getInstance(final AttributeValueFactoryRegistry datatypeFactoryRegistry, final boolean strictAttributeIssuerMatch,
-                                                                                               final boolean requireContentForXPath, final Set<String> extraPdpFeatures)
-        {
-            return new GeoXacmlJsonRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, false, requireContentForXPath/* , xmlProcessor */,
-                    extraPdpFeatures);
-        }
-    }
-
     private final DecisionRequestFactory<ImmutableDecisionRequest> reqFactory;
 
     /**
      * Creates instance of default request preprocessor
      *
-     * @param datatypeFactoryRegistry
-     *            attribute datatype registry
-     * @param requestFactory
-     *            decision request factory
-     * @param strictAttributeIssuerMatch
-     *            true iff strict attribute Issuer match must be enforced (in particular request attributes with empty Issuer only match corresponding AttributeDesignators with empty Issuer)
-     * @param allowAttributeDuplicates
-     *            true iff duplicate Attribute (with same metadata) elements in Request (for multi-valued attributes) must be allowed
-     * @param requireContentForXPath
-     *            true iff Content elements must be parsed, else ignored
-     * @param extraPdpFeatures
-     *            extra - not mandatory per XACML 3.0 core specification - features supported by the PDP engine. This preprocessor checks whether it is supported by the PDP before processing the
-     *            request further.
+     * @param datatypeFactoryRegistry    attribute datatype registry
+     * @param requestFactory             decision request factory
+     * @param strictAttributeIssuerMatch true iff strict attribute Issuer match must be enforced (in particular request attributes with empty Issuer only match corresponding AttributeDesignators with empty Issuer)
+     * @param allowAttributeDuplicates   true iff duplicate Attribute (with same metadata) elements in Request (for multi-valued attributes) must be allowed
+     * @param requireContentForXPath     true iff Content elements must be parsed, else ignored
+     * @param extraPdpFeatures           extra - not mandatory per XACML 3.0 core specification - features supported by the PDP engine. This preprocessor checks whether it is supported by the PDP before processing the
+     *                                   request further.
      */
     public GeoXacmlJsonRequestPreprocessor(final AttributeValueFactoryRegistry datatypeFactoryRegistry, final DecisionRequestFactory<ImmutableDecisionRequest> requestFactory,
-                                                      final boolean strictAttributeIssuerMatch, final boolean allowAttributeDuplicates, final boolean requireContentForXPath/* , final Processor xmlProcessor */,
-                                                      final Set<String> extraPdpFeatures)
-    {
+                                           final boolean strictAttributeIssuerMatch, final boolean allowAttributeDuplicates, final boolean requireContentForXPath/* , final Processor xmlProcessor */,
+                                           final Set<String> extraPdpFeatures) {
         assert requestFactory != null;
         reqFactory = requestFactory;
 
         final NamedXacmlAttributeParser<JSONObject> namedXacmlAttParser = new GeoXacmlJsonParsingUtils.NamedXacmlJsonAttributeParser(datatypeFactoryRegistry);
-        if (allowAttributeDuplicates)
-        {
+        if (allowAttributeDuplicates) {
             final XacmlRequestAttributeParser<JSONObject, MutableAttributeBag<?>> xacmlAttributeParser = strictAttributeIssuerMatch ? new NonIssuedLikeIssuedLaxXacmlAttributeParser<>(
                     namedXacmlAttParser) : new IssuedToNonIssuedCopyingLaxXacmlAttributeParser<>(namedXacmlAttParser);
             this.xacmlAttrsParserFactory = requireContentForXPath ? new GeoXacmlJsonParsingUtils.FullXacmlJsonAttributesParserFactory<>(xacmlAttributeParser,
                     SingleCategoryAttributes.MUTABLE_TO_CONSTANT_ATTRIBUTE_ITERATOR_CONVERTER/* , xmlProcessor */) : new GeoXacmlJsonParsingUtils.ContentSkippingXacmlJsonAttributesParserFactory<>(xacmlAttributeParser,
                     SingleCategoryAttributes.MUTABLE_TO_CONSTANT_ATTRIBUTE_ITERATOR_CONVERTER);
-        }
-        else // allowAttributeDuplicates == false
-            if (strictAttributeIssuerMatch)
-            {
+        } else // allowAttributeDuplicates == false
+            if (strictAttributeIssuerMatch) {
                 final XacmlRequestAttributeParser<JSONObject, AttributeBag<?>> xacmlAttributeParser = new NonIssuedLikeIssuedStrictXacmlAttributeParser<>(namedXacmlAttParser);
                 this.xacmlAttrsParserFactory = requireContentForXPath ? new GeoXacmlJsonParsingUtils.FullXacmlJsonAttributesParserFactory<>(xacmlAttributeParser, SingleCategoryAttributes.IDENTITY_ATTRIBUTE_ITERATOR_CONVERTER/*
                  * ,
                  * xmlProcessor
                  */)
                         : new GeoXacmlJsonParsingUtils.ContentSkippingXacmlJsonAttributesParserFactory<>(xacmlAttributeParser, SingleCategoryAttributes.IDENTITY_ATTRIBUTE_ITERATOR_CONVERTER);
-            }
-            else
-            {
+            } else {
                 /*
                  * allowAttributeDuplicates == false && strictAttributeIssuerMatch == false is not supported, because it would require using mutable bags for "Issuer-less" attributes (updated for each
                  * possible Attribute with same meta-data except a defined Issuer), whereas the goal of 'allowAttributeDuplicates == false' is to use immutable Bags in the first place, i.e. to avoid going
@@ -219,10 +126,19 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
         this.isCombinedDecisionSupported = extraPdpFeatures.contains(DecisionResultPostprocessor.Features.XACML_MULTIPLE_DECISION_PROFILE_COMBINED_DECISION);
     }
 
+    @Override
+    public Class<JSONObject> getInputRequestType() {
+        return JSONObject.class;
+    }
+
+    @Override
+    public Class<IndividualXacmlJsonRequest> getOutputRequestType() {
+        return IndividualXacmlJsonRequest.class;
+    }
+
     public List<IndividualXacmlJsonRequest> process(final JSONArray jsonArrayOfRequestAttributeCategoryObjects, final SingleCategoryXacmlAttributesParser<JSONObject> xacmlAttrsParser,
                                                     final boolean isApplicablePolicyIdListReturned, final boolean combinedDecision, final Optional<XPathCompilerProxy> xPathCompiler, final Map<String, String> namespaceURIsByPrefix)
-            throws IndeterminateEvaluationException
-    {
+            throws IndeterminateEvaluationException {
         final Map<AttributeFqn, AttributeBag<?>> namedAttributes = HashCollections.newUpdatableMap(jsonArrayOfRequestAttributeCategoryObjects.length());
         /*
          * TODO: Content object not supported yet (optional in XACML)
@@ -234,17 +150,14 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
          */
         final List<JSONObject> requestAttributeCategoryObjectsIncludedInResult = new ArrayList<>(jsonArrayOfRequestAttributeCategoryObjects.length());
 
-        for (final Object requestAttributeCategoryObject : jsonArrayOfRequestAttributeCategoryObjects)
-        {
-            if (!(requestAttributeCategoryObject instanceof JSONObject))
-            {
+        for (final Object requestAttributeCategoryObject : jsonArrayOfRequestAttributeCategoryObjects) {
+            if (!(requestAttributeCategoryObject instanceof JSONObject)) {
                 throw INVALID_REQUEST_CATEGORY_ARRAY_ELEMENT_TYPE_EXCEPTION;
             }
 
             final JSONObject requestAttCatJsonObj = (JSONObject) requestAttributeCategoryObject;
             final SingleCategoryAttributes<?, JSONObject> categorySpecificAttributes = this.xacmlAttrsParserFactory.getInstance().parseAttributes(requestAttCatJsonObj, xPathCompiler);
-            if (categorySpecificAttributes == null)
-            {
+            if (categorySpecificAttributes == null) {
                 // skip this empty Attributes
                 continue;
             }
@@ -272,14 +185,12 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
              * "Regardless of any dynamic modifications of the request context during policy evaluation, the PDP SHALL behave as if each bag of attribute values is fully populated in the context before it is first tested, and is thereafter immutable during evaluation. (That is, every subsequent test of that attribute shall use the same bag of values that was initially tested.)"
              * </i></p>
              */
-            for (final Entry<AttributeFqn, AttributeBag<?>> attrEntry : categorySpecificAttributes)
-            {
+            for (final Entry<AttributeFqn, AttributeBag<?>> attrEntry : categorySpecificAttributes) {
                 namedAttributes.put(attrEntry.getKey(), attrEntry.getValue());
             }
 
             final JSONObject catSpecificAttrsToIncludeInResult = categorySpecificAttributes.getAttributesToIncludeInResult();
-            if (catSpecificAttrsToIncludeInResult != null)
-            {
+            if (catSpecificAttrsToIncludeInResult != null) {
                 requestAttributeCategoryObjectsIncludedInResult.add(catSpecificAttrsToIncludeInResult);
             }
         }
@@ -341,35 +252,28 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
     }
 
     @Override
-    public List<IndividualXacmlJsonRequest> process(final JSONObject request, final Map<String, String> namespaceURIsByPrefix) throws IndeterminateEvaluationException
-    {
-        if (request == null)
-        {
+    public List<IndividualXacmlJsonRequest> process(final JSONObject request, final Map<String, String> namespaceURIsByPrefix) throws IndeterminateEvaluationException {
+        if (request == null) {
             throw NULL_REQUEST_ARGUMENT_EXCEPTION;
         }
 
-        try
-        {
+        try {
             GeoXacmlJsonUtils.REQUEST_SCHEMA.validate(request);
             //XacmlJsonUtils.REQUEST_SCHEMA.validate(request);
-        }
-        catch (final ValidationException e)
-        {
+        } catch (final ValidationException e) {
             LOGGER.debug(e.toJSON().toString(4));
             throw new IndeterminateEvaluationException(INVALID_REQ_ERR_STATUS, e);
         }
 
         final JSONObject requestJsonObj = request.optJSONObject("Request");
-        if (requestJsonObj == null)
-        {
+        if (requestJsonObj == null) {
             throw MISSING_REQUEST_OBJECT_EXCEPTION;
         }
 
         /*
          * No support for MultiRequests (§2.4 of Multiple Decision Profile).
          */
-        if (requestJsonObj.has("MultiRequests"))
-        {
+        if (requestJsonObj.has("MultiRequests")) {
             /*
              * According to 7.19.1 Unsupported functionality, return Indeterminate with syntax-error code for unsupported element
              */
@@ -380,10 +284,8 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
          * No support for CombinedDecision = true if result processor does not support it. (The use of the CombinedDecision attribute is specified in Multiple Decision Profile.)
          */
         final boolean combinedDecisionRequested;
-        if (requestJsonObj.optBoolean("CombinedDecision", false))
-        {
-            if (!this.isCombinedDecisionSupported)
-            {
+        if (requestJsonObj.optBoolean("CombinedDecision", false)) {
+            if (!this.isCombinedDecisionSupported) {
                 /*
                  * According to XACML core spec, 5.42, <i>If the PDP does not implement the relevant functionality in [Multiple Decision Profile], then the PDP must return an Indeterminate with a status
                  * code of urn:oasis:names:tc:xacml:1.0:status:processing-error if it receives a request with this attribute set to "true".</i>
@@ -392,25 +294,22 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
             }
 
             combinedDecisionRequested = true;
-        }
-        else
-        {
+        } else {
             combinedDecisionRequested = false;
         }
 
         final boolean returnPolicyIdList = requestJsonObj.optBoolean("ReturnPolicyIdList", false);
         final Map<String, String> newNsPrefixToUriMap;
         final Optional<XPathCompilerProxy> xPathCompiler;
-        if(requestJsonObj.has("XPathVersion")) {
-            try
-            {
+        if (requestJsonObj.has("XPathVersion")) {
+            try {
                 final XPathVersion xPathVersion = XPathVersion.fromURI(requestJsonObj.getString("XPathVersion"));
                 xPathCompiler = Optional.of(new BasicImmutableXPathCompilerProxy(xPathVersion, namespaceURIsByPrefix));
 				/*
 				namespaceURIsByPrefix already held by xPathCompiler and retrievable from it with getDeclaredNamespacePrefixToUriMap().
 				 */
                 newNsPrefixToUriMap = Map.of();
-            } catch(IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Invalid/unsupported XPathVersion in JSON Request/XPathVersion", e);
             }
 
@@ -421,6 +320,60 @@ public final class GeoXacmlJsonRequestPreprocessor implements DecisionRequestPre
 
         final SingleCategoryXacmlAttributesParser<JSONObject> xacmlAttrsParser = xacmlAttrsParserFactory.getInstance();
         return process(requestJsonObj.optJSONArray("Category"), xacmlAttrsParser, returnPolicyIdList, combinedDecisionRequested, xPathCompiler, newNsPrefixToUriMap);
+    }
+
+    /**
+     * Factory for this type of request preprocessor that allows duplicate &lt;Attribute&gt; with same meta-data in the same &lt;Attributes&gt; element of a Request (complying with XACML 3.0 core
+     * spec, §7.3.3) but using JSON-Profile-defined format.
+     */
+    public static final class LaxVariantFactory extends BaseXacmlJsonRequestPreprocessor.Factory {
+        /**
+         * Request preprocessor ID, as returned by {@link #getId()}
+         */
+        public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-lax";
+        /**
+         * Singleton instance of this factory
+         */
+        public static final DecisionRequestPreprocessor.Factory<JSONObject, IndividualXacmlJsonRequest> INSTANCE = new LaxVariantFactory();
+
+        /**
+         * Constructor
+         */
+        public LaxVariantFactory() {
+            super(ID);
+        }
+
+        @Override
+        public DecisionRequestPreprocessor<JSONObject, IndividualXacmlJsonRequest> getInstance(final AttributeValueFactoryRegistry datatypeFactoryRegistry, final boolean strictAttributeIssuerMatch,
+                                                                                               final boolean requireContentForXPath, final Set<String> extraPdpFeatures) {
+            return new GeoXacmlJsonRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, true, requireContentForXPath/* , xmlProcessor */,
+                    extraPdpFeatures);
+        }
+    }
+
+    /**
+     * Factory for this type of request preprocessor that does NOT allow duplicate &lt;Attribute&gt; with same meta-data in the same &lt;Attributes&gt; element of a Request (NOT complying fully with
+     * XACML 3.0 core spec, §7.3.3) but using JSON-Profile-defined format.
+     */
+    public static final class StrictVariantFactory extends BaseXacmlJsonRequestPreprocessor.Factory {
+        /**
+         * Request preprocessor ID, as returned by {@link #getId()}
+         */
+        public static final String ID = "urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-strict";
+
+        /**
+         * Constructor
+         */
+        public StrictVariantFactory() {
+            super(ID);
+        }
+
+        @Override
+        public DecisionRequestPreprocessor<JSONObject, IndividualXacmlJsonRequest> getInstance(final AttributeValueFactoryRegistry datatypeFactoryRegistry, final boolean strictAttributeIssuerMatch,
+                                                                                               final boolean requireContentForXPath, final Set<String> extraPdpFeatures) {
+            return new GeoXacmlJsonRequestPreprocessor(datatypeFactoryRegistry, DEFAULT_REQUEST_FACTORY, strictAttributeIssuerMatch, false, requireContentForXPath/* , xmlProcessor */,
+                    extraPdpFeatures);
+        }
     }
 }
 

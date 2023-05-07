@@ -24,9 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author Andreas Matheus, Secure Dimensions GmbH.
- *
  */
 public class SwapAxesCoordinateFilter implements CoordinateFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwapAxesCoordinateFilter.class);

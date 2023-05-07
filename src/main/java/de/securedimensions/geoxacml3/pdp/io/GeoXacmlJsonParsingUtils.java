@@ -42,42 +42,46 @@ import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.X
 
 /**
  * GeoXACML/JSON (Profile) processing utilities
- *
  */
-public final class GeoXacmlJsonParsingUtils
-{
+public final class GeoXacmlJsonParsingUtils {
+    private static final IllegalArgumentException NULL_NAMED_ATTRIBUTE_ITERATOR_CONVERTER_ARGUMENT_EXCEPTION = new IllegalArgumentException("Undefined namedAttributeIteratorConverter");
+    private static final IllegalArgumentException NULL_XACML_JSON_ATTRIBUTE_PARSER_ARGUMENT_EXCEPTION = new IllegalArgumentException(
+            "Undefined XACML/JSON Attribute parser (null xacmlJsonAttributeParser)");
+
+    private GeoXacmlJsonParsingUtils() {
+    }
+
     /**
      * XACML/JSON named Attribute parser
      */
-    public static final class NamedXacmlJsonAttributeParser extends NamedXacmlAttributeParser<JSONObject>
-    {
+    public static final class NamedXacmlJsonAttributeParser extends NamedXacmlAttributeParser<JSONObject> {
 
         private static final IllegalArgumentException NULL_ATTRIBUTE_ID_ARGUMENT_EXCEPTION = new IllegalArgumentException("Invalid XACML Attribute: AttributeId property undefined (but required).");
 
+        NamedXacmlJsonAttributeParser(final AttributeValueFactoryRegistry attributeValueFactoryRegistry) throws IllegalArgumentException {
+            super(attributeValueFactoryRegistry);
+        }
+
         private static <AV extends AttributeValue> NamedXacmlAttributeParsingResult<AV> parseNamedAttribute(final AttributeFqn attName, final Iterable<Object> nonEmptyInputXacmlJsonAttValues,
                                                                                                             final int numOfValues, final AttributeValueFactory<AV> attValFactory, final Optional<XPathCompilerProxy> xPathCompiler,
-                                                                                                            final Map<QName,String> otherGeoXacmlAttributes) throws UnsupportedOperationException, IllegalArgumentException
-        {
+                                                                                                            final Map<QName, String> otherGeoXacmlAttributes) throws UnsupportedOperationException, IllegalArgumentException {
             assert attName != null && nonEmptyInputXacmlJsonAttValues != null && numOfValues > 0 && attValFactory != null;
 
             final Collection<AV> attValues = new ArrayDeque<>(numOfValues);
             /*
              * JSON value may be a JSONObject or primitive (Boolean, Number, String)
              */
-            for (final Object inputXacmlAttValue : nonEmptyInputXacmlJsonAttValues)
-            {
+            for (final Object inputXacmlAttValue : nonEmptyInputXacmlJsonAttValues) {
 
                 final Serializable serializableVal;
-                if (inputXacmlAttValue instanceof Serializable)
-                {
+                if (inputXacmlAttValue instanceof Serializable) {
                     serializableVal = (Serializable) inputXacmlAttValue;
-                } else if(inputXacmlAttValue instanceof JSONObject) {
+                } else if (inputXacmlAttValue instanceof JSONObject) {
                     /*
                      * JSONObject does not implement Serializable
                      */
                     serializableVal = new SerializableJSONObject((JSONObject) inputXacmlAttValue);
-                }
-                else {
+                } else {
                     throw new UnsupportedOperationException("Unsupported type of item in Value array of attribute '" + attName + "': " + inputXacmlAttValue.getClass().getSimpleName());
                 }
 
@@ -94,18 +98,11 @@ public final class GeoXacmlJsonParsingUtils
             return new ImmutableNamedXacmlAttributeParsingResult<>(attName, attValFactory.getDatatype(), ImmutableList.copyOf(attValues));
         }
 
-        NamedXacmlJsonAttributeParser(final AttributeValueFactoryRegistry attributeValueFactoryRegistry) throws IllegalArgumentException
-        {
-            super(attributeValueFactoryRegistry);
-        }
-
         @Override
         protected NamedXacmlAttributeParsingResult<?> parseNamedAttribute(final String attributeCategoryId, final JSONObject inputXacmlAttribute, final Optional<XPathCompilerProxy> xPathCompiler)
-                throws IllegalArgumentException
-        {
+                throws IllegalArgumentException {
             final String attrId = inputXacmlAttribute.optString("AttributeId", null);
-            if (attrId == null)
-            {
+            if (attrId == null) {
                 throw NULL_ATTRIBUTE_ID_ARGUMENT_EXCEPTION;
             }
 
@@ -115,61 +112,46 @@ public final class GeoXacmlJsonParsingUtils
 
             // The XACML schema specifies there should be at least one AttributeValue
             final Object attrValuesObj = inputXacmlAttribute.opt("Value");
-            if (attrValuesObj == null)
-            {
+            if (attrValuesObj == null) {
                 throw new IllegalArgumentException("Undefined Value(s) for Attribute '" + attrName + "'");
             }
 
             final String actualDatatypeId;
             final Iterable<Object> jsonAttVals;
             final int numOfVals;
-            if (attrValuesObj instanceof JSONArray)
-            {
-                if (jsonDatatypeId == null)
-                {
+            if (attrValuesObj instanceof JSONArray) {
+                if (jsonDatatypeId == null) {
                     throw new IllegalArgumentException("Invalid Attribute '" + attrName + "': value is JSONArray but DataType undefined (cannot be inferred).");
                 }
 
                 actualDatatypeId = jsonDatatypeId;
                 final JSONArray attValsJsonArray = (JSONArray) attrValuesObj;
                 numOfVals = attValsJsonArray.length();
-                if (numOfVals == 0)
-                {
+                if (numOfVals == 0) {
                     throw new IllegalArgumentException("Invalid Attribute '" + attrName + "': no value (empty JSONArray).");
                 }
 
                 jsonAttVals = attValsJsonArray;
-            }
-            else
-            {
+            } else {
                 /*
                  * Not a JSON array (but JSONObject or primitive)
                  */
-                if (jsonDatatypeId == null)
-                {
-                    if (attrValuesObj instanceof Boolean)
-                    {
+                if (jsonDatatypeId == null) {
+                    if (attrValuesObj instanceof Boolean) {
                         actualDatatypeId = StandardDatatypes.BOOLEAN.getId();
                     }
                     /*
                      * Number subtypes possibly returned by JSONObject.opt(...) according to JSONObject#stringToValue(...)
                      */
-                    else if (attrValuesObj instanceof Integer || attrValuesObj instanceof Long)
-                    {
+                    else if (attrValuesObj instanceof Integer || attrValuesObj instanceof Long) {
                         actualDatatypeId = StandardDatatypes.INTEGER.getId();
-                    }
-                    else if (attrValuesObj instanceof Double)
-                    {
+                    } else if (attrValuesObj instanceof Double) {
                         actualDatatypeId = StandardDatatypes.DOUBLE.getId();
-                    }
-                    else
-                    {
+                    } else {
                         // default
                         actualDatatypeId = StandardDatatypes.STRING.getId();
                     }
-                }
-                else
-                {
+                } else {
                     actualDatatypeId = jsonDatatypeId;
                 }
 
@@ -184,11 +166,14 @@ public final class GeoXacmlJsonParsingUtils
              * So we can obtain the datatypeURI/datatype class from the first value.
              */
             final AttributeValueFactory<?> attValFactory = getAttributeValueFactory(actualDatatypeId, attrName);
-            Map <QName, String> otherGeoXacmlAttributes = new HashMap<>();
+            Map<QName, String> otherGeoXacmlAttributes = new HashMap<>();
             if (attValFactory.getDatatype().getId().equalsIgnoreCase(Definitions.GEOMETRY)) {
-                if (inputXacmlAttribute.has(Definitions.jsonSRID.getLocalPart()))  otherGeoXacmlAttributes.put(Definitions.xmlSRID, inputXacmlAttribute.optString(Definitions.jsonSRID.getLocalPart()));
-                if (inputXacmlAttribute.has(Definitions.jsonAllowTransformation.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.ATTR_ALLOW_TRANSFORMATION, inputXacmlAttribute.optString(Definitions.jsonAllowTransformation.getLocalPart()));
-                if (inputXacmlAttribute.has(Definitions.jsonPrecision.getLocalPart())) otherGeoXacmlAttributes.put(Definitions.xmlPrecision, inputXacmlAttribute.optString(Definitions.jsonPrecision.getLocalPart()));
+                if (inputXacmlAttribute.has(Definitions.jsonSRID.getLocalPart()))
+                    otherGeoXacmlAttributes.put(Definitions.xmlSRID, inputXacmlAttribute.optString(Definitions.jsonSRID.getLocalPart()));
+                if (inputXacmlAttribute.has(Definitions.jsonAllowTransformation.getLocalPart()))
+                    otherGeoXacmlAttributes.put(Definitions.ATTR_ALLOW_TRANSFORMATION, inputXacmlAttribute.optString(Definitions.jsonAllowTransformation.getLocalPart()));
+                if (inputXacmlAttribute.has(Definitions.jsonPrecision.getLocalPart()))
+                    otherGeoXacmlAttributes.put(Definitions.xmlPrecision, inputXacmlAttribute.optString(Definitions.jsonPrecision.getLocalPart()));
             }
             return parseNamedAttribute(attrName, jsonAttVals, numOfVals, attValFactory, xPathCompiler, otherGeoXacmlAttributes);
         }
@@ -198,18 +183,15 @@ public final class GeoXacmlJsonParsingUtils
     /**
      * Base XACML/JSON Attributes parser
      *
-     * @param <BAG>
-     *            type of bag resulting from parsing XACML AttributeValues
+     * @param <BAG> type of bag resulting from parsing XACML AttributeValues
      */
-    private static abstract class BaseXacmlJsonAttributesParser<BAG extends Iterable<? extends AttributeValue>> implements SingleCategoryXacmlAttributesParser<JSONObject>
-    {
+    private static abstract class BaseXacmlJsonAttributesParser<BAG extends Iterable<? extends AttributeValue>> implements SingleCategoryXacmlAttributesParser<JSONObject> {
         private static final ImmutableXacmlStatus INVALID_ATT_ERR_STATUS = new ImmutableXacmlStatus(XacmlStatusCode.SYNTAX_ERROR.value(), Optional.of("Invalid Attributes/Attribute element"));
         private final XacmlRequestAttributeParser<JSONObject, BAG> xacmlReqAttributeParser;
         private final NamedAttributeIteratorConverter<BAG> namedAttrIterConverter;
 
         private BaseXacmlJsonAttributesParser(final XacmlRequestAttributeParser<JSONObject, BAG> xacmlRequestAttributeParser,
-                                              final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter)
-        {
+                                              final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter) {
             assert xacmlRequestAttributeParser != null && namedAttributeIteratorConverter != null;
 
             this.xacmlReqAttributeParser = xacmlRequestAttributeParser;
@@ -219,20 +201,15 @@ public final class GeoXacmlJsonParsingUtils
         /**
          * Parse Content in Category object into XPath data model for XPath evaluation
          *
-         * @param categoryId
-         *            CategoryId
-         * @param categoryContent
-         *            the Category/Content string (see XACML JSON Profile §4.2.3)
-         *
+         * @param categoryId      CategoryId
+         * @param categoryContent the Category/Content string (see XACML JSON Profile §4.2.3)
          * @return null if Content parsing not supported or disabled
-         * @throws IndeterminateEvaluationException
-         *             if any Content parsing error occurs
+         * @throws IndeterminateEvaluationException if any Content parsing error occurs
          */
         protected abstract XdmNode parseContent(String categoryId, String categoryContent) throws IndeterminateEvaluationException;
 
         @Override
-        public SingleCategoryAttributes<?, JSONObject> parseAttributes(final JSONObject requestAttributeCategory, final Optional<XPathCompilerProxy> xPathCompiler) throws IndeterminateEvaluationException
-        {
+        public SingleCategoryAttributes<?, JSONObject> parseAttributes(final JSONObject requestAttributeCategory, final Optional<XPathCompilerProxy> xPathCompiler) throws IndeterminateEvaluationException {
             assert requestAttributeCategory != null;
 
             final String categoryId = requestAttributeCategory.getString("CategoryId");
@@ -250,10 +227,8 @@ public final class GeoXacmlJsonParsingUtils
              */
             final Map<AttributeFqn, BAG> namedAttrMap;
             final JSONObject categoryObjectToIncludeInResult;
-            if (categoryAttrs == null || categoryAttrs.length() == 0)
-            {
-                if (extraContent == null)
-                {
+            if (categoryAttrs == null || categoryAttrs.length() == 0) {
+                if (extraContent == null) {
                     /*
                      * Skipping this <Attributes> because no <Attribute> and no extra Content parsed
                      */
@@ -262,9 +237,7 @@ public final class GeoXacmlJsonParsingUtils
 
                 namedAttrMap = Collections.emptyMap();
                 categoryObjectToIncludeInResult = null;
-            }
-            else
-            {
+            } else {
                 namedAttrMap = HashCollections.newUpdatableMap();
                 /*
                  * Assume categoryAttrs as immutable. For performance enhancement, we could reuse/modify it directly to create the list of Attributes included in Result (IncludeInResult=true).
@@ -272,13 +245,11 @@ public final class GeoXacmlJsonParsingUtils
                  * it works with any JSON parser.
                  */
                 final List<JSONObject> returnedAttributes = new ArrayList<>(categoryAttrs.length());
-                for (final Object attrObj : categoryAttrs)
-                {
+                for (final Object attrObj : categoryAttrs) {
                     /*
                      * JSONArray item (Object) may be Boolean, JSONArray, JSONObject, Number, String
                      */
-                    if (!(attrObj instanceof JSONObject))
-                    {
+                    if (!(attrObj instanceof JSONObject)) {
                         throw new IndeterminateEvaluationException("Invalid XACML Attribute: invalid JSON element type (" + attrObj.getClass().getSimpleName() + "). Expected: JSON object.",
                                 XacmlStatusCode.SYNTAX_ERROR.value());
                     }
@@ -288,18 +259,14 @@ public final class GeoXacmlJsonParsingUtils
                     /*
                      * Update the attribute map with new values resulting from parsing the new XACML AttributeValues
                      */
-                    try
-                    {
+                    try {
                         xacmlReqAttributeParser.parseNamedAttribute(categoryId, attrJsonObj, xPathCompiler, namedAttrMap);
-                    }
-                    catch (final IllegalArgumentException e)
-                    {
+                    } catch (final IllegalArgumentException e) {
                         throw new IndeterminateEvaluationException(INVALID_ATT_ERR_STATUS, e);
                     }
 
                     // Check IncludeInResult
-                    if (attrJsonObj.optBoolean("IncludeInResult", false))
-                    {
+                    if (attrJsonObj.optBoolean("IncludeInResult", false)) {
                         /*
                          * Remove IncludeInResult as it is optional in JSON, and we don't need in the Result
                          */
@@ -313,20 +280,16 @@ public final class GeoXacmlJsonParsingUtils
                  * If there are Attribute objects to include, create Category objects with these - without Content - to be included in the Result.
                  */
 
-                if (returnedAttributes.isEmpty())
-                {
+                if (returnedAttributes.isEmpty()) {
                     categoryObjectToIncludeInResult = null;
-                }
-                else
-                {
+                } else {
                     categoryObjectToIncludeInResult = new JSONObject();
                     categoryObjectToIncludeInResult.put("CategoryId", categoryId);
                     /*
                      * WARNING: optString("Id") returns empty string '' if there is no such key!
                      */
                     final String jsonObjectId = requestAttributeCategory.optString("Id", null);
-                    if (jsonObjectId != null)
-                    {
+                    if (jsonObjectId != null) {
                         categoryObjectToIncludeInResult.put("Id", jsonObjectId);
                     }
                     categoryObjectToIncludeInResult.put("Attribute", returnedAttributes);
@@ -337,17 +300,14 @@ public final class GeoXacmlJsonParsingUtils
         }
     }
 
-    private static final class ContentSkippingXacmlJsonAttributesParser<BAG extends Iterable<? extends AttributeValue>> extends BaseXacmlJsonAttributesParser<BAG>
-    {
+    private static final class ContentSkippingXacmlJsonAttributesParser<BAG extends Iterable<? extends AttributeValue>> extends BaseXacmlJsonAttributesParser<BAG> {
         private ContentSkippingXacmlJsonAttributesParser(final XacmlRequestAttributeParser<JSONObject, BAG> xacmlJsonAttributeParser,
-                                                         final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter)
-        {
+                                                         final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter) {
             super(xacmlJsonAttributeParser, namedAttributeIteratorConverter);
         }
 
         @Override
-        protected XdmNode parseContent(final String categoryName, final String categoryContent)
-        {
+        protected XdmNode parseContent(final String categoryName, final String categoryContent) {
             /*
              * Content parsing not supported
              */
@@ -355,41 +315,29 @@ public final class GeoXacmlJsonParsingUtils
         }
     }
 
-    private static final IllegalArgumentException NULL_NAMED_ATTRIBUTE_ITERATOR_CONVERTER_ARGUMENT_EXCEPTION = new IllegalArgumentException("Undefined namedAttributeIteratorConverter");
-    private static final IllegalArgumentException NULL_XACML_JSON_ATTRIBUTE_PARSER_ARGUMENT_EXCEPTION = new IllegalArgumentException(
-            "Undefined XACML/JSON Attribute parser (null xacmlJsonAttributeParser)");
-
     /**
-     *
      * Factory for XACML/JSON Attribute parser that only parses the named attributes (Attribute elements), not the Content
      *
-     * @param <BAG>
-     *            resulting from parsing XACML AttributeValues
+     * @param <BAG> resulting from parsing XACML AttributeValues
      */
-    public static final class ContentSkippingXacmlJsonAttributesParserFactory<BAG extends Iterable<? extends AttributeValue>> implements SingleCategoryXacmlAttributesParser.Factory<JSONObject>
-    {
+    public static final class ContentSkippingXacmlJsonAttributesParserFactory<BAG extends Iterable<? extends AttributeValue>> implements SingleCategoryXacmlAttributesParser.Factory<JSONObject> {
         private final SingleCategoryXacmlAttributesParser<JSONObject> instance;
 
         /**
          * Creates instance
          *
-         * @param xacmlJsonAttributeParser
-         *            parser used to parse each XACML/JSON Attribute
-         * @param namedAttributeIteratorConverter
-         *            converts iterator over attributes with values produced by {@code xacmlJsonAttributeParser}, into constant-valued/immutable attribute iterator
+         * @param xacmlJsonAttributeParser        parser used to parse each XACML/JSON Attribute
+         * @param namedAttributeIteratorConverter converts iterator over attributes with values produced by {@code xacmlJsonAttributeParser}, into constant-valued/immutable attribute iterator
          * @throws IllegalArgumentException error
-         *             {@code if(xacmlJsonAttributeParser == null || namedAttributeIteratorConverter == null)}
+         *                                  {@code if(xacmlJsonAttributeParser == null || namedAttributeIteratorConverter == null)}
          */
         public ContentSkippingXacmlJsonAttributesParserFactory(final XacmlRequestAttributeParser<JSONObject, BAG> xacmlJsonAttributeParser,
-                                                               final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter) throws IllegalArgumentException
-        {
-            if (xacmlJsonAttributeParser == null)
-            {
+                                                               final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter) throws IllegalArgumentException {
+            if (xacmlJsonAttributeParser == null) {
                 throw NULL_XACML_JSON_ATTRIBUTE_PARSER_ARGUMENT_EXCEPTION;
             }
 
-            if (namedAttributeIteratorConverter == null)
-            {
+            if (namedAttributeIteratorConverter == null) {
                 throw NULL_NAMED_ATTRIBUTE_ITERATOR_CONVERTER_ARGUMENT_EXCEPTION;
             }
 
@@ -397,33 +345,28 @@ public final class GeoXacmlJsonParsingUtils
         }
 
         @Override
-        public SingleCategoryXacmlAttributesParser<JSONObject> getInstance()
-        {
+        public SingleCategoryXacmlAttributesParser<JSONObject> getInstance() {
             return instance;
         }
 
     }
 
-    private static final class FullXacmlJsonAttributesParser<BAG extends Iterable<? extends AttributeValue>> extends BaseXacmlJsonAttributesParser<BAG>
-    {
+    private static final class FullXacmlJsonAttributesParser<BAG extends Iterable<? extends AttributeValue>> extends BaseXacmlJsonAttributesParser<BAG> {
         // XML document builder for parsing XML Content to XPath data model for XPath evaluation
         // private final DocumentBuilder xmlDocBuilder;
 
         private FullXacmlJsonAttributesParser(final XacmlRequestAttributeParser<JSONObject, BAG> xacmlJsonAttributeParser,
                                               final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter/*
          * , final DocumentBuilder xmlDocBuilder
-         */)
-        {
+         */) {
             super(xacmlJsonAttributeParser, namedAttributeIteratorConverter);
             // assert xmlDocBuilder != null;
             // this.xmlDocBuilder = xmlDocBuilder;
         }
 
         @Override
-        public XdmNode parseContent(final String categoryId, final String categoryContent) throws IndeterminateEvaluationException
-        {
-            if (categoryContent == null)
-            {
+        public XdmNode parseContent(final String categoryId, final String categoryContent) throws IndeterminateEvaluationException {
+            if (categoryContent == null) {
                 // nothing to parse
                 return null;
             }
@@ -463,14 +406,11 @@ public final class GeoXacmlJsonParsingUtils
     }
 
     /**
-     *
      * Factory for XACML/JSON Attribute Parser that parses the named attributes (Attribute elements), and the free-form Content
      *
-     * @param <BAG>
-     *            resulting from parsing XACML AttributeValues
+     * @param <BAG> resulting from parsing XACML AttributeValues
      */
-    public static final class FullXacmlJsonAttributesParserFactory<BAG extends Iterable<? extends AttributeValue>> implements SingleCategoryXacmlAttributesParser.Factory<JSONObject>
-    {
+    public static final class FullXacmlJsonAttributesParserFactory<BAG extends Iterable<? extends AttributeValue>> implements SingleCategoryXacmlAttributesParser.Factory<JSONObject> {
         // private static final IllegalArgumentException NULL_XML_PROCESSOR_ARGUMENT_EXCEPTION = new IllegalArgumentException("Undefined XML processor (null xmlProcessor)");
         private final XacmlRequestAttributeParser<JSONObject, BAG> xacmlJsonAttributeParser;
         private final NamedAttributeIteratorConverter<BAG> namedAttrIterConverter;
@@ -480,24 +420,18 @@ public final class GeoXacmlJsonParsingUtils
         /**
          * Creates instance
          *
-         * @param xacmlJsonAttributeParser
-         *            parser used to parse each XACML/JSON Attribute
-         * @param namedAttributeIteratorConverter
-         *            converts iterator over attributes with values produced by {@code xacmlJsonAttributeParser}, into constant-valued/immutable attribute iterator
-         *
+         * @param xacmlJsonAttributeParser        parser used to parse each XACML/JSON Attribute
+         * @param namedAttributeIteratorConverter converts iterator over attributes with values produced by {@code xacmlJsonAttributeParser}, into constant-valued/immutable attribute iterator
          * @throws IllegalArgumentException error
-         *             {@code if(xacmlJsonAttributeParser == null || namedAttributeIteratorConverter == null || xmlProcessor == null)}
+         *                                  {@code if(xacmlJsonAttributeParser == null || namedAttributeIteratorConverter == null || xmlProcessor == null)}
          */
         public FullXacmlJsonAttributesParserFactory(final XacmlRequestAttributeParser<JSONObject, BAG> xacmlJsonAttributeParser,
-                                                    final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter/* , final Processor xmlProcessor */)
-        {
-            if (xacmlJsonAttributeParser == null)
-            {
+                                                    final NamedAttributeIteratorConverter<BAG> namedAttributeIteratorConverter/* , final Processor xmlProcessor */) {
+            if (xacmlJsonAttributeParser == null) {
                 throw NULL_XACML_JSON_ATTRIBUTE_PARSER_ARGUMENT_EXCEPTION;
             }
 
-            if (namedAttributeIteratorConverter == null)
-            {
+            if (namedAttributeIteratorConverter == null) {
                 throw NULL_NAMED_ATTRIBUTE_ITERATOR_CONVERTER_ARGUMENT_EXCEPTION;
             }
 
@@ -512,15 +446,10 @@ public final class GeoXacmlJsonParsingUtils
         }
 
         @Override
-        public SingleCategoryXacmlAttributesParser<JSONObject> getInstance()
-        {
+        public SingleCategoryXacmlAttributesParser<JSONObject> getInstance() {
             // create instance of inner class (has access to this.xmlProc)
             return new FullXacmlJsonAttributesParser<>(xacmlJsonAttributeParser, namedAttrIterConverter/* , xmlProc.newDocumentBuilder() */);
         }
-    }
-
-    private GeoXacmlJsonParsingUtils()
-    {
     }
 
 }

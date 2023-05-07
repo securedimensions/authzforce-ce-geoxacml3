@@ -26,7 +26,10 @@ import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static de.securedimensions.geoxacml3.identifiers.Definitions.*;
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
@@ -81,8 +84,7 @@ public class TransformGeometry {
                     GeometryValue.DATATYPE.getId(),
                     null);
             throw new IndeterminateEvaluationException("CRS transformation prohibited by 'allowTransformation'", missingAttributeDetail, Optional.of(CRS_ERROR));
-        }
-        else
+        } else
             return false;
     }
 
@@ -133,19 +135,16 @@ public class TransformGeometry {
 
             // In case that one geometry is from the ADR and the other from the policy, we can send MissingAttributeDetail in the StatusDetail
             // indicating which SRS (or SRID) to use.
-            if (!originG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY))
-            {
+            if (!originG1.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY)) {
                 // geometry 1 is contained in the ADR
                 // to indicate the CRS to be used, geometry 1 gets the CRS from geometry 2
                 if (otherXmlAttributesG1.containsKey(Definitions.xmlSRID)) {
                     otherXmlAttributesG1.replace(Definitions.xmlSRID, otherXmlAttributesG2.getOrDefault(Definitions.xmlSRID, String.valueOf(DEFAULT_SRID)));
                     otherXmlAttributesG1.remove(Definitions.xmlCRS);
-                }
-                else if (otherXmlAttributesG1.containsKey(Definitions.xmlCRS)) {
+                } else if (otherXmlAttributesG1.containsKey(Definitions.xmlCRS)) {
                     otherXmlAttributesG1.replace(Definitions.xmlCRS, otherXmlAttributesG2.getOrDefault(Definitions.xmlCRS, DEFAULT_CRS));
                     otherXmlAttributesG1.remove(Definitions.xmlSRID);
-                }
-                else {
+                } else {
                     otherXmlAttributesG1.put(Definitions.xmlCRS, "EPSG:" + g2.getSRID());
                 }
                 final AttributeValueType av = new AttributeValueType(List.of(""), GeometryValue.DATATYPE.getId(), otherXmlAttributesG1);
@@ -157,19 +156,16 @@ public class TransformGeometry {
                 throw new IndeterminateEvaluationException("Geometry must be encoded using specified CRS", missingAttributeDetail, Optional.of(CRS_ERROR));
             }
 
-            if (!originG2.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY))
-            {
+            if (!originG2.equalsIgnoreCase(Definitions.ATTR_SOURCE_POLICY)) {
                 // geometry 2 is contained in the ADR
                 // to indicate the CRS to be used, geometry 2 gets the CRS from geometry 1
                 if (otherXmlAttributesG2.containsKey(Definitions.xmlSRID)) {
                     otherXmlAttributesG2.replace(Definitions.xmlSRID, otherXmlAttributesG1.getOrDefault(Definitions.xmlSRID, String.valueOf(DEFAULT_SRID)));
                     otherXmlAttributesG2.remove(Definitions.xmlCRS);
-                }
-                else if (otherXmlAttributesG2.containsKey(Definitions.xmlCRS)) {
+                } else if (otherXmlAttributesG2.containsKey(Definitions.xmlCRS)) {
                     otherXmlAttributesG2.replace(Definitions.xmlCRS, otherXmlAttributesG1.getOrDefault(Definitions.xmlCRS, DEFAULT_CRS));
                     otherXmlAttributesG2.remove(Definitions.xmlSRID);
-                }
-                else {
+                } else {
                     otherXmlAttributesG2.put(Definitions.xmlCRS, "EPSG:" + g1.getSRID());
                 }
                 final AttributeValueType av = new AttributeValueType(List.of(""), GeometryValue.DATATYPE.getId(), otherXmlAttributesG2);

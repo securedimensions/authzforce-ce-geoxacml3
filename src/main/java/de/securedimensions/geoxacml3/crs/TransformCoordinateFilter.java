@@ -20,11 +20,8 @@ package de.securedimensions.geoxacml3.crs;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateFilter;
 import org.locationtech.proj4j.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TransformCoordinateFilter implements CoordinateFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransformCoordinateFilter.class);
     private static final CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
     private static final CRSFactory crsFactory = new CRSFactory();
     private final ProjCoordinate fromCoordinate;

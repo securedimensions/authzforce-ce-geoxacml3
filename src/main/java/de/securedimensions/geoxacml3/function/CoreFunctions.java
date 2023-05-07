@@ -525,7 +525,7 @@ public class CoreFunctions {
                 protected BooleanValue evaluate(Deque<AttributeValue> args) throws IndeterminateEvaluationException {
                     final int precision = (((IntegerValue) args.poll()).getUnderlyingValue()).intValue();
                     final Geometry g = ((GeometryValue) args.poll()).getGeometry();
-                    final Map <QName, String> otherAttributes = (g.getUserData() != null) ? (Map<QName, String>) g.getUserData() : new HashMap<>();
+                    final Map<QName, String> otherAttributes = (g.getUserData() != null) ? (Map<QName, String>) g.getUserData() : new HashMap<>();
                     final int precisionG = Integer.parseInt(otherAttributes.getOrDefault(xmlPrecision, String.valueOf(Integer.MAX_VALUE)));
                     return new BooleanValue(precision <= precisionG);
                 }

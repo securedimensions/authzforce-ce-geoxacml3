@@ -20,14 +20,34 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostprocessor<IndividualXacmlJsonRequest, JSONObject>
-{
+public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostprocessor<IndividualXacmlJsonRequest, JSONObject> {
 
     private static final RuntimeException ILLEGAL_ATTRIBUTE_VALUE_RUNTIME_EXCEPTION = new RuntimeException(
             "Unsupported AttributeValue for JSON output: no content or mixed content (more than one JAXB Serializable node)");
+    private final int maxDepthOfErrorCauseIncludedInResult;
+
+    /**
+     * Constructor
+     *
+     * @param clientRequestErrorVerbosityLevel Level of verbosity of the error message trace returned in case of client request errors, e.g. invalid requests. Increasing this value usually helps the clients better pinpoint the
+     *                                         issue with their Requests. This result postprocessor returns all error messages in the Java stacktrace up to the same level as this parameter's value if the stacktrace is bigger,
+     *                                         else the full stacktrace.
+     * @throws IllegalArgumentException if {@code clientRequestErrorVerbosityLevel < 0}
+     */
+    public GeoXacmlJsonResultPostProcessor(final int clientRequestErrorVerbosityLevel) throws IllegalArgumentException {
+        if (clientRequestErrorVerbosityLevel < 0) {
+            throw new IllegalArgumentException("Invalid clientRequestErrorVerbosityLevel: " + clientRequestErrorVerbosityLevel + ". Expected: non-negative.");
+        }
+
+        if (clientRequestErrorVerbosityLevel > 0) {
+            throw new IllegalArgumentException("Unsupported clientRequestErrorVerbosityLevel: " + clientRequestErrorVerbosityLevel + ". Expected: 0.");
+        }
+
+        this.maxDepthOfErrorCauseIncludedInResult = clientRequestErrorVerbosityLevel;
+    }
 
     private static Object toJson(Serializable contentItem) {
-        if(contentItem instanceof SerializableJSONObject) {
+        if (contentItem instanceof SerializableJSONObject) {
             return ((SerializableJSONObject) contentItem).get();
         }
 
@@ -35,14 +55,12 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
     }
 
     private static Object toJson(AttributeValue attributeValue) {
-        if (!attributeValue.getXmlAttributes().isEmpty())
-        {
+        if (!attributeValue.getXmlAttributes().isEmpty()) {
             return toJson("");
         }
 
         final List<Serializable> contentItems = attributeValue.getContent();
-        if (contentItems.size() != 1)
-        {
+        if (contentItems.size() != 1) {
             return toJson("");
         }
 
@@ -50,14 +68,12 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
     }
 
     private static Object toJson(AttributeValueType attributeValue) {
-        if (!attributeValue.getOtherAttributes().isEmpty())
-        {
+        if (!attributeValue.getOtherAttributes().isEmpty()) {
             return toJson("");
         }
 
         final List<Serializable> contentItems = attributeValue.getContent();
-        if (contentItems.size() != 1)
-        {
+        if (contentItems.size() != 1) {
             return toJson("");
         }
 
@@ -67,21 +83,19 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
     /*
     Used for both MissingAttributeDetail (attributeValues may be empty) and AttributeAssignment (category is optional)
      */
-    private static JSONObject attributeToJson(final String attributeId, final Optional<String> category, final Optional<String> issuer, final String datatypeId, final List<Object> jsonAttributeValues)
-    {
+    private static JSONObject attributeToJson(final String attributeId, final Optional<String> category, final Optional<String> issuer, final String datatypeId, final List<Object> jsonAttributeValues) {
         Map<String, Object> jsonPropertiesMap = HashCollections.newUpdatableMap(5);
         jsonPropertiesMap.put("AttributeId", attributeId);
         category.ifPresent(c -> jsonPropertiesMap.put("Category", c));
         jsonPropertiesMap.put("DataType", datatypeId);
         issuer.ifPresent(i -> jsonPropertiesMap.put("Issuer", i));
-        if(!jsonAttributeValues.isEmpty()) {
-            jsonPropertiesMap.put("Value", jsonAttributeValues.size() == 1? jsonAttributeValues.get(0) : new JSONArray(jsonAttributeValues));
+        if (!jsonAttributeValues.isEmpty()) {
+            jsonPropertiesMap.put("Value", jsonAttributeValues.size() == 1 ? jsonAttributeValues.get(0) : new JSONArray(jsonAttributeValues));
         }
         return new JSONObject(jsonPropertiesMap);
     }
 
-    private static JSONObject toJson(final StatusCode statusCode)
-    {
+    private static JSONObject toJson(final StatusCode statusCode) {
         assert statusCode != null;
         final Map<String, Object> resultJsonObject = HashCollections.newUpdatableMap(2);
         resultJsonObject.put("Value", statusCode.getValue());
@@ -93,21 +107,19 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
         return new JSONObject(resultJsonObject);
     }
 
-    private static JSONObject toJson(final Status status)
-    {
+    private static JSONObject toJson(final Status status) {
         /*
          * Weirdness: StatusCode is optional in XACML/JSON Status although mandatory in XACML/XML Status
          */
         final Map<String, Object> statusJsonObject = HashCollections.newUpdatableMap(3);
         statusJsonObject.put("StatusCode", toJson(status.getStatusCode()));
         final String statusMsg = status.getStatusMessage();
-        if (statusMsg != null)
-        {
+        if (statusMsg != null) {
             statusJsonObject.put("StatusMessage", statusMsg);
         }
 
         final StatusDetail statusDetail = status.getStatusDetail();
-        if(statusDetail != null) {
+        if (statusDetail != null) {
             final List<Element> statusDetailContent = statusDetail.getAnies();
 			/*
 			AuthzForce only allows/supports StatusDetail containing one and only one MissingAttributeDetail
@@ -119,12 +131,10 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
 			 */
             final MissingAttributeDetail missingAttDetail;
             final Unmarshaller unmarshaller;
-            try
-            {
+            try {
                 unmarshaller = Xacml3JaxbHelper.createXacml3Unmarshaller();
                 missingAttDetail = unmarshaller.unmarshal(statusDetailElement, MissingAttributeDetail.class).getValue();
-            } catch (JAXBException e)
-            {
+            } catch (JAXBException e) {
                 throw new RuntimeException("Error instantiating XACML3.0 JAXB unmarshaller or DOM document builder or or unmarshalling MissingAttributeDetail from DOM Element in StatusDetail", e);
             }
 
@@ -137,12 +147,11 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
                 jsonPropertiesMap.put("Category", missingAttDetail.getCategory());
             if (missingAttDetail.getIssuer() != null)
                 jsonPropertiesMap.put("Issuer", missingAttDetail.getIssuer());
-            if(!jsonAttributeValues.isEmpty()) {
-                jsonPropertiesMap.put("Value", jsonAttributeValues.size() == 1? jsonAttributeValues.get(0) : new JSONArray(jsonAttributeValues));
+            if (!jsonAttributeValues.isEmpty()) {
+                jsonPropertiesMap.put("Value", jsonAttributeValues.size() == 1 ? jsonAttributeValues.get(0) : new JSONArray(jsonAttributeValues));
             }
             Iterator<AttributeValueType> i = missingAttDetail.getAttributeValues().iterator();
-            while (i.hasNext())
-            {
+            while (i.hasNext()) {
                 AttributeValueType avt = i.next();
                 if (avt.getOtherAttributes().containsKey(Definitions.xmlSRID))
                     jsonPropertiesMap.put(Definitions.jsonSRID.getLocalPart(), avt.getOtherAttributes().get(Definitions.xmlSRID));
@@ -158,18 +167,15 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
         return new JSONObject(statusJsonObject);
     }
 
-    private static JSONObject toJson(final PepActionAttributeAssignment<?> aa)
-    {
+    private static JSONObject toJson(final PepActionAttributeAssignment<?> aa) {
         return attributeToJson(aa.getAttributeId(), aa.getCategory(), aa.getIssuer(), aa.getDatatype().getId(), List.of(toJson(aa.getValue())));
     }
 
-    private static JSONObject toJson(final String obligationOrAdviceId, final List<PepActionAttributeAssignment<?>> aaList)
-    {
+    private static JSONObject toJson(final String obligationOrAdviceId, final List<PepActionAttributeAssignment<?>> aaList) {
         assert obligationOrAdviceId != null && aaList != null;
         final Map<String, Object> obligationOrAdviceJsonPropMap = HashCollections.newUpdatableMap(2);
         obligationOrAdviceJsonPropMap.put("Id", obligationOrAdviceId);
-        if (!aaList.isEmpty())
-        {
+        if (!aaList.isEmpty()) {
             final List<JSONObject> jsonAttAssignments = aaList.stream().map(GeoXacmlJsonResultPostProcessor::toJson).collect(Collectors.toList());
             obligationOrAdviceJsonPropMap.put("AttributeAssignment", new JSONArray(jsonAttAssignments));
         }
@@ -177,8 +183,7 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
         return new JSONObject(obligationOrAdviceJsonPropMap);
     }
 
-    private static JSONObject convert(final IndividualXacmlJsonRequest request, final DecisionResult result)
-    {
+    private static JSONObject convert(final IndividualXacmlJsonRequest request, final DecisionResult result) {
         assert request != null && result != null;
 
         final Map<String, Object> jsonPropertyMap = HashCollections.newUpdatableMap(6);
@@ -192,8 +197,7 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
         // Obligations/Advice
         final ImmutableList<PepAction> pepActions = result.getPepActions();
         assert pepActions != null;
-        if (!pepActions.isEmpty())
-        {
+        if (!pepActions.isEmpty()) {
             final int numOfPepActions = pepActions.size();
             final List<JSONObject> jsonObligations = new ArrayList<>(numOfPepActions);
             final List<JSONObject> jsonAdvices = new ArrayList<>(numOfPepActions);
@@ -203,45 +207,38 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
                 pepActionJsonObjects.add(pepActionJsonObject);
             });
 
-            if (!jsonObligations.isEmpty())
-            {
+            if (!jsonObligations.isEmpty()) {
                 jsonPropertyMap.put("Obligations", new JSONArray(jsonObligations));
             }
 
-            if (!jsonAdvices.isEmpty())
-            {
+            if (!jsonAdvices.isEmpty()) {
                 jsonPropertyMap.put("AssociatedAdvice", new JSONArray(jsonAdvices));
             }
         }
 
         // IncludeInResult categories
         final List<JSONObject> attributesByCategoryToBeReturned = request.getAttributesByCategoryToBeReturned();
-        if (!attributesByCategoryToBeReturned.isEmpty())
-        {
+        if (!attributesByCategoryToBeReturned.isEmpty()) {
             jsonPropertyMap.put("Category", new JSONArray(attributesByCategoryToBeReturned));
         }
 
         // PolicyIdentifierList
         final ImmutableList<PrimaryPolicyMetadata> applicablePolicies = result.getApplicablePolicies();
-        if (applicablePolicies != null && !applicablePolicies.isEmpty())
-        {
+        if (applicablePolicies != null && !applicablePolicies.isEmpty()) {
             final List<JSONObject> policyRefs = new ArrayList<>(applicablePolicies.size());
             final List<JSONObject> policySetRefs = new ArrayList<>(applicablePolicies.size());
-            for (final PrimaryPolicyMetadata applicablePolicy : applicablePolicies)
-            {
+            for (final PrimaryPolicyMetadata applicablePolicy : applicablePolicies) {
                 final JSONObject ref = new JSONObject(HashCollections.newImmutableMap("Id", applicablePolicy.getId(), "Version", applicablePolicy.getVersion().toString()));
                 final List<JSONObject> refs = applicablePolicy.getType() == TopLevelPolicyElementType.POLICY ? policyRefs : policySetRefs;
                 refs.add(ref);
             }
 
             final Map<String, Object> policyListJsonObjMap = HashCollections.newUpdatableMap(2);
-            if (!policyRefs.isEmpty())
-            {
+            if (!policyRefs.isEmpty()) {
                 policyListJsonObjMap.put("PolicyIdReference", new JSONArray(policyRefs));
             }
 
-            if (!policySetRefs.isEmpty())
-            {
+            if (!policySetRefs.isEmpty()) {
                 policyListJsonObjMap.put("PolicySetIdReference", new JSONArray(policySetRefs));
             }
 
@@ -252,62 +249,30 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
         return new JSONObject(jsonPropertyMap);
     }
 
-    private final int maxDepthOfErrorCauseIncludedInResult;
-
-    /**
-     * Constructor
-     *
-     * @param clientRequestErrorVerbosityLevel
-     *            Level of verbosity of the error message trace returned in case of client request errors, e.g. invalid requests. Increasing this value usually helps the clients better pinpoint the
-     *            issue with their Requests. This result postprocessor returns all error messages in the Java stacktrace up to the same level as this parameter's value if the stacktrace is bigger,
-     *            else the full stacktrace.
-     * @throws IllegalArgumentException
-     *             if {@code clientRequestErrorVerbosityLevel < 0}
-     */
-    public GeoXacmlJsonResultPostProcessor(final int clientRequestErrorVerbosityLevel) throws IllegalArgumentException
-    {
-        if (clientRequestErrorVerbosityLevel < 0)
-        {
-            throw new IllegalArgumentException("Invalid clientRequestErrorVerbosityLevel: " + clientRequestErrorVerbosityLevel + ". Expected: non-negative.");
-        }
-
-        if (clientRequestErrorVerbosityLevel > 0)
-        {
-            throw new IllegalArgumentException("Unsupported clientRequestErrorVerbosityLevel: " + clientRequestErrorVerbosityLevel + ". Expected: 0.");
-        }
-
-        this.maxDepthOfErrorCauseIncludedInResult = clientRequestErrorVerbosityLevel;
-    }
-
     @Override
-    public final Class<IndividualXacmlJsonRequest> getRequestType()
-    {
+    public final Class<IndividualXacmlJsonRequest> getRequestType() {
         return IndividualXacmlJsonRequest.class;
     }
 
     @Override
-    public final Class<JSONObject> getResponseType()
-    {
+    public final Class<JSONObject> getResponseType() {
         return JSONObject.class;
     }
 
     @Override
-    public JSONObject process(final Collection<Map.Entry<IndividualXacmlJsonRequest, ? extends DecisionResult>> resultsByRequest)
-    {
+    public JSONObject process(final Collection<Map.Entry<IndividualXacmlJsonRequest, ? extends DecisionResult>> resultsByRequest) {
         final List<JSONObject> results = resultsByRequest.stream().map(entry -> convert(entry.getKey(), entry.getValue())).collect(Collectors.toList());
         return new JSONObject(HashCollections.newImmutableMap("Response", new JSONArray(results)));
     }
 
     @Override
-    public JSONObject processInternalError(final IndeterminateEvaluationException error)
-    {
+    public JSONObject processInternalError(final IndeterminateEvaluationException error) {
         final JSONObject result = new JSONObject(HashCollections.newImmutableMap("Decision", DecisionType.INDETERMINATE.value(), "Status", toJson(error.getTopLevelStatus())));
         return new JSONObject(HashCollections.newImmutableMap("Response", new JSONArray(Collections.singleton(result))));
     }
 
     @Override
-    public JSONObject processClientError(final IndeterminateEvaluationException error)
-    {
+    public JSONObject processClientError(final IndeterminateEvaluationException error) {
         assert maxDepthOfErrorCauseIncludedInResult == 0;
         final Status finalStatus = error.getTopLevelStatus();
         // FIXME: maxDepthOfErrorCauseIncludedInResult > 0 not supported so far
@@ -318,43 +283,34 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
 
     /**
      * Convenient base class for {@link org.ow2.authzforce.core.pdp.api.DecisionResultPostprocessor.Factory} implementations supporting XACML/JSON output (JSON Profile of XACML)
-     *
      */
-    public static abstract class Factory implements DecisionResultPostprocessor.Factory<IndividualXacmlJsonRequest, JSONObject>
-    {
+    public static abstract class Factory implements DecisionResultPostprocessor.Factory<IndividualXacmlJsonRequest, JSONObject> {
         private final String id;
 
-        protected Factory(final String id)
-        {
+        protected Factory(final String id) {
             this.id = id;
         }
 
         @Override
-        public final String getId()
-        {
+        public final String getId() {
             return id;
         }
 
         @Override
-        public final Class<IndividualXacmlJsonRequest> getRequestType()
-        {
+        public final Class<IndividualXacmlJsonRequest> getRequestType() {
             return IndividualXacmlJsonRequest.class;
         }
 
         @Override
-        public final Class<JSONObject> getResponseType()
-        {
+        public final Class<JSONObject> getResponseType() {
             return JSONObject.class;
         }
     }
 
     /**
-     *
      * Default factory creating instances of {@link org.ow2.authzforce.core.pdp.io.xacml.json.BaseXacmlJsonResultPostprocessor}
-     *
      */
-    public static final class DefaultFactory extends GeoXacmlJsonResultPostProcessor.Factory
-    {
+    public static final class DefaultFactory extends GeoXacmlJsonResultPostProcessor.Factory {
         /**
          * Result postprocessor ID, as returned by {@link #getId()}
          */
@@ -363,14 +319,12 @@ public class GeoXacmlJsonResultPostProcessor implements DecisionResultPostproces
         /**
          * No-arg constructor
          */
-        public DefaultFactory()
-        {
+        public DefaultFactory() {
             super(ID);
         }
 
         @Override
-        public DecisionResultPostprocessor<IndividualXacmlJsonRequest, JSONObject> getInstance(final int clientRequestErrorVerbosityLevel)
-        {
+        public DecisionResultPostprocessor<IndividualXacmlJsonRequest, JSONObject> getInstance(final int clientRequestErrorVerbosityLevel) {
             return new GeoXacmlJsonResultPostProcessor(clientRequestErrorVerbosityLevel);
         }
     }

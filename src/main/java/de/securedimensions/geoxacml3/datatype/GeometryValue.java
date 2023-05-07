@@ -22,7 +22,6 @@ import de.securedimensions.io.geojson.GeoJsonReader;
 import net.sf.saxon.s9api.ItemType;
 import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.s9api.XdmItem;
-import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -40,7 +39,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents the Geometry datatype <i>GeoXACML 3.0 Data Type<i>.
@@ -54,7 +55,6 @@ import java.util.*;
  * authorization decisions based on geographic conditions.
  *
  * @author Andreas Matheus, Secure Dimensions GmbH.
- *
  */
 public final class GeometryValue extends SimpleValue<Geometry> {
 
@@ -77,10 +77,8 @@ public final class GeometryValue extends SimpleValue<Geometry> {
     }
 
     @Override
-    public int hashCode()
-    {
-        if (hashCode == 0)
-        {
+    public int hashCode() {
+        if (hashCode == 0) {
             hashCode = value.hashCode();
         }
 
@@ -93,17 +91,17 @@ public final class GeometryValue extends SimpleValue<Geometry> {
      *
      * We override the equals because for geometry, we have to use the JTS topological test function g1.equals(g2)
      */
-    /** {@inheritDoc} */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean equals(final Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof GeometryValue))
-        {
+        if (!(obj instanceof GeometryValue)) {
             return false;
         }
 
@@ -238,8 +236,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                     g = geojsonReader.create(((SerializableJSONObject) content).get().toMap(), GEOMETRY_FACTORY);
                     g.setSRID(srid);
 
-                }
-                else {
+                } else {
                     throw new IllegalArgumentException("Geometry encoding not supported");
                 }
                 // Ensure heterogeneous GeometryCollection
@@ -247,8 +244,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                     String geometryType = null;
                     GeometryCollection gc = (GeometryCollection) g;
                     int numGeometries = gc.getNumGeometries();
-                    for (int ix=0; ix < numGeometries; ix++)
-                    {
+                    for (int ix = 0; ix < numGeometries; ix++) {
                         if (geometryType == null)
                             geometryType = gc.getGeometryN(ix).getGeometryType();
                         else if (geometryType != gc.getGeometryN(ix).getGeometryType())
@@ -259,7 +255,7 @@ public final class GeometryValue extends SimpleValue<Geometry> {
                 g.setUserData(otherXmlAttributes);
                 return new GeometryValue(g);
             } catch (ParseException e) {
-                throw new IllegalArgumentException(Definitions.GEOMETRY_ERROR,e);
+                throw new IllegalArgumentException(Definitions.GEOMETRY_ERROR, e);
             }
 
 

@@ -18,23 +18,18 @@
 package de.securedimensions.geoxacml3.pdp.io;
 
 import com.google.common.collect.ImmutableList;
-import de.securedimensions.geoxacml3.datatype.GeometryValue;
-
 import de.securedimensions.geoxacml3.identifiers.Definitions;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.Attribute;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.Attributes;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.Request;
 import org.ow2.authzforce.core.pdp.api.*;
 import org.ow2.authzforce.core.pdp.api.expression.XPathCompilerProxy;
 import org.ow2.authzforce.core.pdp.api.io.*;
-import org.ow2.authzforce.core.pdp.api.value.AttributeBag;
 import org.ow2.authzforce.core.pdp.api.value.AttributeValue;
 import org.ow2.authzforce.core.pdp.api.value.AttributeValueFactory;
 import org.ow2.authzforce.core.pdp.api.value.AttributeValueFactoryRegistry;
 import org.ow2.authzforce.core.pdp.impl.io.SingleDecisionXacmlJaxbRequestPreprocessor;
 import org.ow2.authzforce.xacml.identifiers.XacmlNodeName;
-import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
 import org.ow2.authzforce.xacml.identifiers.XacmlVersion;
 
 import javax.xml.namespace.QName;
@@ -45,21 +40,19 @@ public final class GeoXACMLRequestPreprocessor {
 
     public static QName XACML_ATTRIBUTE_ID_QNAME = new QName(XacmlVersion.V3_0.getNamespace(), "AttributeId");
     public static QName XACML_CATEGORY_ID_QNAME = new QName(XacmlVersion.V3_0.getNamespace(), XacmlNodeName.ATTRIBUTES_CATEGORY.value());
-    private static final class CustomNamedXacmlJaxbAttributeParser extends NamedXacmlAttributeParser<Attribute>
-    {
+
+    private static final class CustomNamedXacmlJaxbAttributeParser extends NamedXacmlAttributeParser<Attribute> {
         private static final IllegalArgumentException NULL_ATTRIBUTE_CATEGORY_ARGUMENT_EXCEPTION = new IllegalArgumentException("Undefined XACML attribute category");
         private static final IllegalArgumentException NULL_INPUT_ATTRIBUTE_ARGUMENT_EXCEPTION = new IllegalArgumentException("Undefined input XACML attribute arg (inputXacmlAttribute)");
         private static final IllegalArgumentException NO_JAXB_ATTRIBUTE_VALUE_LIST_ARGUMENT_EXCEPTION = new IllegalArgumentException(
                 "Input XACML attribute values null/empty (nonEmptyJaxbAttributeValues)");
 
-        private CustomNamedXacmlJaxbAttributeParser(AttributeValueFactoryRegistry attributeValueFactoryRegistry) throws IllegalArgumentException
-        {
+        private CustomNamedXacmlJaxbAttributeParser(AttributeValueFactoryRegistry attributeValueFactoryRegistry) throws IllegalArgumentException {
             super(attributeValueFactoryRegistry);
         }
 
         private static <AV extends AttributeValue> NamedXacmlAttributeParsingResult<AV> parseNamedAttribute(final AttributeFqn attName, final List<AttributeValueType> nonEmptyInputXacmlAttValues,
-                                                                                                            final AttributeValueFactory<AV> attValFactory, final Optional<XPathCompilerProxy> xPathCompiler)
-        {
+                                                                                                            final AttributeValueFactory<AV> attValFactory, final Optional<XPathCompilerProxy> xPathCompiler) {
             assert attName != null && nonEmptyInputXacmlAttValues != null && !nonEmptyInputXacmlAttValues.isEmpty() && attValFactory != null;
 
             final Collection<AV> attValues = new ArrayDeque<>(nonEmptyInputXacmlAttValues.size());
@@ -83,21 +76,17 @@ public final class GeoXACMLRequestPreprocessor {
         }
 
         @Override
-        protected NamedXacmlAttributeParsingResult<?> parseNamedAttribute(String attributeCategoryId, Attribute inputXacmlAttribute, Optional<XPathCompilerProxy> xPathCompiler) throws IllegalArgumentException
-        {
-            if (attributeCategoryId == null)
-            {
+        protected NamedXacmlAttributeParsingResult<?> parseNamedAttribute(String attributeCategoryId, Attribute inputXacmlAttribute, Optional<XPathCompilerProxy> xPathCompiler) throws IllegalArgumentException {
+            if (attributeCategoryId == null) {
                 throw NULL_ATTRIBUTE_CATEGORY_ARGUMENT_EXCEPTION;
             }
 
-            if (inputXacmlAttribute == null)
-            {
+            if (inputXacmlAttribute == null) {
                 throw NULL_INPUT_ATTRIBUTE_ARGUMENT_EXCEPTION;
             }
 
             final List<AttributeValueType> inputXacmlAttValues = inputXacmlAttribute.getAttributeValues();
-            if (inputXacmlAttValues == null || inputXacmlAttValues.isEmpty())
-            {
+            if (inputXacmlAttValues == null || inputXacmlAttValues.isEmpty()) {
                 throw NO_JAXB_ATTRIBUTE_VALUE_LIST_ARGUMENT_EXCEPTION;
             }
 

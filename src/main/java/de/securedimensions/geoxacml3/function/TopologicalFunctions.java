@@ -17,10 +17,7 @@
  */
 package de.securedimensions.geoxacml3.function;
 
-import de.securedimensions.geoxacml3.crs.TransformGeometry;
 import de.securedimensions.geoxacml3.datatype.GeometryValue;
-import org.locationtech.jts.geom.Geometry;
-import org.ow2.authzforce.core.pdp.api.ImmutableXacmlStatus;
 import org.ow2.authzforce.core.pdp.api.IndeterminateEvaluationException;
 import org.ow2.authzforce.core.pdp.api.expression.Expression;
 import org.ow2.authzforce.core.pdp.api.func.BaseFirstOrderFunctionCall;
@@ -31,10 +28,8 @@ import org.ow2.authzforce.core.pdp.api.value.Datatype;
 import org.ow2.authzforce.core.pdp.api.value.StandardDatatypes;
 import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
 
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
-import java.util.Optional;
 
 public final class TopologicalFunctions {
 
@@ -49,7 +44,6 @@ public final class TopologicalFunctions {
             super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
         }
 
-        private boolean testCRS() {return true;}
         @Override
         public FirstOrderFunctionCall<BooleanValue> newCall(final List<Expression<?>> argExpressions, final Datatype<?>... remainingArgTypes) {
 
