@@ -1,0 +1,608 @@
+{
+	"$schema": "http://json-schema.org/draft-06/schema",
+	"$id": "Policy.schema.json",
+	"title": "JSON schema of a policy object equivalent to XACML 3.0 Policy(Set)",
+	"definitions": {
+		"VariableReference": {
+			"description": "XACML VariableReference, i.e. reference to variable defined in a VariableDefinition element of an enclosing policy/rule",
+			"type": "string"
+		},
+		"Function": {
+			"description": "Function ID as instance of ExpressionType",
+			"type": "string",
+			"format": "uri-reference"
+		},
+		"AttributeDesignator": {
+			"type": "object",
+			"properties": {
+				"category": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"attrId": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"dataType": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"issuer": {
+					"type": "string"
+				},
+				"mustBePresent": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"category",
+				"attrId",
+				"dataType",
+				"mustBePresent"
+			],
+			"additionalProperties": false
+		},
+		"AttributeSelector": {
+			"type": "object",
+			"properties": {
+				"category": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"contextSelectorId": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"path": {
+					"type": "string"
+				},
+				"dataType": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"mustBePresent": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"category",
+				"path",
+				"dataType",
+				"mustBePresent"
+			],
+			"additionalProperties": false
+		},
+		"Apply": {
+			"type": "object",
+			"properties": {
+				"desc": {
+					"type": "string"
+				},
+				"funcId": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"argExprs": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Expression"
+					},
+					"minItems": 1
+				}
+			},
+			"required": [
+				"funcId",
+				"argExprs"
+			],
+			"additionalProperties": false
+		},
+		"ValueRefExpression": {
+			"$comment": "Abstract type, do not set 'additionalProperties: false' or non-empty 'required' property array here, but in concrete subtypes",
+			"oneOf": [
+				{
+					"type": "object",
+					"properties": {
+						"attrDesignator": {
+							"$ref": "#/definitions/AttributeDesignator"
+						}
+					},
+					"required": [
+						"attrDesignator"
+					]
+				},
+				{
+					"type": "object",
+					"properties": {
+						"attrSelector": {
+							"$ref": "#/definitions/AttributeSelector"
+						}
+					},
+					"required": [
+						"attrSelector"
+					]
+				},
+				{
+					"type": "string",
+					"properties": {
+						"varRef": {
+							"$ref": "#/definitions/VariableReference"
+						}
+					},
+					"required": [
+						"varRef"
+					]
+				}
+			]
+		},
+		"Expression": {
+			"$comment": "Abstract type, do not set 'additionalProperties: false' here but in concrete subtypes",
+			"oneOf": [
+				{
+					"type": "object",
+					"properties": {
+						"const": {
+							"$ref": "common-ng.schema.json#/definitions/AttributeValueType"
+						}
+					},
+					"required": [
+						"const"
+					]
+				},
+				{
+					"$ref": "#/definitions/ValueRefExpression"
+				},
+				{
+					"type": "string",
+					"properties": {
+						"func": {
+							"$ref": "#/definitions/Function"
+						}
+					},
+					"required": [
+						"func"
+					]
+				},
+				{
+					"type": "object",
+					"properties": {
+						"funcCall": {
+							"$ref": "#/definitions/Apply"
+						}
+					},
+					"required": [
+						"funcCall"
+					]
+				}
+			]
+		},
+		"VariableDefinition": {
+			"type": "object",
+			"allOf": [
+				{
+					"properties": {
+						"id": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"id"
+					]
+				},
+				{
+					"$ref": "#/definitions/Expression"
+				},
+				{
+					"$comment": "this replaces additionalProperties=false which does not work as expected with allOf: https://github.com/json-schema-org/json-schema-org.github.io/issues/77",
+					"propertyNames": {
+						"enum": [
+							"id",
+							"typedValue",
+							"attrDesignator",
+							"attrSelector",
+							"varRef",
+							"func",
+							"funcCall"
+						]
+					}
+				}
+			],
+			"additionalProperties": false
+		},
+		"Match": {
+			"description": "FIXME: simplify this schema with allOf when the following bug is fixed: https://github.com/everit-org/json-schema/issues/184#issuecomment-393419878",
+			"type": "object",
+			"allOf": [
+				{
+					"properties": {
+						"matchFunc": {
+							"type": "string",
+							"format": "uri-reference"
+						},
+						"matchedValue": {
+							"$ref": "common-ng.schema.json#/definitions/AttributeValueType"
+						}
+					},
+					"required": [
+						"matchFunc",
+						"matchedValue"
+					]
+				},
+				{
+					"$ref": "#/definitions/ValueRefExpression"
+				},
+				{
+					"$comment": "this replaces additionalProperties=false which does not work as expected with allOf: https://github.com/json-schema-org/json-schema-org.github.io/issues/77",
+					"propertyNames": {
+						"enum": [
+							"matchFunc",
+							"matchedValue",
+							"attrDesignator",
+							"attrSelector",
+							"varRef"
+						]
+					}
+				}
+			]
+		},
+		"AllOf": {
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/Match"
+			},
+			"minItems": 1
+		},
+		"AnyOf": {
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/AllOf"
+			},
+			"minItems": 1
+		},
+		"Target": {
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/AnyOf"
+			},
+			"minItems": 0
+		},
+		"AttributeAssignmentExpression": {
+			"type": "object",
+			"allOf": [
+				{
+					"properties": {
+						"attrId": {
+							"type": "string",
+							"format": "uri-reference"
+						},
+						"category": {
+							"type": "string",
+							"format": "uri-reference"
+						},
+						"issuer": {
+							"type": "string"
+						},
+						"expr": {
+							"$ref": "#/definitions/Expression"
+						}
+					},
+					"required": [
+						"attrId",
+						"expr"
+					]
+				},
+				{
+					"$comment": "this replaces additionalProperties=false which does not work as expected with allOf: https://github.com/json-schema-org/json-schema-org.github.io/issues/77",
+					"propertyNames": {
+						"enum": [
+							"attrId",
+							"category",
+							"issuer",
+							"typedValue",
+							"attrDesignator",
+							"attrSelector",
+							"varRef",
+							"func",
+							"funcCall",
+							"expr"
+						]
+					}
+				}
+			]
+		},
+		"Version": {
+			"description": "backslash must be escaped in JSON",
+			"type": "string",
+			"pattern": "^(\\d+\\.)*\\d+$"
+		},
+		"VersionMatch": {
+			"description": "backslash must be escaped in JSON",
+			"type": "string",
+			"pattern": "^((\\d+|\\*)\\.)*(\\d+|\\*|\\+)$"
+		},
+		"Effect": {
+			"type": "string",
+			"enum": [
+				"Permit",
+				"Deny"
+			]
+		},
+		"PepActionExpression": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"appliesTo": {
+					"$ref": "#/definitions/Effect"
+				},
+				"required": {
+					"type": "boolean"
+				},
+				"attrAssignmentExprs": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/AttributeAssignmentExpression"
+					},
+					"minItems": 0
+				}
+			},
+			"required": [
+				"id",
+				"appliesTo",
+				"required"
+			],
+			"additionalProperties": false
+		},
+		"DecisionElement": {
+			"description": "Decision element, i.e. element that evaluates to a decision such as Permit, Deny, NotApplicable; e.g. XACML Policy(Set) or Rule",
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"version": {
+					"$ref": "#/definitions/Version"
+				},
+				"desc": {
+					"type": "string"
+				},
+				"defaults": {
+					"type": "object",
+					"properties": {
+						"xPathVersion": {
+							"type": "string",
+							"format": "uri-reference"
+						}
+					},
+					"required": [
+						"xPathVersion"
+					],
+					"additionalProperties": false
+				},
+				"target": {
+					"$ref": "#/definitions/Target"
+				},
+				"vars": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VariableDefinition"
+					},
+					"minItems": 0
+				},
+				"condition": {
+					"$ref": "#/definitions/Expression"
+				},
+				"pepActionExprs": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PepActionExpression"
+					},
+					"minItems": 0
+				}
+			},
+			"required": [
+				"id"
+			],
+			"$comment": "this is to be used as abstract type for inheritance, therefore concrete type may have additional properties",
+			"additionalProperties": true
+		},
+		"Rule": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/DecisionElement"
+				},
+				{
+					"properties": {
+						"effect": {
+							"$ref": "#/definitions/Effect"
+						}
+					},
+					"required": [
+						"effect"
+					]
+				},
+				{
+					"$comment": "this replaces additionalProperties=false which does not work as expected with allOf: https://github.com/json-schema-org/json-schema-org.github.io/issues/77",
+					"propertyNames": {
+						"enum": [
+							"id",
+							"version",
+							"desc",
+							"defaults",
+							"target",
+							"condition",
+							"pepActionExprs",
+							"effect",
+							"vars"
+						]
+					}
+				}
+			]
+		},
+		"CombinerParameterAssignment": {
+			"type": "object",
+			"properties": {
+				"paramName": {
+					"type": "string"
+				},
+				"value": {
+					"$ref": "common-ng.schema.json#/definitions/AttributeValueType"
+				}
+			},
+			"required": [
+				"paramName",
+				"value"
+			],
+			"additionalProperties": false
+		},
+		"SequenceOfConstantCombinerArgs": {
+			"type": "object",
+			"properties": {
+				"combinedRef": {
+					"type": "string"
+				},
+				"paramAssignments": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CombinerParameterAssignment"
+					},
+					"minItems": 0
+				}
+			},
+			"additionalProperties": false
+		},
+		"PolicyRef": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string",
+					"format": "uri-reference"
+				},
+				"version": {
+					"$ref": "#/definitions/VersionMatch"
+				},
+				"earliestVersion": {
+					"$ref": "#/definitions/VersionMatch"
+				},
+				"latestVersion": {
+					"$ref": "#/definitions/VersionMatch"
+				}
+			},
+			"required": [
+				"id"
+			],
+			"additionalProperties": false
+		},
+		"Policy": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/DecisionElement"
+				},
+				{
+					"properties": {
+						"maxDelegationDepth": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"issuer": {
+							"type": "object",
+							"properties": {
+								"attrs": {
+									"type": "array",
+									"items": {
+										"$ref": "common-ng.schema.json#/definitions/AttributeType"
+									},
+									"minItems": 0
+								}
+							}
+						},
+						"combinerId": {
+							"type": "string",
+							"format": "uri-reference"
+						},
+						"combinerArgs": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/CombinerArg"
+							},
+							"minItems": 0
+						}
+					},
+					"required": [
+						"combinerId"
+					]
+				},
+				{
+					"$comment": "this replaces additionalProperties=false which does not work with allOf as expected: https://github.com/json-schema-org/json-schema-org.github.io/issues/77",
+					"propertyNames": {
+						"enum": [
+							"id",
+							"version",
+							"desc",
+							"issuer",
+							"maxDelegationDepth",
+							"defaults",
+							"target",
+							"condition",
+							"pepActionExprs",
+							"combinerId",
+							"vars",
+							"combinerArgs"
+						]
+					}
+				}
+			]
+		},
+		"CombinerArg": {
+			"$comment": "Type is used as (abstract) parent type to all kinds of Combining Algorithm arguments (Policy, Policy reference, Rule...), so no 'additionalProperties: false' to allow extensions by subtypes",
+			"oneOf": [
+				{
+					"type": "object",
+					"properties": {
+						"rule": {
+							"$ref": "#/definitions/Rule"
+						}
+					},
+					"required": [
+						"rule"
+					]
+				},
+				{
+					"type": "object",
+					"properties": {
+						"policy": {
+							"$ref": "#/definitions/Policy"
+						}
+					},
+					"required": [
+						"policy"
+					]
+				},
+				{
+					"type": "object",
+					"properties": {
+						"policyRef": {
+							"$ref": "#/definitions/PolicyRef"
+						}
+					},
+					"required": [
+						"policyRef"
+					]
+				},
+				{
+					"type": "object",
+					"properties": {
+						"constArgSeq": {
+							"$ref": "#/definitions/SequenceOfConstantCombinerArgs"
+						}
+					},
+					"required": [
+						"constArgSeq"
+					]
+				}
+			]
+		}
+	},
+	"$ref": "#/definitions/Policy"
+}
