@@ -18,7 +18,7 @@
   },
   "servers": [
     {
-      "url": "https://ogc.demo.secure-dimensions.de/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp"
+      "url": "${PDP_URL}"
     }
   ],
   "tags": [
