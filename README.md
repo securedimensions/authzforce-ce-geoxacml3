@@ -1,169 +1,111 @@
-# GeoXACML 3.0 Installation
+# GeoXACML 3.0 Policy Decision Point
+This implementation is an open source implementation of the following OGC Standards
+* [OGC GEOSPATIAL EXENSIBLE ACCESS CONTROL MARKUP LANGUAGE (GEOXACML) 3.0](http://www.opengis.net/spec/geoxacml/3.0)
+* [OGC GEOSPATIAL EXENSIBLE ACCESS CONTROL MARKUP LANGUAGE (GEOXACML) 3.0 JSON PROFILE V1.0](http://www.opengis.net/spec/geoxacml-3.0-json-profile/1.0)
+
+This implementation is a plugin to the [Authzforce CE](https://github.com/authzforce) software stack and tested with Authzforce Server version 11.0.1.
+
+This implementation is available under the Apache 2.0 license.
 
 ## Installation
-git clone <repo>
 
-mvn pacakge
+### Java 11 SDK
+Please install the JAVA 11 SDK for your OS.
 
-* cp target/authzforce-geoxacml-<version>.jar <authzforce-server>/webapp/WEB-INF/lib
-* cp target/lib/jts-core-*.jar <authzforce-server>/webapp/WEB-INF/lib
-* cp target/lib/jts-io-common-*.jar <authzforce-server>/webapp/WEB-INF/lib
-* cp target/lib/jul-to-slf4j-2.0.5.jar <authzforce-server>/webapp/WEB-INF/lib
-* cp target/lib/proj4j-1.1.5.jar <authzforce-server>/webapp/WEB-INF/lib
+### Install Authzforce CE
+Follow the [instructions](https://github.com/authzforce/server) how to deploy the Authzforce CE Server version 11.0.1.
 
-## pdp.xml
-modify domain.tmpl/pdp.xml and domains/<default>/pdp.xml to include
-```xml
-<ioProcChain>
-    <requestPreproc>urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-lax</requestPreproc>
-</ioProcChain>
-<ioProcChain>
-    <requestPreproc>urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-lax</requestPreproc>
-    <resultPostproc>urn:de:securedimensions:feature:pdp:response-postproc:geoxacml-json:default-lax</resultPostproc>
-</ioProcChain>
+The installation directory is further referred to as `<authzforce-server>`.
+
+### Installation of the GeoXACML 3.0 Policy Decision Point
+Simply clone this repository and execute maven using Java 11.
+
+```shell
+$ git clone https://github.com/securedimensions/authzforce-ce-geoxacml3
+$ cd authzforce-ce-geoxacml3
+$ mvn install
+$ cp target/authzforce-ce-geoxacml3-<version>.jar <authzforce-server>/webapp/WEB-INF/lib
+$ cp target/lib/jts-core-*.jar <authzforce-server>/webapp/WEB-INF/lib
+$ cp target/lib/jts-io-common-*.jar <authzforce-server>/webapp/WEB-INF/lib
+$ cp target/lib/jul-to-slf4j-2.0.5.jar <authzforce-server>/webapp/WEB-INF/lib
+$ cp target/lib/proj4j-1.1.5.jar <authzforce-server>/webapp/WEB-INF/lib
+$ cp target/lib/freemarker-2.3.32.jar <authzforce-server>/webapp/WEB-INF/lib
 ```
 
-## Enable GeoXACML extension
-PATCH <authzforce-server>/domains/<id>/pap/pdp.properties
+## Configuration
+For enabling the `authzforce-ce-geoxacml3` plugin with the Authzforce CE Server deployment, a few configuration steps are required.
+
+### Enable GeoXACML extension
+The PDP configuration must be updated to contain the GeoXACML 3.0 `geometry` data-type and functions. Please replace the following files with the XML from below:
+* `<authzforce-server>/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp.xml` ensures that the default domain supports GeoXACML 3.0 
+* `<authzforce-server>/conf/domain.tmpl/pdp.xml` ensures that each newly created domains supports GeoXACML 3.0
 
 ```xml
-<?xml version='1.0' encoding='UTF-8'?>
-<ns3:pdpPropertiesUpdate
-        xmlns:ns6="http://authzforce.github.io/pap-dao-flat-file/xmlns/properties/3.6"
-        xmlns:ns5="http://authzforce.github.io/core/xmlns/pdp/8" xmlns:ns4="http://www.w3.org/2005/Atom"
-        xmlns:ns3="http://authzforce.github.io/rest-api-model/xmlns/authz/5"
-        xmlns:ns2="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:core" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:core:strict-attribute-issuer-match</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:core" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:core:xpath-eval</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:data-type" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:data-type:geometry</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-equals</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-is-in</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-at-least-one-member-of</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-touches</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-subset</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-set-equals</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-disjoint</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-is-empty</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-bag-from-collection</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-crosses</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-geometry-intersection</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-geometry-sym-difference</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-equals-distance</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-bag</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-relate</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-srid-equals</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-is-within-distance</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-geometry-difference</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-intersects</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-contains</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-length</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-one-and-only</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-boundary</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-bag-to-collection</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-within</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-union</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-equal</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-distance</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-bag-size</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-buffer</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-overlaps</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-geometry-union</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-centroid</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-dimension</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-type</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-srid</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-is-simple</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-area</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-ensure-crs</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-intersection</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-envelope</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:function" enabled="true"
-    >urn:ogc:def:geoxacml:3.0:function:geometry-convex-hull</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="true"
-    >urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-lax</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:request-preproc:xacml-xml:default-lax</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="true"
-    >urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-lax</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:request-preproc:xacml-json:default-lax</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:request-preproc:xacml-xml:multiple:repeated-attribute-categories-strict</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:request-preproc:xacml-json:multiple:repeated-attribute-categories-strict</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:request-preproc:xacml-xml:multiple:repeated-attribute-categories-lax</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-strict</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:request-preproc:xacml-json:default-strict</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:request-preproc:xacml-json:multiple:repeated-attribute-categories-lax</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:request-preproc:xacml-xml:default-strict</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-strict</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:request-preproc" enabled="false"
-    >urn:de:securedimensions:feature:pdp:request-preproc:xacml-xml:default-strict</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:result-postproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:result-postproc:xacml-xml:default</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:result-postproc" enabled="false"
-    >urn:ow2:authzforce:feature:pdp:result-postproc:xacml-json:default</ns3:feature>
-    <ns3:feature type="urn:ow2:authzforce:feature-type:pdp:result-postproc" enabled="true"
-    >urn:de:securedimensions:feature:pdp:response-postproc:geoxacml-json:default-lax</ns3:feature>
-    <ns3:rootPolicyRefExpression>root</ns3:rootPolicyRefExpression>
-</ns3:pdpPropertiesUpdate>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pdp xmlns="http://authzforce.github.io/core/xmlns/pdp/8" xmlns:ns2="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" version="8.0" standardDatatypesEnabled="true" standardFunctionsEnabled="true" standardCombiningAlgorithmsEnabled="true" standardAttributeProvidersEnabled="true" xPathEnabled="false" strictAttributeIssuerMatch="false" maxIntegerValue="2147483647" maxVariableRefDepth="10" maxPolicyRefDepth="10" clientRequestErrorVerbosityLevel="0">
+    <attributeDatatype>urn:ogc:def:geoxacml:3.0:data-type:geometry</attributeDatatype>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-equals</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-in</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-at-least-one-member-of</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-touches</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-srid-equals</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-subset</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-set-equals</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-disjoint</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-empty</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-from-collection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-crosses</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-intersection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-sym-difference</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-distance-equals</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-relate</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-within-distance</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-difference</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-intersects</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-contains</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-length</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-one-and-only</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-boundary</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-to-collection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-within</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-union</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-equal</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-distance</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-size</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-buffer</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-overlaps</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-union</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-centroid</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-dimension</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-type</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-srid</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-ensure-srid</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-precision</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-ensure-precision</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-has-precision</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-simple</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-area</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-intersection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-envelope</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-convex-hull</function>
+    <policyProvider xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns4="http://authzforce.github.io/pap-dao-flat-file/xmlns/pdp-ext/4" xsi:type="ns4:StaticFlatFileDaoPolicyProviderDescriptor" policyLocationPattern="${PARENT_DIR}/policies/*.xml" id="rootPolicyProvider"/>
+    <rootPolicyRef policySet="true">root</rootPolicyRef>
+    <ioProcChain>
+        <requestPreproc>urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-lax</requestPreproc>
+    </ioProcChain>
+    <ioProcChain>
+        <requestPreproc>urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-lax</requestPreproc>
+        <resultPostproc>urn:de:securedimensions:feature:pdp:response-postproc:geoxacml-json:default-lax</resultPostproc>
+    </ioProcChain>
+</pdp>
 ```
 
-## Enable GeoXACML Media Types
+### Enable GeoXACML Media Types
 
-File <authzforce>/webapp/WEB-INF/beans.xml
+In file `<authzforce>/webapp/WEB-INF/beans.xml`
 
-Update `<beans profile="-fastinfoset">`
+* Update `<beans profile="-fastinfoset">`
 ```xml
 <util:list id="xacmlJsonMediaTypes">
          <!-- OASIS JSON Profile of XACML 3.0 -->
@@ -179,496 +121,76 @@ Update `<beans profile="-fastinfoset">`
       </util:list>
 ```
 
-Update `<bean class="org.ow2.authzforce.jaxrs.util.AcceptMediaTypeCheckingRequestFilter">`
+* Update `<bean class="org.ow2.authzforce.jaxrs.util.AcceptMediaTypeCheckingRequestFilter">`
 ```xml
 <constructor-arg>
-                  <util:list>
-                     <value>application/xml</value>
-                     <!-- IETF RFC 7061 -->
-                     <value>application/xacml+xml</value>
-                     <value>application/json</value>
-                     <!-- OASIS JSON Profile of XACML 3.0 -->
-                     <value>application/xacml+json</value>
-                     <!-- GeoXACML 3.0 -->
-                     <value>application/geoxacml+xml</value>
-                     <value>application/geoxacml+json</value>
-                  </util:list>
-               </constructor-arg>
+  <util:list>
+     <value>application/xml</value>
+     <!-- IETF RFC 7061 -->
+     <value>application/xacml+xml</value>
+     <value>application/json</value>
+     <!-- OASIS JSON Profile of XACML 3.0 -->
+     <value>application/xacml+json</value>
+     <!-- GeoXACML 3.0 -->
+     <value>application/geoxacml+xml</value>
+     <value>application/geoxacml+json</value>
+  </util:list>
+</constructor-arg>
 ```
 
-Update `<bean class="org.ow2.authzforce.webapp.NamespaceCollectingCxfJAXBElementProvider">`
+* Update `<bean class="org.ow2.authzforce.webapp.NamespaceCollectingCxfJAXBElementProvider">`
 ```xml
 <property name="produceMediaTypes" ref="xacmlXmlMediaTypes" />
 <property name="consumeMediaTypes" ref="xacmlXmlMediaTypes" />
 ```
 
-Update `<bean class="org.ow2.authzforce.webapp.JsonRiCxfJaxrsProvider">`
+* Update `<bean class="org.ow2.authzforce.webapp.JsonRiCxfJaxrsProvider">`
 ```xml
  <property name="produceMediaTypes" ref="xacmlJsonMediaTypes" />
 <property name="consumeMediaTypes" ref="xacmlJsonMediaTypes" />
 ```
 
-Update `<bean class="org.ow2.authzforce.webapp.org.apache.cxf.jaxrs.provider.json.JSONProvider">`
+* Update `<bean class="org.ow2.authzforce.webapp.org.apache.cxf.jaxrs.provider.json.JSONProvider">`
 ```xml
  <property name="produceMediaTypes" ref="defaultJsonMediaTypes" />
 <property name="consumeMediaTypes" ref="xacmlJsonMediaTypes" />
 ```
 
-## Load GeoXACML JSON schema
-Copy the following JSON based on Authzforce Server test schema into `<authzforce>/conf/Request-with-geometry.schema.json`
-```json
-{
-  "$schema": "http://json-schema.org/draft-06/schema",
-  "$id": "Request-with-geometry.schema.json",
-  "title": "JSON schema of Request object defined in JSON profile of XACML 3.0 v1.0",
-  "definitions": {
-    "RequestReferenceType": {
-      "type": "object",
-      "properties": {
-        "ReferenceId": {
-          "type": "array",
-          "items": {
-            "description": "Each item is a Category/Id",
-            "type": "string"
-          },
-          "minItems": 1
-        }
-      },
-      "required": [
-        "ReferenceId"
-      ],
-      "additionalProperties": false
-    },
-    "MultiRequestsType": {
-      "type": "object",
-      "properties": {
-        "RequestReference": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/RequestReferenceType"
-          },
-          "minItems": 1
-        }
-      },
-      "required": [
-        "RequestReference"
-      ],
-      "additionalProperties": false
-    },
-    "RequestType": {
-      "type": "object",
-      "properties": {
-        "ReturnPolicyIdList": {
-          "type": "boolean"
-        },
-        "CombinedDecision": {
-          "type": "boolean"
-        },
-        "XPathVersion": {
-          "type": "string"
-        },
-        "Category": {
-          "type": "array",
-          "items": {
-            "$ref": "common-std-with-geometry.schema.json#/definitions/AttributeCategoryType"
-          },
-          "minItems": 1
-        },
-        "MultiRequests": {
-          "$ref": "#/definitions/MultiRequestsType"
-        }
-      },
-      "required": [
-        "Category"
-      ],
-      "additionalProperties": false
-    }
-  },
-  "type": "object",
-  "properties": {
-    "Request": {
-      "$ref": "#/definitions/RequestType"
-    }
-  },
-  "required": [
-    "Request"
-  ],
-  "additionalProperties": false
-}
+### Configure loading GeoXACML JSON schema
+The GeoXACML request and response uses an extended JSON schema. It is therefore required to copy the following files from the `conf` directory into the `<authzforce>/conf` directory.
+
+```shell
+$ cp conf/*.json <authzforce>/conf
 ```
 
-```json
-{
-  "$schema": "http://json-schema.org/draft-06/schema",
-  "$id": "common-std-with-geometry.schema.json",
-  "title": "Common JSON schema to Request and Response objects defined in JSON profile of XACML 3.0 v1.0",
-  "definitions": {
-    "AttributeValueType": {
-      "anyOf": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "string"
-        },
-        {
-          "$ref": "Geometry.schema.json"
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "boolean"
-          },
-          "minItems": 0
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": [
-              "string",
-              "number"
-            ]
-          },
-          "minItems": 0
-        },
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Geometry.schema.json"
-          },
-          "minItems": 0
-        }
-      ]
-    },
-    "AttributeType": {
-      "type": "object",
-      "properties": {
-        "AttributeId": {
-          "type": "string",
-          "format": "uri-reference"
-        },
-        "Issuer": {
-          "type": "string"
-        },
-        "IncludeInResult": {
-          "type": "boolean"
-        },
-        "DataType": {
-          "type": "string",
-          "format": "uri-reference"
-        },
-        "Value": {
-          "$ref": "#/definitions/AttributeValueType"
-        },
-        "CRS": {
-          "type": "string"
-        },
-        "AllowTransformation": {
-          "type": "boolean"
-        },
-        "Precision": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "AttributeId",
-        "Value"
-      ],
-      "additionalProperties": false
-    },
-    "AttributeCategoryType": {
-      "type": "object",
-      "properties": {
-        "CategoryId": {
-          "type": "string",
-          "format": "uri-reference"
-        },
-        "Id": {
-          "type": "string"
-        },
-        "Content": {
-          "type": "string"
-        },
-        "Attribute": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/AttributeType"
-          },
-          "minItems": 0
-        }
-      },
-      "required": [
-        "CategoryId"
-      ],
-      "additionalProperties": false
-    },
-    "IdReferenceType": {
-      "type": "object",
-      "properties": {
-        "Id": {
-          "type": "string",
-          "format": "uri-reference"
-        },
-        "Version": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "Id"
-      ],
-      "additionalProperties": false
-    }
-  }
-}
-```
+### Enable the OGC API Common conformance class
+The GeoXACML 3.0 Policy Decision Point implements the OGC API Common conformance class via a Tomcat Filter. This filter needs to be activated.
 
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://geojson.org/schema/Geometry.json",
-  "title": "GeoJSON Geometry",
-  "oneOf": [
-    {
-      "title": "GeoJSON Point",
-      "type": "object",
-      "required": [
-        "type",
-        "coordinates"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "Point"
-          ]
-        },
-        "coordinates": {
-          "type": "array",
-          "minItems": 2,
-          "items": {
-            "type": "number"
-          }
-        },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    {
-      "title": "GeoJSON LineString",
-      "type": "object",
-      "required": [
-        "type",
-        "coordinates"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "LineString"
-          ]
-        },
-        "coordinates": {
-          "type": "array",
-          "minItems": 2,
-          "items": {
-            "type": "array",
-            "minItems": 2,
-            "items": {
-              "type": "number"
-            }
-          }
-        },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    {
-      "title": "GeoJSON Polygon",
-      "type": "object",
-      "required": [
-        "type",
-        "coordinates"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "Polygon"
-          ]
-        },
-        "coordinates": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "minItems": 4,
-            "items": {
-              "type": "array",
-              "minItems": 2,
-              "items": {
-                "type": "number"
-              }
-            }
-          }
-        },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    {
-      "title": "GeoJSON MultiPoint",
-      "type": "object",
-      "required": [
-        "type",
-        "coordinates"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "MultiPoint"
-          ]
-        },
-        "coordinates": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "minItems": 2,
-            "items": {
-              "type": "number"
-            }
-          }
-        },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    {
-      "title": "GeoJSON MultiLineString",
-      "type": "object",
-      "required": [
-        "type",
-        "coordinates"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "MultiLineString"
-          ]
-        },
-        "coordinates": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "minItems": 2,
-            "items": {
-              "type": "array",
-              "minItems": 2,
-              "items": {
-                "type": "number"
-              }
-            }
-          }
-        },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    {
-      "title": "GeoJSON MultiPolygon",
-      "type": "object",
-      "required": [
-        "type",
-        "coordinates"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "MultiPolygon"
-          ]
-        },
-        "coordinates": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "minItems": 4,
-              "items": {
-                "type": "array",
-                "minItems": 2,
-                "items": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "number"
-          }
-        }
-      }
-    }
-  ]
-}
-```
-
-
-Update `authzforce-ce.xml`
+In `<authzforce>/webapp/WEB-INF/web.xml` insert the GeoPDP Filter as the last filter. It is also required to add the `default` Servlet to allow access to the static files required for the HTML page rendering.
 
 ```xml
-<Environment name="org.ow2.authzforce.domains.xacmlJsonSchemaRelativePath" value="Request-with-geometry.schema.json" type="java.lang.String" override="false"
-                                 description="Path to JSON schema file for XACML JSON Profile's Request validation, relative to ${org.ow2.authzforce.config.dir} (if undefined/empty value, the Request.schema.json file from authzforce-ce-xacml-json-model project is used by default)" />
-```
-
-## Enable PDP
-In <authzforce>/webapp/WEB-INF/web.xml insert the following
-
-```xml
-<filter>
-      <description></description>
-      <filter-name>GeoPDP</filter-name>
-      <filter-class>de.securedimensions.geoxacml3.pdp.ogc.GeoPDP</filter-class>
-   </filter>
-   <filter-mapping>
-      <filter-name>GeoPDP</filter-name>
-       <servlet-name>CXFServlet</servlet-name>
-   </filter-mapping>
+<filter-mapping>
+    <filter-name>exceptionFilter</filter-name>
+    <servlet-name>CXFServlet</servlet-name>
+</filter-mapping>
+<filter-mapping>
+    <filter-name>GeoPDP</filter-name>
+    <servlet-name>CXFServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+    <url-pattern>/api</url-pattern>
+    <url-pattern>/conformance</url-pattern>
+    <url-pattern>/decision</url-pattern>
+    <url-pattern>/cookies.html</url-pattern>
+    <url-pattern>/privacy.html</url-pattern>
+    <url-pattern>/terms.html</url-pattern>
+</filter-mapping>
 <servlet-mapping>
     <servlet-name>default</servlet-name>
     <url-pattern>/static/*</url-pattern>
 </servlet-mapping>
 ```
+
+## Test
+Once you have applied the installation and configuration steps, open the PDP URL in your Web Browser. For example [http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp](http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp).
+
+Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
