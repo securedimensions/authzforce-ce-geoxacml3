@@ -101,10 +101,10 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
                         // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-geometry-union
                         new Object[]{AnalysisFunctions.GeometryUnion.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 50, 0 100, 100 100, 100 0, 50 0, 50 -50, -50 -50, -50 50, 0 50))", null, Optional.empty())},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-geometry-difference
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-difference
                         new Object[]{AnalysisFunctions.GeometryDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50))", null, Optional.empty())},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-geometry-sym-difference
+                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-sym-difference
                         new Object[]{AnalysisFunctions.GeometrySymDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("MULTIPOLYGON (((0 50, 0 0, 50 0, 50 -50, -50 -50, -50 50, 0 50)), ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50)))", null, Optional.empty())}
 
 
