@@ -233,7 +233,7 @@ public class AnalysisFunctions {
     }
 
     public final static class GeometryDifference extends SingleParameterTypedFirstOrderFunction<GeometryValue, GeometryValue> {
-        public static final String ID = Definitions.FUNCTION_PREFIX + "-geometry-difference";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-difference";
 
         public GeometryDifference() {
             super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
@@ -265,7 +265,7 @@ public class AnalysisFunctions {
     }
 
     public final static class GeometrySymDifference extends SingleParameterTypedFirstOrderFunction<GeometryValue, GeometryValue> {
-        public static final String ID = Definitions.FUNCTION_PREFIX + "-geometry-sym-difference";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-sym-difference";
 
         public GeometrySymDifference() {
             super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));

@@ -56,12 +56,12 @@ The PDP configuration must be updated to contain the GeoXACML 3.0 `geometry` dat
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-from-collection</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-crosses</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-intersection</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-sym-difference</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-sym-difference</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-distance-equals</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-relate</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-within-distance</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-difference</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-difference</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-intersects</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-contains</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-length</function>
