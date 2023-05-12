@@ -43,59 +43,68 @@ The PDP configuration must be updated to contain the GeoXACML 3.0 `geometry` dat
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <pdp xmlns="http://authzforce.github.io/core/xmlns/pdp/8" xmlns:ns2="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" version="8.0" standardDatatypesEnabled="true" standardFunctionsEnabled="true" standardCombiningAlgorithmsEnabled="true" standardAttributeProvidersEnabled="true" xPathEnabled="false" strictAttributeIssuerMatch="false" maxIntegerValue="2147483647" maxVariableRefDepth="10" maxPolicyRefDepth="10" clientRequestErrorVerbosityLevel="0">
+    <!-- GeoXACML 3.0 Geometry data-type -->
     <attributeDatatype>urn:ogc:def:geoxacml:3.0:data-type:geometry</attributeDatatype>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-equals</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-in</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-at-least-one-member-of</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-touches</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-srid-equals</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-subset</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-set-equals</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-disjoint</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-empty</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-from-collection</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-crosses</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-intersection</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-sym-difference</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-distance-equals</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-relate</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-within-distance</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-difference</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-intersects</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-contains</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-length</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-one-and-only</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-boundary</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-to-collection</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-within</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-union</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-equal</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-distance</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-size</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-buffer</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-overlaps</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-geometry-union</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-centroid</function>
+    <!-- GeoXACML 3.0 Core Geometry Functions -->
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-dimension</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-type</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-srid</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-empty</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-simple</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-srid-equals</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-ensure-srid</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-precision</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-ensure-precision</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-has-precision</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-simple</function>
+    <!-- GeoXACML 3.0 Core Spatial Relations Functions -->
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-equals</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-disjoint</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-intersects</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-touches</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-crosses</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-within</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-contains</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-overlaps</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-relate</function>
+    <!-- GeoXACML 3.0 Core Analysis Functions -->
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-length</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-area</function>
-    <function>urn:ogc:def:geoxacml:3.0:function:geometry-intersection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-distance</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-distance-equals</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-within-distance</function>
+    <!-- GeoXACML 3.0 Bag/Set Functions  -->
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-one-and-only</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-size</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-is-in-bag</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-to-collection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-from-collection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-at-least-one-member-of</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-intersection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-union</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-bag-subset</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-set-equals</function>
+    <!-- GeoXACML 3.0 Spatial Analysis Functions -->
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-envelope</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-boundary</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-buffer</function>
     <function>urn:ogc:def:geoxacml:3.0:function:geometry-convex-hull</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-intersection</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-union</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-difference</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-sym-difference</function>
+    <function>urn:ogc:def:geoxacml:3.0:function:geometry-centroid</function>
+
     <policyProvider xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns4="http://authzforce.github.io/pap-dao-flat-file/xmlns/pdp-ext/4" xsi:type="ns4:StaticFlatFileDaoPolicyProviderDescriptor" policyLocationPattern="${PARENT_DIR}/policies/*.xml" id="rootPolicyProvider"/>
     <rootPolicyRef policySet="true">root</rootPolicyRef>
     <ioProcChain>
+        <!-- GeoXACML 3.0 application/geoxacml+xml pre-processor -->
         <requestPreproc>urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-xml:default-lax</requestPreproc>
     </ioProcChain>
     <ioProcChain>
+        <!-- GeoXACML 3.0 application/geoxacml+json pre-processor -->
         <requestPreproc>urn:de:securedimensions:feature:pdp:request-preproc:geoxacml-json:default-lax</requestPreproc>
+        <!-- GeoXACML 3.0 application/geoxacml+json post-processor -->
         <resultPostproc>urn:de:securedimensions:feature:pdp:response-postproc:geoxacml-json:default-lax</resultPostproc>
     </ioProcChain>
 </pdp>
