@@ -51,8 +51,8 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
         Geometry gWMSRS4326Precision4 = null;
         try {
             gWMSRS4326Precision4 = wktReader.read(gWMSRS4326.toText());
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
         return Arrays.asList(
 
                 // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-dimension
@@ -97,32 +97,32 @@ public class CoreFunctionsTest extends GeometryFunctionTest {
 
                 // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-distance
                 new Object[]{CoreFunctions.Distance.ID, Arrays.asList(
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(180,0)))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180, 0))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(180, 0)))),
                         new DoubleValue(360.)},
 
                 // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-is-within-distance
                 new Object[]{CoreFunctions.IsWithinDistance.ID, Arrays.asList(
                         new DoubleValue(180.),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0)))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180, 0))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0, 0)))),
                         BooleanValue.TRUE},
                 new Object[]{CoreFunctions.IsWithinDistance.ID, Arrays.asList(
                         new DoubleValue(90.),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0)))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180, 0))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0, 0)))),
                         BooleanValue.FALSE},
 
                 // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-has-distance
                 new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(
                         new DoubleValue(180.),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0)))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180, 0))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0, 0)))),
                         BooleanValue.TRUE},
                 new Object[]{CoreFunctions.DistanceEquals.ID, Arrays.asList(
                         new DoubleValue(90.),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180,0))),
-                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0,0)))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-180, 0))),
+                        new GeometryValue(GeometryValue.Factory.GEOMETRY_FACTORY.createPoint(new Coordinate(-0, 0)))),
                         BooleanValue.FALSE},
 
                 // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-relate

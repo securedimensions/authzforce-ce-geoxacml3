@@ -21,8 +21,6 @@ import de.securedimensions.geoxacml3.datatype.GeometryValue;
 import de.securedimensions.geoxacml3.function.BagSetFunctions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.PrecisionModel;
 import org.ow2.authzforce.core.pdp.api.value.Bags;
 import org.ow2.authzforce.core.pdp.api.value.BooleanValue;
 import org.ow2.authzforce.core.pdp.api.value.IntegerValue;
@@ -39,6 +37,7 @@ import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.*;
 @RunWith(Parameterized.class)
 public class BagSetFunctionsTest extends GeometryFunctionTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BagSetFunctionsTest.class);
+
     public BagSetFunctionsTest(final String functionName, final List<Value> inputs, final Value expectedResult) {
         super(functionName, null, inputs, expectedResult);
     }

@@ -30,11 +30,9 @@ import org.ow2.authzforce.core.pdp.api.expression.ExpressionFactory;
 import org.ow2.authzforce.core.pdp.api.expression.FunctionExpression;
 import org.ow2.authzforce.core.pdp.api.func.Function;
 import org.ow2.authzforce.core.pdp.api.func.FunctionCall;
-
 import org.ow2.authzforce.core.pdp.api.value.*;
 import org.ow2.authzforce.core.pdp.impl.expression.DepthLimitingExpressionFactory;
 import org.ow2.authzforce.xacml.identifiers.XacmlStatusCode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -281,14 +279,11 @@ public abstract class GeometryFunctionTest {
                         cond = ((expectedG.equals(actualG)) && (expectedG.getSRID() == actualG.getSRID()));
 
                     Assert.assertTrue(toString, cond);
-                }
-                else if (expectedResult instanceof Bag && actualResult instanceof Bag)
-                {
+                } else if (expectedResult instanceof Bag && actualResult instanceof Bag) {
                     Iterator<GeometryValue> ie = ((Bag<GeometryValue>) expectedResult).iterator();
                     Iterator<GeometryValue> ia = ((Bag<GeometryValue>) actualResult).iterator();
                     boolean cond = true;
-                    while (ie.hasNext() && ia.hasNext())
-                    {
+                    while (ie.hasNext() && ia.hasNext()) {
                         Geometry ge = ie.next().getGeometry();
                         Geometry ga = ia.next().getGeometry();
                         cond = ((ge.equals(ga)) && (ge.getSRID() == ga.getSRID()));
@@ -296,8 +291,7 @@ public abstract class GeometryFunctionTest {
                             break;
                     }
                     Assert.assertTrue(toString, cond);
-                }
-                else
+                } else
                     Assert.fail(toString);
             }
         } catch (final IndeterminateEvaluationException e) {
@@ -305,8 +299,7 @@ public abstract class GeometryFunctionTest {
                 // unexpected error
                 throw e;
             }
-        }
-        catch (final IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             if (expectedResult != null) {
                 // unexpected error
                 throw e;

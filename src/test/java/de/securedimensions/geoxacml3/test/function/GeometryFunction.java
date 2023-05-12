@@ -18,7 +18,10 @@
 package de.securedimensions.geoxacml3.test.function;
 
 import com.google.common.collect.Maps;
-import de.securedimensions.geoxacml3.function.*;
+import de.securedimensions.geoxacml3.function.AnalysisFunctions;
+import de.securedimensions.geoxacml3.function.BagSetFunctions;
+import de.securedimensions.geoxacml3.function.CoreFunctions;
+import de.securedimensions.geoxacml3.function.TopologicalFunctions;
 import de.securedimensions.geoxacml3.identifiers.Definitions;
 import org.ow2.authzforce.core.pdp.api.HashCollections;
 import org.ow2.authzforce.core.pdp.api.PdpExtensionRegistry;
@@ -61,7 +64,6 @@ public enum GeometryFunction {
 
         /* Conformance Class Core */
         // Testing Topological Relations
-        geometryFunctions.add(new TopologicalFunctions.Equal());
         geometryFunctions.add(new TopologicalFunctions.Equals());
         geometryFunctions.add(new TopologicalFunctions.Disjoint());
         geometryFunctions.add(new TopologicalFunctions.Touches());

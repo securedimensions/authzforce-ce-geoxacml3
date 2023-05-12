@@ -23,7 +23,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.ow2.authzforce.core.pdp.api.value.*;
+import org.ow2.authzforce.core.pdp.api.value.DoubleValue;
+import org.ow2.authzforce.core.pdp.api.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +32,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
-import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.gWMCRS84;
-import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.gWMSRS4326;
 
 @RunWith(Parameterized.class)
 public class AnalysisFunctionsTest extends GeometryFunctionTest {
@@ -73,42 +71,41 @@ public class AnalysisFunctionsTest extends GeometryFunctionTest {
         pb00.setSRID(-4326);
 
 
-
         return Arrays.asList(
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-envelope
-                        new Object[]{AnalysisFunctions.Envelope.ID, List.of(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("POLYGON ((0 0, 0 100, 100 100, 100 0, 0 0))", null, Optional.empty())},
-                        new Object[]{AnalysisFunctions.Envelope.ID, List.of(new GeometryValue(l00100)), GeometryValue.FACTORY.getInstance("LINESTRING (0 0, 0 100)", null, Optional.empty())},
-                        new Object[]{AnalysisFunctions.Envelope.ID, List.of(new GeometryValue(p00)), GeometryValue.FACTORY.getInstance("POINT (0 0)", null, Optional.empty())},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-envelope
+                new Object[]{AnalysisFunctions.Envelope.ID, List.of(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("POLYGON ((0 0, 0 100, 100 100, 100 0, 0 0))", null, Optional.empty())},
+                new Object[]{AnalysisFunctions.Envelope.ID, List.of(new GeometryValue(l00100)), GeometryValue.FACTORY.getInstance("LINESTRING (0 0, 0 100)", null, Optional.empty())},
+                new Object[]{AnalysisFunctions.Envelope.ID, List.of(new GeometryValue(p00)), GeometryValue.FACTORY.getInstance("POINT (0 0)", null, Optional.empty())},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-boundary
-                        new Object[]{AnalysisFunctions.Boundary.ID, List.of(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("LINEARRING (0 0, 0 100, 100 100, 100 0, 0 0)", null, Optional.empty())},
-                        new Object[]{AnalysisFunctions.Boundary.ID, List.of(new GeometryValue(l00100)), GeometryValue.FACTORY.getInstance("MULTIPOINT ((0 0), (0 100))", null, Optional.empty())},
-                        new Object[]{AnalysisFunctions.Boundary.ID, List.of(new GeometryValue(p00)), null},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-boundary
+                new Object[]{AnalysisFunctions.Boundary.ID, List.of(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("LINEARRING (0 0, 0 100, 100 100, 100 0, 0 0)", null, Optional.empty())},
+                new Object[]{AnalysisFunctions.Boundary.ID, List.of(new GeometryValue(l00100)), GeometryValue.FACTORY.getInstance("MULTIPOINT ((0 0), (0 100))", null, Optional.empty())},
+                new Object[]{AnalysisFunctions.Boundary.ID, List.of(new GeometryValue(p00)), null},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-buffer
-                        new Object[]{AnalysisFunctions.Buffer.ID, Arrays.asList(new GeometryValue(p00), new DoubleValue(10.0)), new GeometryValue(pb00)},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-buffer
+                new Object[]{AnalysisFunctions.Buffer.ID, Arrays.asList(new GeometryValue(p00), new DoubleValue(10.0)), new GeometryValue(pb00)},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-convex-hull
-                        new Object[]{AnalysisFunctions.ConvexHull.ID, List.of(new GeometryValue(mp00100)), GeometryValue.FACTORY.getInstance("LINESTRING (0 0, 0 100)", null, Optional.empty())},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-convex-hull
+                new Object[]{AnalysisFunctions.ConvexHull.ID, List.of(new GeometryValue(mp00100)), GeometryValue.FACTORY.getInstance("LINESTRING (0 0, 0 100)", null, Optional.empty())},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-centroid
-                        new Object[]{AnalysisFunctions.Centroid.ID, List.of(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("POINT (50 50)", null, Optional.empty())},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-centroid
+                new Object[]{AnalysisFunctions.Centroid.ID, List.of(new GeometryValue(pg00100)), GeometryValue.FACTORY.getInstance("POINT (50 50)", null, Optional.empty())},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-geometry-intersection
-                        new Object[]{AnalysisFunctions.GeometryIntersection.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 0, 0 50, 50 50, 50 0, 0 0))", null, Optional.empty())},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-intersection
+                new Object[]{AnalysisFunctions.GeometryIntersection.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 0, 0 50, 50 50, 50 0, 0 0))", null, Optional.empty())},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-geometry-union
-                        new Object[]{AnalysisFunctions.GeometryUnion.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 50, 0 100, 100 100, 100 0, 50 0, 50 -50, -50 -50, -50 50, 0 50))", null, Optional.empty())},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-union
+                new Object[]{AnalysisFunctions.GeometryUnion.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 50, 0 100, 100 100, 100 0, 50 0, 50 -50, -50 -50, -50 50, 0 50))", null, Optional.empty())},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-difference
-                        new Object[]{AnalysisFunctions.GeometryDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50))", null, Optional.empty())},
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-difference
+                new Object[]{AnalysisFunctions.GeometryDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("POLYGON ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50))", null, Optional.empty())},
 
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-sym-difference
-                        new Object[]{AnalysisFunctions.GeometrySymDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("MULTIPOLYGON (((0 50, 0 0, 50 0, 50 -50, -50 -50, -50 50, 0 50)), ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50)))", null, Optional.empty())}
+                // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-sym-difference
+                new Object[]{AnalysisFunctions.GeometrySymDifference.ID, Arrays.asList(new GeometryValue(pg00100), new GeometryValue(pg_5050)), GeometryValue.FACTORY.getInstance("MULTIPOLYGON (((0 50, 0 0, 50 0, 50 -50, -50 -50, -50 50, 0 50)), ((0 50, 0 100, 100 100, 100 0, 50 0, 50 50, 0 50)))", null, Optional.empty())}
 
 
-                );
+        );
     }
 
 }

@@ -42,7 +42,8 @@ import java.util.*;
 import static de.securedimensions.geoxacml3.identifiers.Definitions.ATTR_SOURCE_DESIGNATOR;
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_ATTRIBUTE_ID_QNAME;
 import static de.securedimensions.geoxacml3.pdp.io.GeoXACMLRequestPreprocessor.XACML_CATEGORY_ID_QNAME;
-import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.*;
+import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.gEmpty;
+import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.gWMCRS84;
 
 @RunWith(Parameterized.class)
 public class PrecisionTest extends GeometryFunctionTest {
@@ -92,24 +93,24 @@ public class PrecisionTest extends GeometryFunctionTest {
         try {
             gWMCRS84Precision4 = new WKTReader(new GeometryFactory(new PrecisionModel(10 * 1000))).read(gWMCRS84.toText());
             gWMCRS84Precision4.setUserData(xmlPrecision4);
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
 
         return Arrays.asList(
                 // precision 1.0 in policy - precision 1.0 in policy -> Exception
-                new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision1Policy)), null},
+                new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision1Policy)), null},
 
                 // precision 1.0 in policy - precision 9.0 in ADR -> Exception
-                new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision9ADR)), null},
+                new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision9ADR)), null},
 
                 // precision 9.0 in policy - precision 1.0 in ADR -> TRUE
-                new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision9Policy), new GeometryValue(gWMCRS84Precision1ADR)), BooleanValue.TRUE},
+                new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision9Policy), new GeometryValue(gWMCRS84Precision1ADR)), BooleanValue.TRUE},
 
                 // precision 1.0 in ADR - precision 1.0 in ADR -> TRUE
-                new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR), new GeometryValue(gWMCRS84Precision1ADR)), BooleanValue.TRUE},
+                new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision1ADR), new GeometryValue(gWMCRS84Precision1ADR)), BooleanValue.TRUE},
 
                 // precision 9.0 in ADR - precision 1.0 in ADR -> Exception
-                new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision9ADR), new GeometryValue(gWMCRS84Precision1ADR)), null},
+                new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision9ADR), new GeometryValue(gWMCRS84Precision1ADR)), null},
 
                 // precision 1.0 in policy - precision 1.0 in policy -> Exception
                 new Object[]{AnalysisFunctions.GeometryIntersection.ID, Arrays.asList(new GeometryValue(gWMCRS84Precision1Policy), new GeometryValue(gWMCRS84Precision1Policy)), null},
@@ -244,7 +245,7 @@ public class PrecisionTest extends GeometryFunctionTest {
                 // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-precision
                 new Object[]{CoreFunctions.Precision.ID, List.of(new GeometryValue(gWMCRS84)), IntegerValue.valueOf(Integer.MAX_VALUE)},
                 new Object[]{CoreFunctions.Precision.ID, List.of(new GeometryValue(gWMCRS84Precision4)), IntegerValue.valueOf(4)}
-                );
+        );
     }
 
 }

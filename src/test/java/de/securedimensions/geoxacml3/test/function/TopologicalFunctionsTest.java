@@ -26,7 +26,9 @@ import org.ow2.authzforce.core.pdp.api.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import static de.securedimensions.geoxacml3.test.datatype.GeometryValueTest.*;
 
@@ -44,14 +46,6 @@ public class TopologicalFunctionsTest extends GeometryFunctionTest {
 
         return Arrays
                 .asList(
-                        // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-equal
-                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
-                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)), BooleanValue.FALSE},
-
-                        // Axis order test EPSG:4326 vs. WGS84
-                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMSRS4326)), BooleanValue.TRUE},
-                        new Object[]{TopologicalFunctions.Equal.ID, Arrays.asList(new GeometryValue(gWMSRID4326), new GeometryValue(gWMSRS4326)), BooleanValue.TRUE},
-
                         // urn:ogc:def:geoxacml:3.0:function:geometry:geometry-equals
                         new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gWMCRS84)), BooleanValue.TRUE},
                         new Object[]{TopologicalFunctions.Equals.ID, Arrays.asList(new GeometryValue(gWMCRS84), new GeometryValue(gMCRS84)), BooleanValue.FALSE},
