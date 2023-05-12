@@ -1,6 +1,5 @@
 de.securedimensions.geoxacml3.datatype.GeometryValue$Factory
 
-de.securedimensions.geoxacml3.function.TopologicalFunctions$Equal
 de.securedimensions.geoxacml3.function.TopologicalFunctions$Equals
 de.securedimensions.geoxacml3.function.TopologicalFunctions$Disjoint
 de.securedimensions.geoxacml3.function.TopologicalFunctions$Touches
