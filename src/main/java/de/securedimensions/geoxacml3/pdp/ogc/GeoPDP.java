@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class GeoPDP implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoPDP.class);
 
-    private static Configuration cfg = new Configuration(Configuration.VERSION_2_3_32);
+    private static final Configuration cfg = new Configuration(Configuration.VERSION_2_3_32);
 
     private Template landingPageJSON;
     private Template landingPageHTML;
@@ -347,24 +348,20 @@ public class GeoPDP implements Filter {
         }
 
         public String toString() {
-            try {
-                if (map.size() > 0) {
-                    StringBuffer rc = new StringBuffer();
-                    boolean first = true;
-                    for (String key : map.keySet()) {
-                        if (first) {
-                            first = false;
-                        } else {
-                            rc.append("&");
-                        }
-                        rc.append(URLEncoder.encode(key, "UTF-8"));
-                        rc.append("=");
-                        rc.append(URLEncoder.encode(map.get(key), "UTF-8"));
+            if (map.size() > 0) {
+                StringBuffer rc = new StringBuffer();
+                boolean first = true;
+                for (String key : map.keySet()) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        rc.append("&");
                     }
-                    return rc.toString();
+                    rc.append(URLEncoder.encode(key, StandardCharsets.UTF_8));
+                    rc.append("=");
+                    rc.append(URLEncoder.encode(map.get(key), StandardCharsets.UTF_8));
                 }
-            } catch (UnsupportedEncodingException e) {
-                // ignore
+                return rc.toString();
             }
             return "";
         }
@@ -374,7 +371,7 @@ public class GeoPDP implements Filter {
                 return "";
             }
 
-            return "?" + this.toString();
+            return "?" + this;
         }
 
         public void replace(String key, String value) {
