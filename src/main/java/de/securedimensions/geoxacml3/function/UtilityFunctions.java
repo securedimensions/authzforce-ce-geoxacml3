@@ -28,7 +28,6 @@ public class UtilityFunctions {
         ensureCRS(g1, g2);
 
         switch (id) {
-            case TopologicalFunctions.Equal.EQUAL_SUFFIX:
             case TopologicalFunctions.Equals.EQUALS_SUFFIX:
                 return g1.equals(g2);
             case TopologicalFunctions.Disjoint.DISJOINT_SUFFIX:

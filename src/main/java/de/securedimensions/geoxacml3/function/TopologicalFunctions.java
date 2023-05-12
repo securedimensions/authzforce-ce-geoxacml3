@@ -33,35 +33,6 @@ import java.util.List;
 
 public final class TopologicalFunctions {
 
-    /**
-     * required by XACML3 "type-equal" (not equal*s* as defined in Simple Features)
-     */
-    public final static class Equal extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
-        public static final String EQUAL_SUFFIX = "-equal";
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + EQUAL_SUFFIX;
-
-        public Equal() {
-            super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE));
-        }
-
-        @Override
-        public FirstOrderFunctionCall<BooleanValue> newCall(final List<Expression<?>> argExpressions, final Datatype<?>... remainingArgTypes) {
-
-            return new BaseFirstOrderFunctionCall.EagerSinglePrimitiveTypeEval<BooleanValue, GeometryValue>(functionSignature, argExpressions, remainingArgTypes) {
-
-                @Override
-                protected BooleanValue evaluate(final Deque<GeometryValue> args) throws IndeterminateEvaluationException {
-                    if (args.size() != 2)
-                        throw new IndeterminateEvaluationException("Function " + ID + " requires exactly two arguments but given " + args.size(), XacmlStatusCode.PROCESSING_ERROR.name());
-
-                    UtilityFunctions uf = new UtilityFunctions();
-                    return new BooleanValue(uf.compare(args.poll(), args.poll(), EQUAL_SUFFIX));
-                }
-
-            };
-        }
-    }
-
     public static final class Equals extends SingleParameterTypedFirstOrderFunction<BooleanValue, GeometryValue> {
         public static final String EQUALS_SUFFIX = "-equals";
         public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + EQUALS_SUFFIX;

@@ -169,7 +169,7 @@ public class AnalysisFunctions {
     }
 
     public final static class GeometryIntersection extends SingleParameterTypedFirstOrderFunction<GeometryValue, GeometryValue> {
-        public static final String ID = Definitions.FUNCTION_PREFIX + "-geometry-intersection";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-intersection";
 
         public GeometryIntersection() {
             super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));
@@ -201,7 +201,7 @@ public class AnalysisFunctions {
     }
 
     public final static class GeometryUnion extends SingleParameterTypedFirstOrderFunction<GeometryValue, GeometryValue> {
-        public static final String ID = Definitions.FUNCTION_PREFIX + "-geometry-union";
+        public static final String ID = Definitions.FUNCTION_PREFIX + "-union";
 
         public GeometryUnion() {
             super(ID, GeometryValue.DATATYPE, true, List.of(GeometryValue.DATATYPE));

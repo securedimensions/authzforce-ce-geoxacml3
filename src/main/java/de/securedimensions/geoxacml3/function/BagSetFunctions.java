@@ -26,15 +26,6 @@ import org.ow2.authzforce.core.pdp.api.value.*;
 
 import java.util.*;
 
-import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.AtLeastOneMemberOf.NAME_SUFFIX_AT_LEAST_ONE_MEMBER_OF;
-import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.BagContains.NAME_SUFFIX_IS_IN;
-import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Intersection.NAME_SUFFIX_INTERSECTION;
-import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.PrimitiveToBag.NAME_SUFFIX_BAG;
-import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.SetEquals.NAME_SUFFIX_SET_EQUALS;
-import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.SingletonBagToPrimitive.NAME_SUFFIX_ONE_AND_ONLY;
-import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Subset.NAME_SUFFIX_SUBSET;
-import static org.ow2.authzforce.core.pdp.api.func.FirstOrderBagFunctions.Union.NAME_SUFFIX_UNION;
-
 /**
  * @author Andreas Matheus, Secure Dimensions GmbH.
  */
@@ -48,7 +39,7 @@ public class BagSetFunctions {
         /**
          * Function ID suffix for 'primitiveType-collection' functions
          */
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_ONE_AND_ONLY;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-bag-one-and-only";
 
         public SingletonBagToPrimitive() {
             super(ID, paramType, false, Collections.singletonList(paramBagType));
@@ -81,7 +72,7 @@ public class BagSetFunctions {
     }
 
     public static class BagSize extends FirstOrderBagFunctions.BagSize<GeometryValue> {
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_BAG_SIZE;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-bag-size";
 
         /**
          * Function identifier
@@ -99,7 +90,7 @@ public class BagSetFunctions {
         /**
          * Function ID suffix for 'primitiveType-is-in' functions
          */
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_IS_IN;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-is-in-bag";
 
         private final Class<GeometryValue[]> arrayClass;
 
@@ -161,7 +152,7 @@ public class BagSetFunctions {
 
     public static class AtLeastOneMemberOf extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>> {
 
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_AT_LEAST_ONE_MEMBER_OF;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-bag-at-least-one-member-of";
 
         public AtLeastOneMemberOf() {
             super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
@@ -221,7 +212,7 @@ public class BagSetFunctions {
 
     public static class Intersection extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, Bag<GeometryValue>> {
 
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_INTERSECTION;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-bag-intersection";
 
         public Intersection() {
             super(ID, GeometryValue.DATATYPE.getBagDatatype(), true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
@@ -283,7 +274,7 @@ public class BagSetFunctions {
 
     public static class Union extends SingleParameterTypedFirstOrderFunction<Bag<GeometryValue>, Bag<GeometryValue>> {
 
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_UNION;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-bag-union";
 
         public Union() {
             super(ID, GeometryValue.DATATYPE.getBagDatatype(), true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
@@ -352,7 +343,7 @@ public class BagSetFunctions {
 
     public static class Subset extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>> {
 
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_SUBSET;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-bag-subset";
 
         public Subset() {
             super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
@@ -418,7 +409,7 @@ public class BagSetFunctions {
 
     public static class SetEquals extends SingleParameterTypedFirstOrderFunction<BooleanValue, Bag<GeometryValue>> {
 
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_SET_EQUALS;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-set-equals";
 
         public SetEquals() {
             super(ID, StandardDatatypes.BOOLEAN, true, List.of(GeometryValue.DATATYPE.getBagDatatype()));
@@ -510,7 +501,7 @@ public class BagSetFunctions {
         /**
          * Function ID suffix for 'primitiveType-bag' functions
          */
-        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + NAME_SUFFIX_BAG;
+        public static final String ID = GeometryValue.FACTORY.getDatatype().getFunctionIdPrefix() + "-bag";
 
         public GeometryBag() {
             super(ID, GeometryValue.FACTORY.getDatatype().getBagDatatype(), true, Collections.singletonList(GeometryValue.FACTORY.getDatatype()));
