@@ -1,9 +1,9 @@
 # GeoXACML 3.0 Policy Decision Point
-This implementation is an open source implementation of the following OGC Standards
-* [OGC GEOSPATIAL EXENSIBLE ACCESS CONTROL MARKUP LANGUAGE (GEOXACML) 3.0](http://www.opengis.net/spec/geoxacml/3.0)
-* [OGC GEOSPATIAL EXENSIBLE ACCESS CONTROL MARKUP LANGUAGE (GEOXACML) 3.0 JSON PROFILE V1.0](http://www.opengis.net/spec/geoxacml-3.0-json-profile/1.0)
+This implementation is an open source implementation of the following OGC Draft Standards
+* [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0](docs.ogc.org/DRAFTS/22-049.html)
+* [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0 JSON Profile v1.0](docs.ogc.org/DRAFTS/22-050.html)
 
-This implementation is a plugin to the [Authzforce CE](https://github.com/authzforce) software stack and tested with Authzforce Server version 11.0.1.
+This GeoXACML 3.0 implementation is a plugin to the [Authzforce CE](https://github.com/authzforce) software stack and tested with Authzforce CE Server version 11.0.1.
 
 This implementation is available under the Apache 2.0 license.
 
@@ -24,7 +24,7 @@ Simply clone this repository and execute maven using Java 11.
 $ git clone https://github.com/securedimensions/authzforce-ce-geoxacml3
 $ cd authzforce-ce-geoxacml3
 $ mvn install
-$ cp target/authzforce-ce-geoxacml3-<version>.jar <authzforce-server>/webapp/WEB-INF/lib
+$ cp target/authzforce-ce-geoxacml3-1.0.jar <authzforce-server>/webapp/WEB-INF/lib
 $ cp target/lib/jts-core-*.jar <authzforce-server>/webapp/WEB-INF/lib
 $ cp target/lib/jts-io-common-*.jar <authzforce-server>/webapp/WEB-INF/lib
 $ cp target/lib/jul-to-slf4j-2.0.5.jar <authzforce-server>/webapp/WEB-INF/lib
@@ -203,3 +203,4 @@ In `<authzforce>/webapp/WEB-INF/web.xml` insert the GeoPDP Filter as the last fi
 Once you have applied the installation and configuration steps, open the PDP URL in your Web Browser. For example [http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp](http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp).
 
 Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
+![GeoPGP Landing Page](GeoPDP.png)
