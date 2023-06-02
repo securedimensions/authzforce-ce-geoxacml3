@@ -17,6 +17,10 @@ Follow the [instructions](https://github.com/authzforce/server) how to deploy th
 
 The installation directory is further referred to as `<authzforce-server>`.
 
+### Update Authzforce CE rest-api-model
+Please follow the [instructions](https://github.com/securedimensions/authzforce-ce-geoxacml3-rest-api-model) how to update the Rest-API-Model JAR file. 
+
+
 ### Installation of the GeoXACML 3.0 Policy Decision Point
 Simply clone this repository and execute maven using Java 11.
 
