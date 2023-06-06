@@ -41,7 +41,7 @@ For enabling the `authzforce-ce-geoxacml3` plugin with the Authzforce CE Server 
 
 ### Enable GeoXACML extension
 The PDP configuration must be updated to contain the GeoXACML 3.0 `geometry` data-type and functions. Please replace the following files with the XML from below:
-* `<authzforce-server>/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp.xml` ensures that the default domain supports GeoXACML 3.0 
+* `<authzforce-server>/data/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp.xml` ensures that the default domain supports GeoXACML 3.0 
 * `<authzforce-server>/conf/domain.tmpl/pdp.xml` ensures that each newly created domains supports GeoXACML 3.0
 
 ```xml
@@ -157,13 +157,13 @@ In file `<authzforce>/webapp/WEB-INF/beans.xml`
 <property name="consumeMediaTypes" ref="xacmlXmlMediaTypes" />
 ```
 
-* Update `<bean class="org.ow2.authzforce.webapp.JsonRiCxfJaxrsProvider">`
+* Ensure this section contains `<bean class="org.ow2.authzforce.webapp.JsonRiCxfJaxrsProvider">`
 ```xml
  <property name="produceMediaTypes" ref="xacmlJsonMediaTypes" />
 <property name="consumeMediaTypes" ref="xacmlJsonMediaTypes" />
 ```
 
-* Update `<bean class="org.ow2.authzforce.webapp.org.apache.cxf.jaxrs.provider.json.JSONProvider">`
+* Ensure this section contains `<bean class="org.ow2.authzforce.webapp.org.apache.cxf.jaxrs.provider.json.JSONProvider">`
 ```xml
  <property name="produceMediaTypes" ref="defaultJsonMediaTypes" />
 <property name="consumeMediaTypes" ref="xacmlJsonMediaTypes" />
@@ -182,6 +182,11 @@ The GeoXACML 3.0 Policy Decision Point implements the OGC API Common conformance
 In `<authzforce>/webapp/WEB-INF/web.xml` insert the GeoPDP Filter as the last filter. It is also required to add the `default` Servlet to allow access to the static files required for the HTML page rendering.
 
 ```xml
+   <filter>
+      <description></description>
+      <filter-name>GeoPDP</filter-name>
+      <filter-class>de.securedimensions.geoxacml3.pdp.ogc.GeoPDP</filter-class>
+   </filter>
 <filter-mapping>
     <filter-name>exceptionFilter</filter-name>
     <servlet-name>CXFServlet</servlet-name>
