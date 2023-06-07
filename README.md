@@ -213,3 +213,50 @@ Once you have applied the installation and configuration steps, open the PDP URL
 
 Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
 ![GeoPGP Landing Page](GeoPDP.png)
+
+
+
+## Ubuntu 22.04 from Scratch
+
+''''
+1  apt update
+2  apt upgrade
+3  apt install java11-sdk
+4  apt install openjdk-11-jdk
+5  apt install git
+6  apt install maven
+7  apt install gdebi-core
+8  wget https://repo1.maven.org/maven2/org/ow2/authzforce/authzforce-ce-server-dist/11.0.1/authzforce-ce-server-dist-11.0.1.deb
+9  gdebi authzforce-ce-server-dist-11.0.1.deb
+10  git clone -b custom-mediatype-geoxacml https://github.com/securedimensions/authzforce-ce-geoxacml3-rest-api-model.git
+11  cd authzforce-ce-geoxacml3-rest-api-model
+12  mvn versions:set -DnewVersion=6.0.0-geoxacml
+13  mvn clean package
+14  rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-rest-api-model-6.0.0.jar
+15  cp target/authzforce-ce-rest-api-model-6.0.0-geoxacml.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib/.
+16  cd ..
+17  git clone https://github.com/securedimensions/authzforce-ce-geoxacml3
+18  cd authzforce-ce-geoxacml3
+19  mvn install
+20  cp target/authzforce-ce-geoxacml3-1.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib/.
+21  cp target/lib/jts-core-1.19.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib/.
+22  cp target/lib/jts-io-common-1.19.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib/.
+23  cp target/lib/jul-to-slf4j-2.0.5.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib/.
+24  cp target/lib/proj4j-1.1.5.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib/.
+25  cp target/lib/freemarker-2.3.32.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib/.
+26  vi /opt/authzforce-ce-server/data/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp.xml
+27  vi /opt/authzforce-ce-server/conf/domain.tmpl/pdp.xml
+28  vi webapp/WEB-INF/beans.xml
+'''' 
+
+vi web.xml
+add below commented filter section
+''''
+   <filter>
+      <description></description>
+      <filter-name>GeoPDP</filter-name>
+      <filter-class>de.securedimensions.geoxacml3.pdp.ogc.GeoPDP</filter-class>
+   </filter>
+''''
+
+''''
