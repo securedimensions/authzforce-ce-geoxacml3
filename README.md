@@ -218,7 +218,7 @@ Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
 
 ## Ubuntu 22.04 from Scratch
 
-''''
+```
 1  apt update
 2  apt upgrade
 3  apt install java11-sdk
@@ -247,16 +247,14 @@ Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
 26  vi /opt/authzforce-ce-server/data/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp.xml
 27  vi /opt/authzforce-ce-server/conf/domain.tmpl/pdp.xml
 28  vi webapp/WEB-INF/beans.xml
-'''' 
+``` 
 
 vi web.xml
 add below commented filter section
-''''
+```
    <filter>
       <description></description>
       <filter-name>GeoPDP</filter-name>
       <filter-class>de.securedimensions.geoxacml3.pdp.ogc.GeoPDP</filter-class>
    </filter>
-''''
-
-''''
+```
