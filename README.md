@@ -239,7 +239,7 @@ In file `/opt/authzforce-ce-server/webapp/WEB-INF/beans.xml`
 The GeoXACML request and response uses an extended JSON schema. It is therefore required to copy the following files from the `conf` directory into the `/opt/authzforce-ce-server/conf` directory.
 
 ```shell
-$ /opt/authzforce-ce-geoxacml3
+$ cd /opt/authzforce-ce-geoxacml3
 $ sudo cp conf/*.json /opt/authzforce-ce-server/conf
 ```
 
