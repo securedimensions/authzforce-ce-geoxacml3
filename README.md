@@ -8,7 +8,7 @@ This GeoXACML 3.0 implementation is a plugin to the [Authzforce CE](https://gith
 This implementation is available under the Apache 2.0 license.
 
 ## Installation
-The following installation instructions were created based on Ubuntu 20.0.4 TLS.
+The following installation instructions were created based on Ubuntu 22.04.2 LTS.
 
 ### Java 11 SDK
 Please install the JAVA 11 SDK plus tools.
