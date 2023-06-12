@@ -1,48 +1,135 @@
 # GeoXACML 3.0 Policy Decision Point
 This implementation is an open source implementation of the following OGC Draft Standards
 * [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0](docs.ogc.org/DRAFTS/22-049.html)
-* [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0 JSON Profile v1.0](docs.ogc.org/DRAFTS/22-050.html)
+* [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0 JSON Profile 1.0](docs.ogc.org/DRAFTS/22-050.html)
 
 This GeoXACML 3.0 implementation is a plugin to the [Authzforce CE](https://github.com/authzforce) software stack and tested with Authzforce CE Server version 11.0.1.
 
 This implementation is available under the Apache 2.0 license.
 
 ## Installation
+The following installation instructions were created based on Ubuntu 20.0.4 TLS.
 
 ### Java 11 SDK
-Please install the JAVA 11 SDK for your OS.
+Please install the JAVA 11 SDK plus tools.
+
+```shell
+$ sudo apt install -y openjdk-11-jre tomcat9 git curl maven
+```
 
 ### Install Authzforce CE
 Follow the [instructions](https://github.com/authzforce/server) how to deploy the Authzforce CE Server version 11.0.1.
 
-The installation directory is further referred to as `<authzforce-server>`.
+For Ubuntu, the .deb from the maven repository can be used:
+
+```shell
+$ cd /opt
+$ sudo wget https://repo1.maven.org/maven2/org/ow2/authzforce/authzforce-ce-server-dist/11.0.1/authzforce-ce-server-dist-11.0.1.deb
+$ sudo apt install authzforce-ce-server
+```
+
+The above installs the Authzforce CE Server into `/opt/authzforce-ce-server`.
+
+The `data` directory must be writable to Tomcat:
+
+```shell
+$ cd /opt/authzforce-ce-server
+$ sudo chown -R tomcat:tomcat data
+```
+
+The .deb distribution does not contain a default domain. Please execute the following command to create the `default` domain:
+
+```shell
+$ echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><domainProperties xmlns="http://authzforce.github.io/rest-api-model/xmlns/authz/5" externalId="default"><description>GeoXACML default domain</description></domainProperties>'|curl -X POST -H 'Content-type: application/xml' -d @- http://localhost:8080/authzforce-ce/domains
+```
+
+As a response, the domain `0qXtEwkFEe6EpAAMKbm9-A` should have been created.
 
 ### Update Authzforce CE rest-api-model
-Please follow the [instructions](https://github.com/securedimensions/authzforce-ce-geoxacml3-rest-api-model) how to update the Rest-API-Model JAR file. 
+Please follow the [instructions](https://github.com/securedimensions/authzforce-ce-geoxacml3-rest-api-model) how to update the Rest-API-Model JAR file.
 
 
 ### Installation of the GeoXACML 3.0 Policy Decision Point
-Simply clone this repository and execute maven using Java 11.
+Simply clone this repository and execute maven to built the JAR.
 
 ```shell
-$ git clone https://github.com/securedimensions/authzforce-ce-geoxacml3
+$ cd /opt
+$ sudo git clone https://github.com/securedimensions/authzforce-ce-geoxacml3
 $ cd authzforce-ce-geoxacml3
-$ mvn install
-$ cp target/authzforce-ce-geoxacml3-1.0.jar <authzforce-server>/webapp/WEB-INF/lib
-$ cp target/lib/jts-core-*.jar <authzforce-server>/webapp/WEB-INF/lib
-$ cp target/lib/jts-io-common-*.jar <authzforce-server>/webapp/WEB-INF/lib
-$ cp target/lib/jul-to-slf4j-2.0.5.jar <authzforce-server>/webapp/WEB-INF/lib
-$ cp target/lib/proj4j-1.1.5.jar <authzforce-server>/webapp/WEB-INF/lib
-$ cp target/lib/freemarker-2.3.32.jar <authzforce-server>/webapp/WEB-INF/lib
+$ sudo mvn install
+```
+
+To make the GeoXACML plugin work, copy the following files:
+
+```shell
+$ sudo cp target/authzforce-ce-geoxacml3-1.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo cp target/lib/json-simple-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo cp target/lib/jts-core-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo cp target/lib/jts-io-common-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo cp target/lib/jul-to-slf4j-2.0.5.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo cp target/lib/proj4j-1.1.5.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo cp target/lib/freemarker-2.3.32.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+```
+
+In addition, the following files must be upgraded:
+
+```shell
+$ sudo cp target/lib/authzforce-ce-core-pdp-engine-20.2.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-engine-20.1.0.jar
+$ sudo cp target/lib/authzforce-ce-core-pdp-io-xacml-json-20.2.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-io-xacml-json-20.1.0.jar
+$ sudo cp target/lib/authzforce-ce-core-pdp-api-21.3.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+$ sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-api-21.2.0.jar
 ```
 
 ## Configuration
 For enabling the `authzforce-ce-geoxacml3` plugin with the Authzforce CE Server deployment, a few configuration steps are required.
 
-### Enable GeoXACML extension
+### Enable the OGC API Common conformance class
+The GeoXACML 3.0 Policy Decision Point implements the OGC API Common conformance class via a Tomcat Filter. This filter needs to be activated.
+
+In `/opt/authzforce-ce-server/webapp/WEB-INF/web.xml` insert the GeoPDP Filter as the last filter. It is also required to add the `default` Servlet allowing access to the static files required for the HTML page rendering.
+
+Please add the following filter definition after the `exceptionFilter` filter definition in `/opt/authzforce-ce-server/webapp/WEB-INF/web.xml`:
+
+```xml
+<filter>
+    <description>The OGC GeoXACML 3.0 Landing Page</description>
+    <filter-name>GeoPDP</filter-name>
+    <filter-class>de.securedimensions.geoxacml3.pdp.ogc.GeoPDP</filter-class>
+</filter>
+```
+
+Please add the following filter mapping after the `exceptionFilter` filter mapping in `/opt/authzforce-ce-server/webapp/WEB-INF/web.xml`:
+
+```xml
+<filter-mapping>
+    <filter-name>GeoPDP</filter-name>
+    <servlet-name>CXFServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+    <url-pattern>/api</url-pattern>
+    <url-pattern>/conformance</url-pattern>
+    <url-pattern>/decision</url-pattern>
+    <url-pattern>/cookies.html</url-pattern>
+    <url-pattern>/privacy.html</url-pattern>
+    <url-pattern>/terms.html</url-pattern>
+</filter-mapping>
+<servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/static/*</url-pattern>
+</servlet-mapping>
+```
+
+Once you have applied the onfiguration steps above, open the PDP URL in your Web Browser: [http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp](http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp).
+
+Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
+![GeoPGP Landing Page](GeoPDP.png)
+
+
+### Enable GeoXACML extension for decision making
 The PDP configuration must be updated to contain the GeoXACML 3.0 `geometry` data-type and functions. Please replace the following files with the XML from below:
-* `<authzforce-server>/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp.xml` ensures that the default domain supports GeoXACML 3.0 
-* `<authzforce-server>/conf/domain.tmpl/pdp.xml` ensures that each newly created domains supports GeoXACML 3.0
+* `/opt/authzforce-ce-server/data/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp.xml` ensures that the default domain supports GeoXACML 3.0
+* `/opt/authzforce-ce-server/conf/domain.tmpl/pdp.xml` ensures that each newly created domain supports GeoXACML 3.0
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -116,25 +203,24 @@ The PDP configuration must be updated to contain the GeoXACML 3.0 `geometry` dat
 
 ### Enable GeoXACML Media Types
 
-In file `<authzforce>/webapp/WEB-INF/beans.xml`
+In file `/opt/authzforce-ce-server/webapp/WEB-INF/beans.xml`
 
-* Update `<beans profile="-fastinfoset">`
+* Update `<beans profile="-fastinfoset">` to include the media types `application/geoxacml+json` and `application/geoxacml+xml`. The final edit should look like this:
+
 ```xml
+<util:list id="defaultJsonMediaTypes">
+    <value>application/json</value>
+</util:list>
 <util:list id="xacmlJsonMediaTypes">
-         <!-- OASIS JSON Profile of XACML 3.0 -->
-         <value>application/xacml+json</value>
-         <!-- OGC JSON Profile of GeoXACML 3.0 -->
-         <value>application/geoxacml+json</value>
-      </util:list>
-      <util:list id="xacmlXmlMediaTypes">
-         <!-- OASIS XACML 3.0 -->
-         <value>application/xacml+xml</value>
-         <!-- OGC GeoXACML 3.0 -->
-         <value>application/geoxacml+xml</value>
-      </util:list>
+    <!-- OASIS JSON Profile of XACML 3.0 -->
+    <value>application/xacml+json</value>
+    <!-- OGC JSON Profile of GeoXACML 3.0 -->
+    <value>application/geoxacml+json</value>
+</util:list>
 ```
 
-* Update `<bean class="org.ow2.authzforce.jaxrs.util.AcceptMediaTypeCheckingRequestFilter">`
+* Update `<bean class="org.ow2.authzforce.jaxrs.util.AcceptMediaTypeCheckingRequestFilter">` to include the media types `application/geoxacml+json` and `application/geoxacml+xml`. The final edit should look like this:
+
 ```xml
 <constructor-arg>
   <util:list>
@@ -151,60 +237,109 @@ In file `<authzforce>/webapp/WEB-INF/beans.xml`
 </constructor-arg>
 ```
 
-* Update `<bean class="org.ow2.authzforce.webapp.NamespaceCollectingCxfJAXBElementProvider">`
-```xml
-<property name="produceMediaTypes" ref="xacmlXmlMediaTypes" />
-<property name="consumeMediaTypes" ref="xacmlXmlMediaTypes" />
-```
-
-* Update `<bean class="org.ow2.authzforce.webapp.JsonRiCxfJaxrsProvider">`
-```xml
- <property name="produceMediaTypes" ref="xacmlJsonMediaTypes" />
-<property name="consumeMediaTypes" ref="xacmlJsonMediaTypes" />
-```
-
-* Update `<bean class="org.ow2.authzforce.webapp.org.apache.cxf.jaxrs.provider.json.JSONProvider">`
-```xml
- <property name="produceMediaTypes" ref="defaultJsonMediaTypes" />
-<property name="consumeMediaTypes" ref="xacmlJsonMediaTypes" />
-```
-
 ### Configure loading GeoXACML JSON schema
-The GeoXACML request and response uses an extended JSON schema. It is therefore required to copy the following files from the `conf` directory into the `<authzforce>/conf` directory.
+The GeoXACML request and response uses an extended JSON schema. It is therefore required to copy the following files from the `conf` directory into the `/opt/authzforce-ce-server/conf` directory.
 
 ```shell
-$ cp conf/*.json <authzforce>/conf
+$ /opt/authzforce-ce-geoxacml3
+$ sudo cp conf/*.json /opt/authzforce-ce-server/conf
 ```
 
-### Enable the OGC API Common conformance class
-The GeoXACML 3.0 Policy Decision Point implements the OGC API Common conformance class via a Tomcat Filter. This filter needs to be activated.
-
-In `<authzforce>/webapp/WEB-INF/web.xml` insert the GeoPDP Filter as the last filter. It is also required to add the `default` Servlet to allow access to the static files required for the HTML page rendering.
+Next, update the `/etc/tomcat9/Catalina/localhost/authzforce-ce.xml` file and update the JSON schema location. Find the environment variable `org.ow2.authzforce.domains.xacmlJsonSchemaRelativePath` and set the value to `Request.schema.json`. The final edit should look like this:
 
 ```xml
-<filter-mapping>
-    <filter-name>exceptionFilter</filter-name>
-    <servlet-name>CXFServlet</servlet-name>
-</filter-mapping>
-<filter-mapping>
-    <filter-name>GeoPDP</filter-name>
-    <servlet-name>CXFServlet</servlet-name>
-    <url-pattern>/</url-pattern>
-    <url-pattern>/api</url-pattern>
-    <url-pattern>/conformance</url-pattern>
-    <url-pattern>/decision</url-pattern>
-    <url-pattern>/cookies.html</url-pattern>
-    <url-pattern>/privacy.html</url-pattern>
-    <url-pattern>/terms.html</url-pattern>
-</filter-mapping>
-<servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>/static/*</url-pattern>
-</servlet-mapping>
+<Environment 
+        name="org.ow2.authzforce.domains.xacmlJsonSchemaRelativePath" 
+        value="Request.schema.json" 
+        type="java.lang.String" 
+        override="false"
+        description="Path to JSON schema file for XACML JSON Profile's Request validation, relative to ${org.ow2.authzforce.config.dir} (if undefined/empty value, the Request.schema.json file from authzforce-ce-xacml-json-model project is used by default)" />
+```
+
+Finally, restart Tomcat:
+
+```shell
+$ sudo service tomcat9 restart
 ```
 
 ## Test
-Once you have applied the installation and configuration steps, open the PDP URL in your Web Browser. For example [http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp](http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp).
+The OGC Landing Page can be used to test the basic functionality to ensure that the media types `application/geoxacml+xml` and `application/geoxacml+json` are accepted. These tests are basic because the default policy always returns `Permit`.
 
-Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
-![GeoPGP Landing Page](GeoPDP.png)
+Please open the [OGC Landing Page](http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp) in the Web Browser and select `openAPI/asHTML` from the top menu. Then open the tab `POST /decision` and click `Try it out`.
+
+### Test Media Type application/geoxacml+xml
+Please select the `application/geoxacml+xml` media type for input **and** output! Then paste the following as the request body and click `Execute`:
+
+```xml
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" xmlns:geoxacml3="http://www.opengis.net/spec/geoxacml/3.0"
+         ReturnPolicyIdList="true"
+         CombinedDecision="false"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17
+ http://docs.oasis-open.org/xacml/3.0/xacml-core-v3-schema-wd-17.xsd">
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="subject-location" IncludeInResult="false">
+            <AttributeValue geoxacml3:srid="4326" geoxacml3:encoding="WKT" DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry">Point (29.963745015416 -90.029951432619)</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+```
+
+Alternatively, you could also use CURL:
+
+```shell
+$ echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" xmlns:geoxacml3="http://www.opengis.net/spec/geoxacml/3.0" ReturnPolicyIdList="true" CombinedDecision="false" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17 http://docs.oasis-open.org/xacml/3.0/xacml-core-v3-schema-wd-17.xsd"><Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"><Attribute AttributeId="subject-location" IncludeInResult="false"><AttributeValue geoxacml3:srid="4326" geoxacml3:encoding="WKT" DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry">Point (29.963745015416 -90.029951432619)</AttributeValue></Attribute></Attributes></Request>'|curl -X POST -H 'Content-type: application/geoxacml+xml' -d @- http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp
+```
+
+Both options should return the following `Permit` response:
+
+```xml
+<?xml version='1.0' encoding='UTF-8'?>
+<ns2:Response xmlns:ns6="http://authzforce.github.io/pap-dao-flat-file/xmlns/properties/3.6" xmlns:ns5="http://authzforce.github.io/core/xmlns/pdp/8" xmlns:ns4="http://www.w3.org/2005/Atom" xmlns:ns3="http://authzforce.github.io/rest-api-model/xmlns/authz/5" xmlns:ns2="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+  <ns2:Result>
+    <ns2:Decision>Permit</ns2:Decision>
+    <ns2:PolicyIdentifierList>
+      <ns2:PolicyIdReference Version="0.1.0">permit-all</ns2:PolicyIdReference>
+      <ns2:PolicySetIdReference Version="0.1.0">root</ns2:PolicySetIdReference>
+    </ns2:PolicyIdentifierList>
+  </ns2:Result>
+</ns2:Response>
+```
+
+### Test Media Type application/geoxacml+json
+Please select the `application/geoxacml+json` media type for input **and** output! Then paste the following as the request body and click `Execute`:
+
+```json
+{
+  "Request": {
+    "Category": [
+      {
+        "CategoryId": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+        "Attribute": [
+          {
+            "AttributeId": "subject-location",
+            "DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry",
+	    "SRID": -4711,
+            "Value": {
+                "type": "Point",
+                "coordinates": [11, 47]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Alternatively, you could also use CURL:
+
+```shell
+$ echo '{"Request": {"Category": [{"CategoryId": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject","Attribute": [{"AttributeId": "subject-location","DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry","SRID": -4711,"Value": {"type": "Point","coordinates": [11, 47]}}]}]}}'|curl -X POST -H 'Content-type: application/geoxacml+json' -d @- http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp
+```
+
+Both options should return the following `Permit` response:
+
+```json
+{"Response":[{"Decision":"Permit"}]}
+```
