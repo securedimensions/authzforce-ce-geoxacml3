@@ -59,10 +59,10 @@
                 <includes>
                     <include>META-INF/services/org.ow2.authzforce.core.pdp.api.PdpExtension</include>
                     <include>de/securedimensions/geoxacml3/pdp/io/Request.schema.json</include>
-                    <include>de/securedimensions/geoxacml3/pdp/io/common-std-with-geometry.schema.json</include>
                     <include>de/securedimensions/geoxacml3/pdp/io/Response.schema.json</include>
                     <include>de/securedimensions/geoxacml3/pdp/io/Policy.schema.json</include>
                     <include>de/securedimensions/geoxacml3/pdp/io/Geometry.schema.json</include>
+                    <include>org/ow2/authzforce/xacml/json/model/common-std-with-geometry.schema.json</include>
                     <include>de/securedimensions/geoxacml3/pdp/ogc/static/**</include>
                     <include>de/securedimensions/geoxacml3/pdp/ogc/templates/*.ftl</include>
                     <include>de/securedimensions/geoxacml3/pdp/ogc/templates/*.html</include>
@@ -96,7 +96,6 @@
             <artifactId>proj4j</artifactId>
             <version>1.1.5</version>
         </dependency>
-
         <dependency>
             <groupId>org.locationtech.jts.io</groupId>
             <artifactId>jts-io-common</artifactId>
