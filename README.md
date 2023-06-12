@@ -118,7 +118,7 @@ Please add the following filter mapping after the `exceptionFilter` filter mappi
 </servlet-mapping>
 ```
 
-Once you have applied the configuration steps above, open the PDP URL in your Web Browser: [http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ//pdp](http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ//pdp).
+Once you have applied the configuration steps above, open the PDP URL in your Web Browser: [http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp](http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp).
 
 Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
 ![GeoPGP Landing Page](GeoPDP.png)
