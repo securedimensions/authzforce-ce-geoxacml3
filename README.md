@@ -20,37 +20,35 @@ $ sudo apt install -y openjdk-11-jre tomcat9 git curl maven
 ### Install Authzforce CE
 Follow the [instructions](https://github.com/authzforce/server) how to deploy the Authzforce CE Server version 11.0.1.
 
-For Ubuntu, the .deb from the maven repository can be used:
+For Ubuntu, the .deb from the maven repository can be used. Please select the option to create the default domain! The further installation will assume that the default domain identifier is `A0bdIbmGEeWhFwcKrC9gSQ/`.
 
 ```shell
 $ cd /opt
 $ sudo wget https://repo1.maven.org/maven2/org/ow2/authzforce/authzforce-ce-server-dist/11.0.1/authzforce-ce-server-dist-11.0.1.deb
-$ sudo apt install authzforce-ce-server
+$ sudo dpkg -i authzforce-ce-server-dist-11.0.1.deb
 ```
 
-The above installs the Authzforce CE Server into `/opt/authzforce-ce-server`.
-
-The `data` directory must be writable to Tomcat:
+The above installs the Authzforce CE Server into `/opt/authzforce-ce-server`. Please make the `data` directory writable to Tomcat:
 
 ```shell
 $ cd /opt/authzforce-ce-server
 $ sudo chown -R tomcat:tomcat data
 ```
 
-The .deb distribution does not contain a default domain. Please execute the following command to create the `default` domain:
+**NOTE:** In case the .deb distribution did not create a default domain, or you have choosen `no`, you need to create a domain yourself. Please execute the following command to create the `default` domain:
 
 ```shell
 $ echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><domainProperties xmlns="http://authzforce.github.io/rest-api-model/xmlns/authz/5" externalId="default"><description>GeoXACML default domain</description></domainProperties>'|curl -X POST -H 'Content-type: application/xml' -d @- http://localhost:8080/authzforce-ce/domains
 ```
 
-As a response, the domain `0qXtEwkFEe6EpAAMKbm9-A` should have been created.
+The response contains the domain identifier. Please use this identifier as the default domain.
 
 ### Update Authzforce CE rest-api-model
 Please follow the [instructions](https://github.com/securedimensions/authzforce-ce-geoxacml3-rest-api-model) how to update the Rest-API-Model JAR file.
 
 
 ### Installation of the GeoXACML 3.0 Policy Decision Point
-Simply clone this repository and execute maven to built the JAR.
+Simply clone this repository and execute maven to build the JAR.
 
 ```shell
 $ cd /opt
@@ -120,7 +118,7 @@ Please add the following filter mapping after the `exceptionFilter` filter mappi
 </servlet-mapping>
 ```
 
-Once you have applied the onfiguration steps above, open the PDP URL in your Web Browser: [http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp](http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp).
+Once you have applied the configuration steps above, open the PDP URL in your Web Browser: [http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ//pdp](http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ//pdp).
 
 Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
 ![GeoPGP Landing Page](GeoPDP.png)
@@ -128,7 +126,7 @@ Now, you should see the OGC GeoXACML 3.0 Policy Decision Point Landing Page.
 
 ### Enable GeoXACML extension for decision making
 The PDP configuration must be updated to contain the GeoXACML 3.0 `geometry` data-type and functions. Please replace the following files with the XML from below:
-* `/opt/authzforce-ce-server/data/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp.xml` ensures that the default domain supports GeoXACML 3.0
+* `/opt/authzforce-ce-server/data/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp.xml` ensures that the default domain supports GeoXACML 3.0
 * `/opt/authzforce-ce-server/conf/domain.tmpl/pdp.xml` ensures that each newly created domain supports GeoXACML 3.0
 
 ```xml
@@ -265,7 +263,7 @@ $ sudo service tomcat9 restart
 ## Test
 The OGC Landing Page can be used to test the basic functionality to ensure that the media types `application/geoxacml+xml` and `application/geoxacml+json` are accepted. These tests are basic because the default policy always returns `Permit`.
 
-Please open the [OGC Landing Page](http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp) in the Web Browser and select `openAPI/asHTML` from the top menu. Then open the tab `POST /decision` and click `Try it out`.
+Please open the [OGC Landing Page](http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp) in the Web Browser and select `openAPI/as HTML` from the top menu. Then open the tab `POST /decision` and click `Try it out`.
 
 ### Test Media Type application/geoxacml+xml
 Please select the `application/geoxacml+xml` media type for input **and** output! Then paste the following as the request body and click `Execute`:
@@ -288,7 +286,7 @@ Please select the `application/geoxacml+xml` media type for input **and** output
 Alternatively, you could also use CURL:
 
 ```shell
-$ echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" xmlns:geoxacml3="http://www.opengis.net/spec/geoxacml/3.0" ReturnPolicyIdList="true" CombinedDecision="false" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17 http://docs.oasis-open.org/xacml/3.0/xacml-core-v3-schema-wd-17.xsd"><Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"><Attribute AttributeId="subject-location" IncludeInResult="false"><AttributeValue geoxacml3:srid="4326" geoxacml3:encoding="WKT" DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry">Point (29.963745015416 -90.029951432619)</AttributeValue></Attribute></Attributes></Request>'|curl -X POST -H 'Content-type: application/geoxacml+xml' -d @- http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp
+$ echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" xmlns:geoxacml3="http://www.opengis.net/spec/geoxacml/3.0" ReturnPolicyIdList="true" CombinedDecision="false" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17 http://docs.oasis-open.org/xacml/3.0/xacml-core-v3-schema-wd-17.xsd"><Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"><Attribute AttributeId="subject-location" IncludeInResult="false"><AttributeValue geoxacml3:srid="4326" geoxacml3:encoding="WKT" DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry">Point (29.963745015416 -90.029951432619)</AttributeValue></Attribute></Attributes></Request>'|curl -X POST -H 'Content-type: application/geoxacml+xml' -d @- http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp
 ```
 
 Both options should return the following `Permit` response:
@@ -335,7 +333,7 @@ Please select the `application/geoxacml+json` media type for input **and** outpu
 Alternatively, you could also use CURL:
 
 ```shell
-$ echo '{"Request": {"Category": [{"CategoryId": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject","Attribute": [{"AttributeId": "subject-location","DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry","SRID": -4711,"Value": {"type": "Point","coordinates": [11, 47]}}]}]}}'|curl -X POST -H 'Content-type: application/geoxacml+json' -d @- http://localhost:8080/authzforce-ce/domains/0qXtEwkFEe6EpAAMKbm9-A/pdp
+$ echo '{"Request": {"Category": [{"CategoryId": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject","Attribute": [{"AttributeId": "subject-location","DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry","SRID": -4711,"Value": {"type": "Point","coordinates": [11, 47]}}]}]}}'|curl -X POST -H 'Content-type: application/geoxacml+json' -d @- http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp
 ```
 
 Both options should return the following `Permit` response:
