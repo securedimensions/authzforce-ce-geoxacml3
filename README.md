@@ -14,7 +14,7 @@ The following installation instructions were created based on Ubuntu 22.04.2 LTS
 Please install the JAVA 11 SDK plus tools.
 
 ```shell
-$ sudo apt install -y openjdk-11-jre tomcat9 git curl maven
+sudo apt install -y openjdk-11-jre tomcat9 git curl maven
 ```
 
 ### Install Authzforce CE
@@ -23,22 +23,22 @@ Follow the [instructions](https://github.com/authzforce/server) how to deploy th
 For Ubuntu, the .deb from the maven repository can be used. Please select the option to create the default domain! The further installation will assume that the default domain identifier is `A0bdIbmGEeWhFwcKrC9gSQ/`.
 
 ```shell
-$ cd /opt
-$ sudo wget https://repo1.maven.org/maven2/org/ow2/authzforce/authzforce-ce-server-dist/11.0.1/authzforce-ce-server-dist-11.0.1.deb
-$ sudo dpkg -i authzforce-ce-server-dist-11.0.1.deb
+cd /opt
+sudo wget https://repo1.maven.org/maven2/org/ow2/authzforce/authzforce-ce-server-dist/11.0.1/authzforce-ce-server-dist-11.0.1.deb
+sudo dpkg -i authzforce-ce-server-dist-11.0.1.deb
 ```
 
 The above installs the Authzforce CE Server into `/opt/authzforce-ce-server`. Please make the `data` directory writable to Tomcat:
 
 ```shell
-$ cd /opt/authzforce-ce-server
-$ sudo chown -R tomcat:tomcat data
+cd /opt/authzforce-ce-server
+sudo chown -R tomcat:tomcat data
 ```
 
 **NOTE:** In case the .deb distribution did not create a default domain, or you have choosen `no`, you need to create a domain yourself. Please execute the following command to create the `default` domain:
 
 ```shell
-$ echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><domainProperties xmlns="http://authzforce.github.io/rest-api-model/xmlns/authz/5" externalId="default"><description>GeoXACML default domain</description></domainProperties>'|curl -X POST -H 'Content-type: application/xml' -d @- http://localhost:8080/authzforce-ce/domains
+echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><domainProperties xmlns="http://authzforce.github.io/rest-api-model/xmlns/authz/5" externalId="default"><description>GeoXACML default domain</description></domainProperties>'|curl -X POST -H 'Content-type: application/xml' -d @- http://localhost:8080/authzforce-ce/domains
 ```
 
 The response contains the domain identifier. Please use this identifier as the default domain.
@@ -51,33 +51,33 @@ Please follow the [instructions](https://github.com/securedimensions/authzforce-
 Simply clone this repository and execute maven to build the JAR.
 
 ```shell
-$ cd /opt
-$ sudo git clone https://github.com/securedimensions/authzforce-ce-geoxacml3
-$ cd authzforce-ce-geoxacml3
-$ sudo mvn install
+cd /opt
+sudo git clone https://github.com/securedimensions/authzforce-ce-geoxacml3
+cd authzforce-ce-geoxacml3
+sudo mvn install
 ```
 
 To make the GeoXACML plugin work, copy the following files:
 
 ```shell
-$ sudo cp target/authzforce-ce-geoxacml3-1.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo cp target/lib/json-simple-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo cp target/lib/jts-core-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo cp target/lib/jts-io-common-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo cp target/lib/jul-to-slf4j-2.0.5.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo cp target/lib/proj4j-1.1.5.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo cp target/lib/freemarker-2.3.32.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo cp target/authzforce-ce-geoxacml3-1.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo cp target/lib/json-simple-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo cp target/lib/jts-core-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo cp target/lib/jts-io-common-*.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo cp target/lib/jul-to-slf4j-2.0.5.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo cp target/lib/proj4j-1.1.5.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo cp target/lib/freemarker-2.3.32.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
 ```
 
 In addition, the following files must be upgraded:
 
 ```shell
-$ sudo cp target/lib/authzforce-ce-core-pdp-engine-20.2.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-engine-20.1.0.jar
-$ sudo cp target/lib/authzforce-ce-core-pdp-io-xacml-json-20.2.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-io-xacml-json-20.1.0.jar
-$ sudo cp target/lib/authzforce-ce-core-pdp-api-21.3.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
-$ sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-api-21.2.0.jar
+sudo cp target/lib/authzforce-ce-core-pdp-engine-20.2.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-engine-20.1.0.jar
+sudo cp target/lib/authzforce-ce-core-pdp-io-xacml-json-20.2.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-io-xacml-json-20.1.0.jar
+sudo cp target/lib/authzforce-ce-core-pdp-api-21.3.0.jar /opt/authzforce-ce-server/webapp/WEB-INF/lib
+sudo rm /opt/authzforce-ce-server/webapp/WEB-INF/lib/authzforce-ce-core-pdp-api-21.2.0.jar
 ```
 
 ## Configuration
@@ -239,8 +239,8 @@ In file `/opt/authzforce-ce-server/webapp/WEB-INF/beans.xml`
 The GeoXACML request and response uses an extended JSON schema. It is therefore required to copy the following files from the `conf` directory into the `/opt/authzforce-ce-server/conf` directory.
 
 ```shell
-$ cd /opt/authzforce-ce-geoxacml3
-$ sudo cp conf/*.json /opt/authzforce-ce-server/conf
+cd /opt/authzforce-ce-geoxacml3
+sudo cp conf/*.json /opt/authzforce-ce-server/conf
 ```
 
 Next, update the `/etc/tomcat9/Catalina/localhost/authzforce-ce.xml` file and update the JSON schema location. Find the environment variable `org.ow2.authzforce.domains.xacmlJsonSchemaRelativePath` and set the value to `Request.schema.json`. The final edit should look like this:
@@ -257,7 +257,7 @@ Next, update the `/etc/tomcat9/Catalina/localhost/authzforce-ce.xml` file and up
 Finally, restart Tomcat:
 
 ```shell
-$ sudo service tomcat9 restart
+sudo service tomcat9 restart
 ```
 
 ## Test
@@ -286,7 +286,7 @@ Please select the `application/geoxacml+xml` media type for input **and** output
 Alternatively, you could also use CURL:
 
 ```shell
-$ echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" xmlns:geoxacml3="http://www.opengis.net/spec/geoxacml/3.0" ReturnPolicyIdList="true" CombinedDecision="false" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17 http://docs.oasis-open.org/xacml/3.0/xacml-core-v3-schema-wd-17.xsd"><Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"><Attribute AttributeId="subject-location" IncludeInResult="false"><AttributeValue geoxacml3:srid="4326" geoxacml3:encoding="WKT" DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry">Point (29.963745015416 -90.029951432619)</AttributeValue></Attribute></Attributes></Request>'|curl -X POST -H 'Content-type: application/geoxacml+xml' -d @- http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp
+echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" xmlns:geoxacml3="http://www.opengis.net/spec/geoxacml/3.0" ReturnPolicyIdList="true" CombinedDecision="false" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17 http://docs.oasis-open.org/xacml/3.0/xacml-core-v3-schema-wd-17.xsd"><Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"><Attribute AttributeId="subject-location" IncludeInResult="false"><AttributeValue geoxacml3:srid="4326" geoxacml3:encoding="WKT" DataType="urn:ogc:def:geoxacml:3.0:data-type:geometry">Point (29.963745015416 -90.029951432619)</AttributeValue></Attribute></Attributes></Request>'|curl -X POST -H 'Content-type: application/geoxacml+xml' -d @- http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp
 ```
 
 Both options should return the following `Permit` response:
@@ -333,7 +333,7 @@ Please select the `application/geoxacml+json` media type for input **and** outpu
 Alternatively, you could also use CURL:
 
 ```shell
-$ echo '{"Request": {"Category": [{"CategoryId": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject","Attribute": [{"AttributeId": "subject-location","DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry","SRID": -4711,"Value": {"type": "Point","coordinates": [11, 47]}}]}]}}'|curl -X POST -H 'Content-type: application/geoxacml+json' -d @- http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp
+echo '{"Request": {"Category": [{"CategoryId": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject","Attribute": [{"AttributeId": "subject-location","DataType": "urn:ogc:def:geoxacml:3.0:data-type:geometry","SRID": -4711,"Value": {"type": "Point","coordinates": [11, 47]}}]}]}}'|curl -X POST -H 'Content-type: application/geoxacml+json' -d @- http://localhost:8080/authzforce-ce/domains/A0bdIbmGEeWhFwcKrC9gSQ/pdp
 ```
 
 Both options should return the following `Permit` response:
