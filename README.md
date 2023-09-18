@@ -240,6 +240,8 @@ The GeoXACML request and response uses an extended JSON schema. It is therefore 
 
 ```shell
 cd /opt/authzforce-ce-geoxacml3
+=======
+/opt/authzforce-ce-geoxacml3
 sudo cp conf/*.json /opt/authzforce-ce-server/conf
 ```
 
