@@ -10,7 +10,7 @@ public class Definitions {
     public static final String GEOMETRYCOLLECTION_ERROR = ERROR_PREFIX + "geometrycollection-error";
     public static final String GEOMETRY_ERROR = ERROR_PREFIX + "geometry-error";
     public static final String CRS_ERROR = ERROR_PREFIX + "crs-error";
-    public static final String NAMESPACE = "http://www.opengis.net/spec/geoxacml/3.0";
+    public static final String NAMESPACE = "http://www.opengis.net/geoxacml/3.0";
     public static final QName xmlENCODING = new QName(NAMESPACE, "encoding");
     public static final QName xmlSRID = new QName(NAMESPACE, "srid");
     public static final QName xmlCRS = new QName(NAMESPACE, "crs");
