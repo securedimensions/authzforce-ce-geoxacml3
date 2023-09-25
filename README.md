@@ -1,7 +1,7 @@
 # GeoXACML 3.0 Policy Decision Point
-This implementation is an open source implementation of the following OGC Draft Standards
-* [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0](docs.ogc.org/DRAFTS/22-049.html)
-* [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0 JSON Profile 1.0](docs.ogc.org/DRAFTS/22-050.html)
+This implementation is an open source implementation of the following approved OGC Standards
+* [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0](https://docs.ogc.org/is/22-049r1/22-049r1.html)
+* [OGC Geospatial eXtensible Access Control Markup Language (GeoXACML) 3.0 JSON Profile 1.0](https://docs.ogc.org/is/22-050r1/22-050r1.html)
 
 This GeoXACML 3.0 implementation is a plugin to the [Authzforce CE](https://github.com/authzforce) software stack and tested with Authzforce CE Server version 11.0.1.
 
